@@ -104,9 +104,9 @@ optional arguments:
 Before using the CLI the following 4 environment variables need to be defined:
 ```
 PROMINENCE_URL
-PROMINENCE_IAM_URL
-PROMINENCE_IAM_CLIENT_ID
-PROMINENCE_IAM_CLIENT_SECRET
+PROMINENCE_OIDC_URL
+PROMINENCE_OIDC_CLIENT_ID
+PROMINENCE_OIDC_CLIENT_SECRET
 ```
 
 ## Authentication
@@ -118,7 +118,7 @@ prominence login
 > output
 
 ```
-To login, use a web browser to open the page https://<PROMINENCE_IAM_URL>/device and enter the code ABCDEF when requested
+To login, use a web browser to open the page https://<PROMINENCE_OIDC_URL>/device and enter the code ABCDEF when requested
 ```
 The instructions here should be followed, i.e. open the specified page in a web browser, login with your username and password, then type in the 6 character code when requested. After you have given approval to PROMINENCE, the following should appear from the CLI:
 ```
