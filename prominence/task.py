@@ -107,7 +107,7 @@ class ProminenceTask(object):
     @type.setter
     def type(self, type):
         """
-        Sets the type of job ('basic' or 'mpi')
+        Sets the type of job ('basic', 'openmpi', 'mpich')
         """
         self._type = type
 

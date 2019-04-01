@@ -21,11 +21,11 @@ def elapsed(job):
     """
     Print elapsed job runtime in a nice way
     """
-    if 'executionStart' in job['events']:
-        if 'completionTime' in job['events']:
-            elapsed_time = job['events']['completionTime'] - job['events']['executionStart']
+    if 'startTime' in job['events']:
+        if 'endTime' in job['events']:
+            elapsed_time = job['events']['endTime'] - job['events']['startTime']
         else:
-            elapsed_time = time.time() - job['events']['executionStart']
+            elapsed_time = time.time() - job['events']['startTime']
         days = int(elapsed_time/86400)
         time_fmt = '%H:%M:%S'
         return '%d+%s' % (days, time.strftime(time_fmt, time.gmtime(elapsed_time)))
@@ -49,7 +49,7 @@ def print_json(content, transform=False, detail=False, resource='job'):
 
 def image_name(name):
     """
-    Extract container image name
+    Extract container image name for display purposes only
     """
     if 'http' in name:
         name = os.path.basename(name)
@@ -108,7 +108,7 @@ def list_jobs(jobs):
             my_cmd = job['tasks'][0]['cmd']
         print('%s   %s   %s   %s   %s   %s   %s' % (str(job['id']).ljust(width_id),
                                                     job['name'].ljust(width_name),
-                                                    datetime_format(job['events']['creationTime']).ljust(width_created),
+                                                    datetime_format(job['events']['createTime']).ljust(width_created),
                                                     job['status'].ljust(width_status),
                                                     elapsed(job).ljust(width_elapsed),
                                                     image_name(job['tasks'][0]['image']).ljust(width_container),
@@ -131,7 +131,7 @@ def list_workflows(workflows):
         width_id_current = len(str(workflow['id']))
         width_name_current = len(workflow['name'])
         width_status_current = len(workflow['status'])
-        width_progress_current = len('%d/%d' % (workflow['progress']['jobsDone'], workflow['progress']['jobsTotal']))
+        width_progress_current = len('%d/%d' % (workflow['progress']['done'], workflow['progress']['total']))
 
         if width_id_current > width_id:
             width_id = width_id_current
@@ -154,10 +154,10 @@ def list_workflows(workflows):
     for workflow in workflows:
         print('%s   %s   %s   %s   %s   %s' % (str(workflow['id']).ljust(width_id),
                                                workflow['name'].ljust(width_name),
-                                               datetime_format(workflow['events']['creationTime']).ljust(width_created),
+                                               datetime_format(workflow['events']['createTime']).ljust(width_created),
                                                workflow['status'].ljust(width_status),
                                                ''.ljust(width_elapsed),
-                                               ('%d/%d' % (workflow['progress']['jobsDone'], workflow['progress']['jobsTotal'])).ljust(width_progress)))
+                                               ('%d/%d' % (workflow['progress']['done'], workflow['progress']['total'])).ljust(width_progress)))
 
 def transform_job(job, detail):
     """
@@ -165,7 +165,8 @@ def transform_job(job, detail):
     """
     job_t = OrderedDict()
     job_t['id'] = job['id']
-    job_t['name'] = job['name']
+    if job['name'] != '' or not detail:
+        job_t['name'] = job['name']
 
     job_t['status'] = job['status']
 
@@ -173,6 +174,8 @@ def transform_job(job, detail):
         job_t['statusReason'] = job['statusReason']
 
     if detail:
+        if 'storage' in job:
+            job_t['storage'] = job['storage']
         job_t['resources'] = job['resources']
         if 'labels' in job:
             job_t['labels'] = job['labels']
@@ -191,22 +194,22 @@ def transform_job(job, detail):
 
     events = OrderedDict()
     if 'events' in job:
-        if 'creationTime' in job['events']:
+        if 'createTime' in job['events']:
             if detail:
-                events['creationTime'] = datetime_format(job['events']['creationTime'])
+                events['createTime'] = datetime_format(job['events']['createTime'])
             else:
-                events['creationTime'] = job['events']['creationTime']
+                events['createTime'] = job['events']['createTime']
 
-    if 'executionStart' in job['events']:
+    if 'startTime' in job['events']:
         if detail:
-            events['executionStart'] = datetime_format(job['events']['executionStart'])
+            events['startTime'] = datetime_format(job['events']['startTime'])
         else:
-            events['executionStart'] = job['events']['executionStart']
-    if 'completionTime' in job['events']:
+            events['startTime'] = job['events']['startTime']
+    if 'endTime' in job['events']:
         if detail:
-            events['completionTime'] = datetime_format(job['events']['completionTime'])
+            events['endTime'] = datetime_format(job['events']['endTime'])
         else:
-            events['completionTime'] = job['events']['completionTime']
+            events['endTime'] = job['events']['endTime']
     job_t['events'] = events
 
     execution = OrderedDict()
@@ -223,7 +226,8 @@ def transform_workflow(workflow, detail):
     """
     workflow_t = OrderedDict()
     workflow_t['id'] = workflow['id']
-    workflow_t['name'] = workflow['name']
+    if workflow['name'] != '' or not detail:
+        workflow_t['name'] = workflow['name']
 
     workflow_t['status'] = workflow['status']
 
@@ -231,28 +235,30 @@ def transform_workflow(workflow, detail):
         workflow_t['statusReason'] = workflow['statusReason']
 
     if detail:
+        if 'storage' in workflow:
+            workflow_t['storage'] = workflow['storage']
         workflow_t['jobs'] = workflow['jobs']
         if 'dependencies' in workflow:
             workflow_t['dependencies'] = workflow['dependencies']
 
     events = OrderedDict()
     if 'events' in workflow:
-        if 'creationTime' in workflow['events']:
+        if 'createTime' in workflow['events']:
             if detail:
-                events['creationTime'] = datetime_format(workflow['events']['creationTime'])
+                events['createTime'] = datetime_format(workflow['events']['createTime'])
             else:
-                events['creationTime'] = workflow['events']['creationTime']
+                events['createTime'] = workflow['events']['createTime']
 
-    if 'executionStart' in workflow['events']:
+    if 'startTime' in workflow['events']:
         if detail:
-            events['executionStart'] = datetime_format(workflow['events']['executionStart'])
+            events['startTime'] = datetime_format(workflow['events']['startTime'])
         else:
-            events['executionStart'] = workflow['events']['executionStart']
-    if 'completionTime' in workflow['events']:
+            events['startTime'] = workflow['events']['startTime']
+    if 'endTime' in workflow['events']:
         if detail:
-            events['completionTime'] = datetime_format(workflow['events']['completionTime'])
+            events['endTime'] = datetime_format(workflow['events']['endTime'])
         else:
-            events['completionTime'] = workflow['events']['completionTime']
+            events['endTime'] = workflow['events']['endTime']
     workflow_t['events'] = events
 
     if 'progress' in workflow:
@@ -272,21 +278,21 @@ def transform_item_list(result, detail, resource):
 
 def command_login(args):
     """
-    Login to IAM
+    Obtain token from OIDC provider
     """
     data = {}
     data['scope'] = 'openid profile email'
-    data['client_id'] = os.environ['PROMINENCE_IAM_CLIENT_ID']
+    data['client_id'] = os.environ['PROMINENCE_OIDC_CLIENT_ID']
 
     try:
-        request = requests.post(os.environ['PROMINENCE_IAM_URL']+'/devicecode',
+        request = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/devicecode',
                                 data=data,
                                 timeout=HTTP_TIMEOUT,
-                                auth=(os.environ['PROMINENCE_IAM_CLIENT_ID'],
-                                      os.environ['PROMINENCE_IAM_CLIENT_SECRET']),
+                                auth=(os.environ['PROMINENCE_OIDC_CLIENT_ID'],
+                                      os.environ['PROMINENCE_OIDC_CLIENT_SECRET']),
                                 allow_redirects=True)
     except requests.exceptions.RequestException:
-        print('Error: Cannot connect to IAM server')
+        print('Error: Cannot connect to OIDC server')
         exit(1)
 
     device_code_response = request.json()
@@ -303,14 +309,14 @@ def command_login(args):
     while time.time() < current_time + int(device_code_response['expires_in']) and not authenticated:
         time.sleep(5)
         try:
-            request = requests.post(os.environ['PROMINENCE_IAM_URL']+'/token',
+            request = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/token',
                                     data=data,
                                     timeout=HTTP_TIMEOUT,
-                                    auth=(os.environ['PROMINENCE_IAM_CLIENT_ID'],
-                                          os.environ['PROMINENCE_IAM_CLIENT_SECRET']),
+                                    auth=(os.environ['PROMINENCE_OIDC_CLIENT_ID'],
+                                          os.environ['PROMINENCE_OIDC_CLIENT_SECRET']),
                                     allow_redirects=True)
         except requests.exceptions.RequestException:
-            print('Error: Cannot connect to IAM server')
+            print('Error: Cannot connect to OIDC server')
             exit(1)
         if request.status_code == 200:
             authenticated = True
@@ -619,11 +625,9 @@ def command_run(args):
         task.type = 'openmpi'
     elif args.mpich:
         task.type = 'mpich'
-    else:
-        task.type = 'basic'
 
     # If multiple nodes are specified need to specify MPI type
-    if job.nodes > 1 and task.type == 'basic':
+    if job.nodes > 1 and task.type != 'openmpi' and task.type != 'mpich':
         print('Error: more than one node has been requested but MPI has not been specified')
         exit(1)
 
@@ -851,16 +855,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Authentication
-    if 'PROMINENCE_IAM_URL' not in os.environ:
-        print('Error: environment variable PROMINENCE_IAM_URL is not set')
+    if 'PROMINENCE_OIDC_URL' not in os.environ:
+        print('Error: environment variable PROMINENCE_OIDC_URL is not set')
         exit(1)
 
-    if 'PROMINENCE_IAM_CLIENT_ID' not in os.environ:
-        print('Error: environment variable PROMINENCE_IAM_CLIENT_ID is not set')
+    if 'PROMINENCE_OIDC_CLIENT_ID' not in os.environ:
+        print('Error: environment variable PROMINENCE_OIDC_CLIENT_ID is not set')
         exit(1)
 
-    if 'PROMINENCE_IAM_CLIENT_SECRET' not in os.environ:
-        print('Error: environment variable PROMINENCE_IAM_CLIENT_SECRET is not set')
+    if 'PROMINENCE_OIDC_CLIENT_SECRET' not in os.environ:
+        print('Error: environment variable PROMINENCE_OIDC_CLIENT_SECRET is not set')
         exit(1)
 
     # Get existing token if possible when necessary
