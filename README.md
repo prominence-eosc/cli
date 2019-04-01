@@ -92,14 +92,15 @@ prominence describe --help
 > output
 
 ```
-usage: prominence describe [-h] [--completed] id
+usage: prominence describe [-h] [--completed] [{job,workflow}] id
 
 positional arguments:
-  id           Job id
+  {job,workflow}  Resource type
+  id              Job id
 
 optional arguments:
-  -h, --help   show this help message and exit
-  --completed  Describe job in the completed state
+  -h, --help      show this help message and exit
+  --completed     Describe a job or workflow in the completed state
 ```
 
 ## Prerequisites
