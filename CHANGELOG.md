@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.1.1
+
+* Handle changes in naming of job timing events
+* Replace "IAM" with "OIDC" in environment variables
+
 ## 0.1.0
 
 * The argument `--version` has been added
