@@ -1,9 +1,13 @@
+import re
 import setuptools
-from prominence import __version__
+
+with open('prominence/__init__.py', 'r') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+fd.read(), re.MULTILINE).group(1)
 
 setuptools.setup(
     name="prominence",
-    version=__version__,
+    version=version,
     author="Andrew Lahiff",
     author_email="andrew.lahiff@ukaea.uk",
     description="PROMINENCE CLI for managing batch jobs running across clouds",
