@@ -2,8 +2,10 @@ import re
 import setuptools
 
 with open('prominence/__init__.py', 'r') as fd:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-fd.read(), re.MULTILINE).group(1)
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', fd.read(), re.MULTILINE).group(1)
+
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setuptools.setup(
     name="prominence",
@@ -11,7 +13,9 @@ setuptools.setup(
     author="Andrew Lahiff",
     author_email="andrew.lahiff@ukaea.uk",
     description="PROMINENCE CLI for managing batch jobs running across clouds",
-    url="https://alahiff.github.io/prominence/",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://prominence-eosc.github.io/docs",
     platforms=["any"],
     install_requires=["requests"],
     package_dir={'': '.'},

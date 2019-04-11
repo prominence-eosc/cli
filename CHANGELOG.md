@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.1.3
+
+* Add an option to specify B2DROP or OneData storage credentials
+* Changed `create` to `run` and vice-versa
+
+## 0.1.2
+
+* Bug fix to handling of version in setup.py which prevented requests module from being imported
+
 ## 0.1.1
 
 * Handle changes in naming of job timing events
