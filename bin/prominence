@@ -557,7 +557,7 @@ def command_stderr(args):
     print(response.data)
     exit(0)
 
-def command_create(args):
+def command_run(args):
     """
     Create a job from a JSON file
     """
@@ -589,9 +589,9 @@ def command_create(args):
 
     exit(1)
 
-def command_run(args):
+def command_create(args):
     """
-    Run a job
+    Create a job
     """
     job = ProminenceJob()
     task = ProminenceTask()
@@ -685,6 +685,21 @@ def command_run(args):
     if args.constraints:
         job.constraints = json.loads(args.constraints)
 
+    # Storage
+    if args.storage:
+        try:
+            with open(args.storage) as json_file:
+                storage = '{%s}' % json_file.read()
+        except IOError as err:
+            print('Error: %s' % err)
+            exit(1)
+        except ValueError as err:
+            print('Error: %s' % err)
+            exit(1)
+        storage = json.loads(storage)
+        if 'storage' in storage:
+            job.storage = storage['storage']
+
     # Preemptible
     if args.preemptible:
         job.preemptible = args.preemptible
@@ -717,70 +732,72 @@ if __name__ == "__main__":
     parser_login = subparsers.add_parser('login', help='Login')
     parser_login.set_defaults(func=command_login)
 
-    # Create the parser for the "create" command
-    parser_create = subparsers.add_parser('create', help='Create a job or workflow from a JSON file')
-    parser_create.add_argument('file', help='JSON file')
-    parser_create.set_defaults(func=command_create)
-
     # Create the parser for the "run" command
-    parser_run = subparsers.add_parser('run', help='Run a job')
-    parser_run.add_argument('--name', dest='name', default='',
-                            help='Job name.')
-    parser_run.add_argument('--memory', dest='memory', default=1, type=int,
-                            help='Memory in GB per node.')
-    parser_run.add_argument('--cpus', dest='cpus', default=1, type=int,
-                            help='Cores per node.')
-    parser_run.add_argument('--nodes', dest='nodes', default=1, type=int,
-                            help='Number of nodes.')
-    parser_run.add_argument('--disk', dest='disk', default=10, type=int,
-                            help='Size of disk containing the job\'s scratch directory. For \
-                                  multi-node jobs it will be shared across each of the nodes. \
-                                  By default a 10 GB disk will be used.')
-    parser_run.add_argument('--walltime', dest='walltime', type=int,
-                            help='Walltime limit in minutes. If the job is still running after \
-                                  this time it will be killed.')
-    parser_run.add_argument('--openmpi', dest='openmpi', default=False, action='store_true',
-                            help="Specify that this is an OpenMPI job.")
-    parser_run.add_argument('--mpich', dest='mpich', default=False, action='store_true',
-                            help="Specify that this is an MPICH job.")
-    parser_run.add_argument('--artifact', dest='artifact', action='append',
-                            help='A URL to be transferred to the job. Archives will be \
-                                  automatically unpacked/extracted. \
-                                  This option can be specified multiple times.')
-    parser_run.add_argument('--input', dest='inputfile', action='append',
-                            help='Full path to a file on the current host to be \
-                                  uploaded and made available to the job. This option \
-                                  can be specified multiple times to set multiple output files.')
-    parser_run.add_argument('--output', dest="outputfile", action='append',
-                            help='An output file to be copied to transient storage. This option \
-                                  can be specified multiple times to set multiple output files.')
-    parser_run.add_argument('--outputdir', dest="outputdir", action='append',
-                            help='A directory to be copied to transient storage. This option \
-                                  can be specified multiple times to set multiple directories.')
-    parser_run.add_argument('--workdir', dest='workdir',
-                            help='Set the current working directory.')
-    parser_run.add_argument('--env', dest='env', action='append',
-                            help='Specify environment variables in the form name=value. \
-                                  This option can be specified multiple times to set \
-                                  multiple environment variables.')
-    parser_run.add_argument('--label', dest='label', action='append',
-                            help='Set metadata in the form key=value. This option can \
-                                  be specified multiple times to set multiple labels.')
-    parser_run.add_argument('--runtime', dest='runtime',
-                            choices=['singularity', 'udocker'],
-                            help='Container runtime, either singularity or udocker. The default \
-                                  is singularity.')
-    parser_run.add_argument('--preemptible', dest='preemptible', default=False, action='store_true',
-                            help='Specify that this job is preemptible')
-    parser_run.add_argument('--constraints', dest='constraints',
-                            help='Specify constraints')
-    parser_run.add_argument('--dry-run', dest='dryrun', default=False, action='store_true',
-                            help='Print json to stdout but do not actually create job.')
-    parser_run.add_argument('image', help='Container image')
-    parser_run.add_argument('command', nargs='?',
-                            help='Command to run in the container. If you need to specify \
-                                  arguments, put the combined command and arguments inside quotes.')
+    parser_run = subparsers.add_parser('run', help='Create a job or workflow from a JSON file')
+    parser_run.add_argument('file', help='JSON file')
     parser_run.set_defaults(func=command_run)
+
+    # Create the parser for the "create" command
+    parser_create = subparsers.add_parser('create', help='Create a job')
+    parser_create.add_argument('--name', dest='name', default='',
+                               help='Job name.')
+    parser_create.add_argument('--memory', dest='memory', default=1, type=int,
+                               help='Memory in GB per node.')
+    parser_create.add_argument('--cpus', dest='cpus', default=1, type=int,
+                               help='Cores per node.')
+    parser_create.add_argument('--nodes', dest='nodes', default=1, type=int,
+                               help='Number of nodes.')
+    parser_create.add_argument('--disk', dest='disk', default=10, type=int,
+                                  help='Size of disk containing the job\'s scratch directory. For \
+                                        multi-node jobs it will be shared across each of the nodes. \
+                                        By default a 10 GB disk will be used.')
+    parser_create.add_argument('--walltime', dest='walltime', type=int,
+                               help='Walltime limit in minutes. If the job is still running after \
+                                     this time it will be killed.')
+    parser_create.add_argument('--openmpi', dest='openmpi', default=False, action='store_true',
+                                help="Specify that this is an OpenMPI job.")
+    parser_create.add_argument('--mpich', dest='mpich', default=False, action='store_true',
+                               help="Specify that this is an MPICH job.")
+    parser_create.add_argument('--artifact', dest='artifact', action='append',
+                               help='A URL to be transferred to the job. Archives will be \
+                                     automatically unpacked/extracted. \
+                                     This option can be specified multiple times.')
+    parser_create.add_argument('--input', dest='inputfile', action='append',
+                               help='Full path to a file on the current host to be \
+                                     uploaded and made available to the job. This option \
+                                     can be specified multiple times to set multiple output files.')
+    parser_create.add_argument('--output', dest="outputfile", action='append',
+                               help='An output file to be copied to transient storage. This option \
+                                     can be specified multiple times to set multiple output files.')
+    parser_create.add_argument('--outputdir', dest="outputdir", action='append',
+                               help='A directory to be copied to transient storage. This option \
+                                     can be specified multiple times to set multiple directories.')
+    parser_create.add_argument('--workdir', dest='workdir',
+                               help='Set the current working directory.')
+    parser_create.add_argument('--env', dest='env', action='append',
+                               help='Specify environment variables in the form name=value. \
+                                     This option can be specified multiple times to set \
+                                     multiple environment variables.')
+    parser_create.add_argument('--label', dest='label', action='append',
+                               help='Set metadata in the form key=value. This option can \
+                                     be specified multiple times to set multiple labels.')
+    parser_create.add_argument('--runtime', dest='runtime',
+                               choices=['singularity', 'udocker'],
+                               help='Container runtime, either singularity or udocker. The default \
+                                     is singularity.')
+    parser_create.add_argument('--preemptible', dest='preemptible', default=False, action='store_true',
+                               help='Specify that this job is preemptible')
+    parser_create.add_argument('--constraints', dest='constraints',
+                               help='Specify constraints')
+    parser_create.add_argument('--storage', dest='storage',
+                               help='Filename specifying storage details')
+    parser_create.add_argument('--dry-run', dest='dryrun', default=False, action='store_true',
+                               help='Print json to stdout but do not actually create job.')
+    parser_create.add_argument('image', help='Container image')
+    parser_create.add_argument('command', nargs='?',
+                               help='Command to run in the container. If you need to specify \
+                                     arguments, put the combined command and arguments inside quotes.')
+    parser_create.set_defaults(func=command_create)
 
     # Create the parser for the "list" command
     parser_list = subparsers.add_parser('list', help='List jobs or workflows')

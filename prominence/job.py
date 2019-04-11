@@ -17,7 +17,8 @@ class ProminenceJob(object):
              'preemptible':None,
              'labels':None,
              'name':None,
-             'constraints':None}
+             'constraints':None,
+             'storage':None}
 
     # The key is the attribute name and the value is the JSON key
     attr_map = {'artifacts':'artifacts',
@@ -33,9 +34,10 @@ class ProminenceJob(object):
                 'preemptible':'preemptible',
                 'labels':'labels',
                 'name':'name',
-                'constraints':'constraints'}
+                'constraints':'constraints',
+                'storage':'storage'}
 
-    def __init__(self, artifacts=None, inputs=None, output_files=None, output_dirs=None, nodes=None, cpus=None, memory=None, disk=None, walltime=None, tasks=None, preemptible=None, labels=None, name=None, constraints=None):
+    def __init__(self, artifacts=None, inputs=None, output_files=None, output_dirs=None, nodes=None, cpus=None, memory=None, disk=None, walltime=None, tasks=None, preemptible=None, labels=None, name=None, constraints=None, storage=None):
         self._artifacts = artifacts
         self._inputs = inputs
         self._output_files = output_files
@@ -50,6 +52,7 @@ class ProminenceJob(object):
         self._labels = labels
         self._name = name
         self._constraints = constraints
+        self._storage = storage
 
     @property
     def artifacts(self):
@@ -106,6 +109,20 @@ class ProminenceJob(object):
         Sets the list of output directories to be uploaded to cloud storage
         """
         self._output_dirs = output_dirs
+
+    @property
+    def storage(self):
+        """
+        Returns the storage details
+        """
+        return self._storage
+
+    @storage.setter
+    def storage(self, storage):
+        """
+        Sets the storage details
+        """
+        self._storage = storage
 
     @property
     def nodes(self):
