@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.4
+
+* Added an optional argument `--procs-per-node` for MPI jobs to specify the number of processes to run per node.
+
 ## 0.1.3
 
 * Add an option to specify B2DROP or OneData storage credentials
