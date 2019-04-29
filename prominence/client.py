@@ -199,7 +199,7 @@ class ProminenceClient(object):
         """
         Get standard output from a job
         """
-        return self.stdout_generic('jobs', job_id, '0')
+        return self.stdout_generic('jobs', job_id)
 
     def stdout_workflow(self, job_id, job):
         """
@@ -207,12 +207,17 @@ class ProminenceClient(object):
         """
         return self.stdout_generic('workflows', job_id, job)
 
-    def stdout_generic(self, type, id, job):
+    def stdout_generic(self, type, id, job=None):
         """
         Get standard output from a job or workflow
         """
+        if job is not None:
+            path = '/%s/%d/%s/stdout' % (type, id, job)
+        else:
+            path = '/%s/%d/stdout' % (type, id)
+
         try:
-            response = requests.get(self._url + '/%s/%d/%s/stdout' % (type, id, job), timeout=self._timeout, headers=self._headers)
+            response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers)
         except requests.exceptions.RequestException:
             return self.Response(return_code=1, data={'error': 'cannot connect to PROMINENCE server'})
 
@@ -227,7 +232,7 @@ class ProminenceClient(object):
         """
         Get standard error from a job
         """
-        return self.stderr_generic('jobs', job_id, '0')
+        return self.stderr_generic('jobs', job_id)
 
     def stderr_workflow(self, job_id, job):
         """
@@ -235,12 +240,17 @@ class ProminenceClient(object):
         """
         return self.stderr_generic('workflows', job_id, job)
 
-    def stderr_generic(self, type, id, job):
+    def stderr_generic(self, type, id, job=None):
         """
         Get standard error from a job
         """
+        if job is not None:
+            path = '/%s/%d/%s/stderr' % (type, id, job)
+        else:
+            path = '/%s/%d/stderr' % (type, id)
+
         try:
-            response = requests.get(self._url + '/%s/%d/%s/stderr' % (type, id, job), timeout=self._timeout, headers=self._headers)
+            response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers)
         except requests.exceptions.RequestException:
             return self.Response(return_code=1, data={'error': 'cannot connect to PROMINENCE server'})
 
