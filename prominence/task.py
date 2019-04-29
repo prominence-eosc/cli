@@ -9,7 +9,8 @@ class ProminenceTask(object):
              'runtime',
              'env',
              'workdir',
-             'type']
+             'type',
+             'procs_per_node']
 
     # The key is the attribute name and the value is the JSON key
     attr_map = {'image':'image',
@@ -17,15 +18,17 @@ class ProminenceTask(object):
                 'runtime':'runtime',
                 'env':'env',
                 'workdir':'workdir',
-                'type':'type'}
+                'type':'type',
+                'procs_per_node':'procsPerNode'}
 
-    def __init__(self, image=None, cmd=None, runtime=None, env=None, workdir=None, type=None):
+    def __init__(self, image=None, cmd=None, runtime=None, env=None, workdir=None, type=None, procs_per_node=None):
         self._image = image
         self._cmd = cmd
         self._runtime = runtime
         self._workdir = workdir
         self._env = env
         self._type = type
+        self._procs_per_node = procs_per_node
 
     @property
     def image(self):
@@ -110,6 +113,20 @@ class ProminenceTask(object):
         Sets the type of job ('basic', 'openmpi', 'mpich')
         """
         self._type = type
+
+    @property
+    def procs_per_node(self):
+        """
+        Returns the MPI processes per node
+        """
+        return self._procs_per_node
+
+    @procs_per_node.setter
+    def procs_per_node(self, procs_per_node):
+        """
+        Sets the MPI processes per node
+        """
+        self._procs_per_node = procs_per_node
 
     def to_json(self):
         """

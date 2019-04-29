@@ -285,17 +285,21 @@ def command_login(args):
     data['client_id'] = os.environ['PROMINENCE_OIDC_CLIENT_ID']
 
     try:
-        request = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/devicecode',
-                                data=data,
-                                timeout=HTTP_TIMEOUT,
-                                auth=(os.environ['PROMINENCE_OIDC_CLIENT_ID'],
-                                      os.environ['PROMINENCE_OIDC_CLIENT_SECRET']),
-                                allow_redirects=True)
+        response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/devicecode',
+                                 data=data,
+                                 timeout=HTTP_TIMEOUT,
+                                 auth=(os.environ['PROMINENCE_OIDC_CLIENT_ID'],
+                                       os.environ['PROMINENCE_OIDC_CLIENT_SECRET']),
+                                 allow_redirects=True)
     except requests.exceptions.RequestException:
         print('Error: Cannot connect to OIDC server')
         exit(1)
 
-    device_code_response = request.json()
+    if response.status_code == 401:
+        print('Error: Please check the CLIENT_ID and CLIENT_SECRET')
+        exit(1)
+
+    device_code_response = response.json()
 
     print('To login, use a web browser to open the page %s and enter the code %s when requested' % (device_code_response['verification_uri'], device_code_response['user_code']))
 
@@ -309,19 +313,19 @@ def command_login(args):
     while time.time() < current_time + int(device_code_response['expires_in']) and not authenticated:
         time.sleep(5)
         try:
-            request = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/token',
-                                    data=data,
-                                    timeout=HTTP_TIMEOUT,
-                                    auth=(os.environ['PROMINENCE_OIDC_CLIENT_ID'],
-                                          os.environ['PROMINENCE_OIDC_CLIENT_SECRET']),
-                                    allow_redirects=True)
+            response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/token',
+                                     data=data,
+                                     timeout=HTTP_TIMEOUT,
+                                     auth=(os.environ['PROMINENCE_OIDC_CLIENT_ID'],
+                                           os.environ['PROMINENCE_OIDC_CLIENT_SECRET']),
+                                     allow_redirects=True)
         except requests.exceptions.RequestException:
             print('Error: Cannot connect to OIDC server')
             exit(1)
-        if request.status_code == 200:
+        if response.status_code == 200:
             authenticated = True
             with open(os.path.expanduser('~/.prominence'), 'w') as token_file:
-                json.dump(request.json(), token_file)
+                json.dump(response.json(), token_file)
             os.chmod(os.path.expanduser('~/.prominence'), 384)
             print('Authentication successful')
             exit(0)
@@ -603,6 +607,13 @@ def command_create(args):
     job.disk = args.disk
     job.name = args.name
 
+    # MPI processes per node
+    if args.openmpi or args.mpich:
+        if args.ppn == 0:
+            task.procs_per_node = job.cpus
+        else:
+            task.procs_per_node = args.ppn
+
     # Working directory
     if args.workdir:
         task.workdir = args.workdir
@@ -747,15 +758,19 @@ if __name__ == "__main__":
                                help='Cores per node.')
     parser_create.add_argument('--nodes', dest='nodes', default=1, type=int,
                                help='Number of nodes.')
+    parser_create.add_argument('--procs-per-node', dest='ppn', default=0, type=int,
+                               help='Number of MPI processes to launch per node. By default this \
+                                     will be the number of CPU cores requested per node but it can \
+                                     be changed if necessary.')
     parser_create.add_argument('--disk', dest='disk', default=10, type=int,
-                                  help='Size of disk containing the job\'s scratch directory. For \
-                                        multi-node jobs it will be shared across each of the nodes. \
-                                        By default a 10 GB disk will be used.')
+                               help='Size of disk containing the job\'s scratch directory. For \
+                                     multi-node jobs it will be shared across each of the nodes. \
+                                     By default a 10 GB disk will be used.')
     parser_create.add_argument('--walltime', dest='walltime', type=int,
                                help='Walltime limit in minutes. If the job is still running after \
                                      this time it will be killed.')
     parser_create.add_argument('--openmpi', dest='openmpi', default=False, action='store_true',
-                                help="Specify that this is an OpenMPI job.")
+                               help="Specify that this is an OpenMPI job.")
     parser_create.add_argument('--mpich', dest='mpich', default=False, action='store_true',
                                help="Specify that this is an MPICH job.")
     parser_create.add_argument('--artifact', dest='artifact', action='append',
