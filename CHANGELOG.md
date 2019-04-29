@@ -4,6 +4,7 @@
 
 * Added an option `--procs-per-node` for MPI jobs to specify the number of processes to run per node
 * Handle minor change in API for retrieving standard output and error from jobs
+* Handle an error in the client id or secret client id resulting in the first step of the device flow failing
 
 ## 0.1.3
 
