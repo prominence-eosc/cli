@@ -12,3 +12,5 @@ virtualenv ~/.virtualenvs/prominence
 source ~/.virtualenvs/prominence/bin/activate
 pip install prominence
 ```
+
+See https://prominence-eosc.github.io/docs/ for more information.
