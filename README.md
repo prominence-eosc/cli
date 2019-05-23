@@ -1,8 +1,6 @@
 # PROMINENCE Command Line Interface
 
-.. image:: https://img.shields.io/pypi/v/prominence.svg?style=flat
-    :target: https://pypi.python.org/pypi/prominence/
-    :alt: Latest PyPI version
+[![PyPI version shields.io](https://img.shields.io/pypi/v/prominence.svg)](https://pypi.python.org/pypi/ansicolortags/)
 
 The PROMINENCE CLI presents a simple batch-system style interface to PROMINENCE. It is written in Python and works with both Python 2.x and 3.x. It can be installed by typing the following:
 ```
