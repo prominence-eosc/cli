@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.1.5
+
+* Added a `register` command to register as an OIDC client
+* Added a *mountpoint* option to artifacts so that a tarball can be made available inside a container at a specific mount point
+
 ## 0.1.4
 
 * Added an option `--procs-per-node` for MPI jobs to specify the number of processes to run per node
