@@ -10,6 +10,7 @@ import os
 import re
 import sys
 import time
+import uuid
 import requests
 
 from prominence import ProminenceJob
@@ -276,27 +277,80 @@ def transform_item_list(result, detail, resource):
         items = [transform_workflow(workflow, detail) for workflow in result]
     return sorted(items, key=lambda k: int(k['id']))
 
+def command_register(args):
+    """
+    Obtain a client id and secret from the OIDC provider
+    """
+    data = {}
+    data['redirect_uris'] = ['%s/redirect_url' % URL]
+    data['client_name'] = 'prominence-user-%s' % str(uuid.uuid4())
+    data['token_endpoint_auth_method'] =  'client_secret_basic'
+    data['scope'] = 'openid profile email'
+    data['grant_types'] = ['urn:ietf:params:oauth:grant-type:device_code']
+    data['response_types'] = ['code']
+
+    if os.path.isfile(os.path.expanduser('~/.prominence/client')):
+        print('Configuration already exists, exiting without changes')
+        exit(0)
+
+    # Create .prominence directory if necessary
+    try:
+        os.mkdir(os.path.expanduser('~/.prominence'))
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            print('Error: Unable to create ~/.prominence directory')
+            exit(1)
+        else:
+            pass
+
+    # Create OIDC client
+    try:
+        response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/register',
+                                 json=data,
+                                 timeout=HTTP_TIMEOUT,
+                                 allow_redirects=True)
+    except requests.exceptions.RequestException:
+        print('Error: Cannot connect to OIDC server')
+        exit(1)
+
+    if response.status_code == 201:
+        # Write file containing client info
+        try:
+            with open(os.path.expanduser('~/.prominence/client'), 'w') as client_file:
+                json.dump(response.json(), client_file)
+            os.chmod(os.path.expanduser('~/.prominence/client'), 384)
+        except OSError as exc:
+            print('Error: Unable to write ~/.prominence/client file due to', exc)
+            exit(1)
+
+        print('Client registration successful')
+        exit(0)
+    
+    print('Error: Client registration failed with status code %d' % response.status_code)
+    exit(1)
+
 def command_login(args):
     """
     Obtain token from OIDC provider
     """
+    (client_id, client_secret) = get_client()
+
     data = {}
     data['scope'] = 'openid profile email'
-    data['client_id'] = os.environ['PROMINENCE_OIDC_CLIENT_ID']
+    data['client_id'] = client_id
 
     try:
         response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/devicecode',
                                  data=data,
                                  timeout=HTTP_TIMEOUT,
-                                 auth=(os.environ['PROMINENCE_OIDC_CLIENT_ID'],
-                                       os.environ['PROMINENCE_OIDC_CLIENT_SECRET']),
+                                 auth=(client_id, client_secret),
                                  allow_redirects=True)
     except requests.exceptions.RequestException:
         print('Error: Cannot connect to OIDC server')
         exit(1)
 
     if response.status_code == 401:
-        print('Error: Please check the CLIENT_ID and CLIENT_SECRET')
+        print('Error: There is an issue with the client credentials, please run "rm ~/.prominence/client && prominence register"')
         exit(1)
 
     device_code_response = response.json()
@@ -316,17 +370,20 @@ def command_login(args):
             response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/token',
                                      data=data,
                                      timeout=HTTP_TIMEOUT,
-                                     auth=(os.environ['PROMINENCE_OIDC_CLIENT_ID'],
-                                           os.environ['PROMINENCE_OIDC_CLIENT_SECRET']),
+                                     auth=(client_id, client_secret),
                                      allow_redirects=True)
         except requests.exceptions.RequestException:
-            print('Error: Cannot connect to OIDC server')
-            exit(1)
+            continue
+
         if response.status_code == 200:
             authenticated = True
-            with open(os.path.expanduser('~/.prominence'), 'w') as token_file:
-                json.dump(response.json(), token_file)
-            os.chmod(os.path.expanduser('~/.prominence'), 384)
+            try:
+                with open(os.path.expanduser('~/.prominence/token'), 'w') as token_file:
+                    json.dump(response.json(), token_file)
+                os.chmod(os.path.expanduser('~/.prominence/token'), 384)
+            except OSError as exc:
+                print('Error: Unable to write ~/.prominence/token file due to', exc)
+                exit(1)
             print('Authentication successful')
             exit(0)
 
@@ -344,13 +401,36 @@ def command_login(args):
         print('Error: %s' % err)
         exit(1)
 
+def get_client():
+    """
+    Load saved OIDC client details
+    """
+    if os.path.isfile(os.path.expanduser('~/.prominence/client')):
+        try:
+            with open(os.path.expanduser('~/.prominence/client')) as json_data:
+                data = json.load(json_data)
+        except IOError as err:
+            print('Error: %s' % err)
+            exit(1)
+        except ValueError as err:
+            print('Error: %s' % err)
+            exit(1)
+
+        if 'client_id' in data and 'client_secret' in data:
+            return (data['client_id'], data['client_secret'])
+
+        print('Error: the saved OIDC client file is invalid')
+    else:
+        print('Error: please run "prominence register"')
+    exit(1)
+
 def get_token():
     """
     Load saved token
     """
-    if os.path.isfile(os.path.expanduser('~/.prominence')):
+    if os.path.isfile(os.path.expanduser('~/.prominence/token')):
         try:
-            with open(os.path.expanduser('~/.prominence')) as json_data:
+            with open(os.path.expanduser('~/.prominence/token')) as json_data:
                 data = json.load(json_data)
         except IOError as err:
             print('Error: %s' % err)
@@ -656,7 +736,14 @@ def command_create(args):
 
     # Files to be fetched
     if args.artifact:
-        job.artifacts = args.artifact
+        job.artifacts = []
+        for file in args.artifact:
+            artifact = {}
+            artifact['url'] = file
+            if ':' in file:
+                artifact['url'] = file.split(':')[0]
+                artifact['mountPoint'] = '%s:%s' % (file.split(':')[1], file.split(':')[2])
+            job.artifacts.append(artifact)
 
     # Files to be uploaded
     if args.inputfile:
@@ -738,9 +825,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Prominence - \
                                      run jobs in containers across clouds')
     subparsers = parser.add_subparsers(help='sub-command help')
+    
+    # Create the parser for the "register" command
+    parser_register = subparsers.add_parser('register', help='Register as a client with the OIDC server')
+    parser_register.set_defaults(func=command_register)
 
     # Create the parser for the "login" command
-    parser_login = subparsers.add_parser('login', help='Login')
+    parser_login = subparsers.add_parser('login', help='Get a token from the OIDC server')
     parser_login.set_defaults(func=command_login)
 
     # Create the parser for the "run" command
@@ -891,16 +982,8 @@ if __name__ == "__main__":
         print('Error: environment variable PROMINENCE_OIDC_URL is not set')
         exit(1)
 
-    if 'PROMINENCE_OIDC_CLIENT_ID' not in os.environ:
-        print('Error: environment variable PROMINENCE_OIDC_CLIENT_ID is not set')
-        exit(1)
-
-    if 'PROMINENCE_OIDC_CLIENT_SECRET' not in os.environ:
-        print('Error: environment variable PROMINENCE_OIDC_CLIENT_SECRET is not set')
-        exit(1)
-
     # Get existing token if possible when necessary
-    if sys.argv[1] != 'login':
+    if sys.argv[1] != 'login' and sys.argv[1] != 'register':
         token = get_token()
         if token:
             HEADERS = {"Authorization":"Bearer %s" % token}
