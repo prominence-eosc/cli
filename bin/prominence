@@ -742,7 +742,7 @@ def command_create(args):
             artifact['url'] = file
             if ':' in file:
                 artifact['url'] = file.split(':')[0]
-                artifact['mountPoint'] = '%s:%s' % (file.split(':')[1], file.split(':')[2])
+                artifact['mountpoint'] = '%s:%s' % (file.split(':')[1], file.split(':')[2])
             job.artifacts.append(artifact)
 
     # Files to be uploaded
