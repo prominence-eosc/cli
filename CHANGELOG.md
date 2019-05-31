@@ -4,6 +4,7 @@
 
 * Added a `register` command to register as an OIDC client
 * Added a *mountpoint* option to artifacts so that a tarball can be made available inside a container at a specific mount point
+* (bug fix) HTTP timeout for interactions with the PROMINENCE REST API now set correctly
 
 ## 0.1.4
 
@@ -18,7 +19,7 @@
 
 ## 0.1.2
 
-* Bug fix to handling of version in setup.py which prevented requests module from being imported
+* (bug fix) Handling of version in setup.py which prevented requests module from being imported now corrected
 
 ## 0.1.1
 
