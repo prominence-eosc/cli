@@ -10,9 +10,9 @@ class ProminenceClient(object):
     # Named tuple containing a return code & data object
     Response = namedtuple("Response", ["return_code", "data"])
 
-    def __init__(self, url=None, token=None):
+    def __init__(self, url=None, token=None, timeout=None):
         self._url = url
-        self._timeout = 10
+        self._timeout = timeout
         self._headers = {"Authorization":"Bearer %s" % token}
 
     def list_jobs(self, completed, all, num, constraint):
