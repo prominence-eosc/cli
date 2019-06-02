@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.6
+
+* The JSON job definition for `prominence run` can now be either a URL or file
+
 ## 0.1.5 
 
 * Added a `register` command to register as an OIDC client
