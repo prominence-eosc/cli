@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
 import errno
 import json
@@ -49,8 +47,11 @@ def authenticate_user(create_client_if_needed=True):
     """
     Obtain token from OIDC provider
     """
-    # Firstly, get or create the client_id and client_secret
-    (client_id, client_secret) = get_client()
+    try:
+        (client_id, client_secret) = get_client()
+    except exceptions.ClientCredentialsError:
+        client_id = None
+
     if not client_id:
         if create_client_if_needed:
             if register_client():
@@ -136,4 +137,3 @@ def get_token():
         else:
             raise exceptions.TokenError('The saved token file does not contain access_token')
     raise exceptions.TokenError('The file ~/.prominence/token does not exist')
-
