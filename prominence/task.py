@@ -21,7 +21,7 @@ class ProminenceTask(object):
                 'type':'type',
                 'procs_per_node':'procsPerNode'}
 
-    def __init__(self, image=None, cmd=None, runtime=None, env=None, workdir=None, type=None, procs_per_node=None):
+    def __init__(self, image=None, cmd=None, runtime=None, env={}, workdir=None, type=None, procs_per_node=None):
         self._image = image
         self._cmd = cmd
         self._runtime = runtime
@@ -100,6 +100,12 @@ class ProminenceTask(object):
         """
         self._env = env
 
+    def add_env(self, key, value):
+        """
+        Add an environment variable
+        """
+        self._env[key] = value
+
     @property
     def type(self):
         """
@@ -135,7 +141,7 @@ class ProminenceTask(object):
         data = {}
         for attr in self.attrs:
             value = getattr(self, attr, None)
-            if value is not None:
+            if value:
                 data[self.attr_map[attr]] = value
         return data
 

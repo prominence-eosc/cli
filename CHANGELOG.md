@@ -3,6 +3,9 @@
 ## 0.1.6
 
 * The JSON job definition for `prominence run` can now be either a URL or file
+* Changes to error handling throughout code
+* Improvements to ProminenceTask and ProminenceJob classes
+* `--num` renamed as `--last`
 
 ## 0.1.5 
 

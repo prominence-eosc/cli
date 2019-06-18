@@ -37,7 +37,7 @@ class ProminenceJob(object):
                 'constraints':'constraints',
                 'storage':'storage'}
 
-    def __init__(self, artifacts=None, inputs=None, output_files=None, output_dirs=None, nodes=None, cpus=None, memory=None, disk=None, walltime=None, tasks=None, preemptible=None, labels=None, name=None, constraints=None, storage=None):
+    def __init__(self, artifacts=[], inputs=[], output_files=[], output_dirs=[], nodes=None, cpus=None, memory=None, disk=None, walltime=None, tasks=[], preemptible=None, labels={}, name=None, constraints=None, storage=None):
         self._artifacts = artifacts
         self._inputs = inputs
         self._output_files = output_files
@@ -68,6 +68,12 @@ class ProminenceJob(object):
         """
         self._artifacts = artifacts
 
+    def add_artifact(self, artifact):
+        """
+        Adds an artifact
+        """
+        self._artifacts.append(artifact)
+
     @property
     def inputs(self):
         """
@@ -96,6 +102,12 @@ class ProminenceJob(object):
         """
         self._output_files = output_files
 
+    def add_output_file(self, output_file):
+        """
+        Adds an output file
+        """
+        self._output_files.append(output_file)
+
     @property
     def output_dirs(self):
         """
@@ -109,6 +121,12 @@ class ProminenceJob(object):
         Sets the list of output directories to be uploaded to cloud storage
         """
         self._output_dirs = output_dirs
+
+    def add_output_dir(self, output_dir):
+        """
+        Adds an output directory
+        """
+        self._output_dirs.append(output_dir)
 
     @property
     def storage(self):
@@ -197,16 +215,22 @@ class ProminenceJob(object):
     @property
     def tasks(self):
         """
-        Gets the tasks
+        Gets the list of tasks
         """
         return self._tasks
 
     @tasks.setter
     def tasks(self, tasks):
         """
-        Sets the tasks
+        Sets the full list of tasks
         """
         self._tasks = tasks
+
+    def add_task(self, task):
+        """
+        Appends a task
+        """
+        self._tasks.append(task)
 
     @property
     def preemptible(self):
@@ -235,6 +259,18 @@ class ProminenceJob(object):
         Sets the list of labels
         """
         self._labels = labels
+
+    def add_label(self, key, value):
+        """
+        Adds a label
+        """
+        self._labels[key] = value
+
+    def add_output_file(self, output_file):
+        """
+        Adds an output file
+        """
+        self._output_files.append(output_file)
 
     @property
     def name(self):
@@ -271,8 +307,8 @@ class ProminenceJob(object):
         data = {}
         for attr in self.attrs:
             value = getattr(self, attr, None)
-            if value is not None:
-                if self.attrs[attr] is not None:
+            if value:
+                if self.attrs[attr]:
                     if self.attrs[attr] not in data:
                         data[self.attrs[attr]] = {}
                     if attr == 'tasks':
@@ -292,7 +328,7 @@ class ProminenceJob(object):
         """
         for attr in self.attrs:
             attr_json = self.attr_map[attr]
-            if self.attrs[attr] is not None:
+            if self.attrs[attr]:
                 if self.attrs[attr] in data:
                     data_item = data[self.attrs[attr]]
             else:
