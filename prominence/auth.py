@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from __future__ import print_function
 import errno
 import json
@@ -74,7 +76,7 @@ def authenticate_user(create_client_if_needed=True):
                              allow_redirects=True)
 
     if response.status_code == 401:
-        raise exceptions.AuthenticationError('Unable to initiate the device code flow')
+        raise exceptions.AuthenticationFailure('Unable to initiate the device code flow')
 
     device_code_response = response.json()
 
@@ -103,11 +105,10 @@ def authenticate_user(create_client_if_needed=True):
             with open(os.path.expanduser('~/.prominence/token'), 'w') as token_file:
                 json.dump(response.json(), token_file)
             os.chmod(os.path.expanduser('~/.prominence/token'), 384)
-            print('Authentication successful')
             return True
 
     if not authenticated:
-        raise exceptions.AuthenticationError('Authenication failed')
+        raise exceptions.AuthenticationFailure('Authenication failed')
 
 def get_client():
     """
@@ -137,3 +138,4 @@ def get_token():
         else:
             raise exceptions.TokenError('The saved token file does not contain access_token')
     raise exceptions.TokenError('The file ~/.prominence/token does not exist')
+
