@@ -19,7 +19,7 @@ class ProminenceClient(object):
 
         self._headers = {"Authorization":"Bearer %s" % token}
 
-    def list_jobs(self, completed, all, num, constraint):
+    def list_jobs(self, completed=False, all=False, num=1, constraint=None):
         """
         List running/idle jobs or completed jobs
         """
@@ -27,13 +27,10 @@ class ProminenceClient(object):
 
         if completed:
             params['completed'] = 'true'
-
         if num:
             params['num'] = num
-
         if all:
             params['all'] = 'true'
-
         if constraint:
             params['constraint'] = constraint
 
@@ -44,14 +41,17 @@ class ProminenceClient(object):
 
         if response.status_code == 200:
             return response.json()
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
             if 'error' in response.json():
                 raise exceptions.JobGetError(response.json()['error'])
+
         raise exceptions.JobGetError('Unknown error')
 
-    def list_workflows(self, completed, all, num, constraint):
+    def list_workflows(self, completed=False, all=False, num=1, constraint=None):
         """
         List running/idle workflows or completed workflows
         """
@@ -59,13 +59,10 @@ class ProminenceClient(object):
 
         if completed:
             params['completed'] = 'true'
-
         if num:
             params['num'] = num
-
         if all:
             params['all'] = 'true'
-
         if constraint:
             params['constraint'] = constraint
 
@@ -76,63 +73,58 @@ class ProminenceClient(object):
 
         if response.status_code == 200:
             return response.json()
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
             if 'error' in response.json():
                 raise exceptions.WorkflowGetError(response.json()['error'])
+
         raise exceptions.WorkflowGetError('Unknown error')
 
     def create_job(self, job):
         """
-        Create a job
-        """
-        return self.create_job_from_json(job.to_json())
-
-    def create_job_from_json(self, job):
-        """
         Create a job from a JSON description
         """
-        data = job
         try:
-            response = requests.post(self._url + '/jobs', json=data, timeout=self._timeout, headers=self._headers)
+            response = requests.post(self._url + '/jobs', json=job, timeout=self._timeout, headers=self._headers)
         except requests.exceptions.RequestException as e:
             raise exceptions.ConnectionError(e)
 
         if response.status_code == 201:
             if 'id' in response.json():
                 return response.json()['id']
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
             if 'error' in response.json():
                 raise exceptions.JobCreationError(response.json()['error'])
+
         raise exceptions.JobCreationError('Unknown error')
 
     def create_workflow(self, workflow):
         """
-        Create a workflow
-        """
-        return self.create_workflow_from_json(workflow.to_json())
-
-    def create_workflow_from_json(self, workflow):
-        """
         Create a workflow from a JSON description
         """
-        data = workflow
         try:
-            response = requests.post(self._url + '/workflows', json=data, timeout=self._timeout, headers=self._headers)
+            response = requests.post(self._url + '/workflows', json=workflow, timeout=self._timeout, headers=self._headers)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
         if response.status_code == 201:
             if 'id' in response.json():
                 return response.json()['id']
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
             if 'error' in response.json():
                 raise exceptions.WorkflowCreationError(response.json()['error'])
+
         raise exceptions.WorkflowCreationError('Unknown error')
 
     def delete_job(self, job_id):
@@ -158,6 +150,8 @@ class ProminenceClient(object):
 
         if response.status_code == 200:
             return True
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code == 500:
@@ -165,6 +159,7 @@ class ProminenceClient(object):
         else:
             if 'error' in response.json():
                 raise exceptions.DeletionError(response.json()['error'])
+
         raise exceptions.DeletionError('Unknown error')
 
     def describe_job(self, job_id):
@@ -177,26 +172,30 @@ class ProminenceClient(object):
             raise exceptions.ConnectionError(e)
 
         if response.status_code == 200:
-            return response.json()
+            return response.json()[0]
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
             if 'error' in response.json():
                 return self.Response(return_code=1, data={'error': '%s' % response.json()['error']})
+
         raise exceptions.JobGetError('Unknown error')
 
     def describe_workflow(self, workflow_id):
         """
         Describe a specific workflow
         """
-
         try:
             response = requests.get(self._url + '/workflows/%d' % workflow_id, timeout=self._timeout, headers=self._headers)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
         if response.status_code == 200:
-            return response.json()
+            return response.json()[0]
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
@@ -233,11 +232,14 @@ class ProminenceClient(object):
 
         if response.status_code == 200:
             return response.text
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         else:
             if 'error' in response.json():
                 raise exceptions.StdStreamsError(response.json()['error'])
+
         raise exceptions.StdStreamsError('Unknown error')
 
     def stderr_job(self, job_id):
@@ -268,11 +270,14 @@ class ProminenceClient(object):
 
         if response.status_code == 200:
             return response.text
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         else:
             if 'error' in response.json():
                 raise exceptions.StdStreamsError(response.json()['error'])
+
         raise exceptions.StdStreamsError('Unknown error')
 
     def upload(self, file, filename):
@@ -290,6 +295,8 @@ class ProminenceClient(object):
         if response.status_code == 201:
             if 'url' in response.json():
                 url = response.json()['url']
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         else:
@@ -308,6 +315,8 @@ class ProminenceClient(object):
 
         if response.status_code == 201:
             return True
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationFailure()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid cloud storage URL, got a 404 not found error from cloud storage')
 
