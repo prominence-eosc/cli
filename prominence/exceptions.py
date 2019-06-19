@@ -48,31 +48,31 @@ class WorkflowCreationError(ProminenceError):
 
 class JobGetError(ProminenceError):
     """
-    Raised when 
+    Raised when a job list or describe fails
     """
     pass
 
 class WorkflowGetError(ProminenceError):
     """
-    Raised when 
+    Raised when a workflow list or describe fails
     """
     pass
 
 class DeletionError(ProminenceError):
     """
-    Raised when
+    Raised when job/workflow deletion fails
     """
     pass
 
 class FileUploadError(ProminenceError):
     """
-    Raised when
+    Raised when file upload fails
     """
     pass
 
 class StdStreamsError(ProminenceError):
     """
-    Raised when
+    Raised when getting standard out/err fails
     """
     pass
 
