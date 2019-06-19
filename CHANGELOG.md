@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.9
+* Code tidied up
+
 ## 0.1.6
 
 * The JSON job definition for `prominence run` can now be either a URL or file
