@@ -22,7 +22,7 @@ class TokenError(ProminenceError):
     """
     pass
 
-class AuthenticationError(ProminenceError):
+class AuthenticationFailure(ProminenceError):
     """
     Raised when authentication fails
     """
