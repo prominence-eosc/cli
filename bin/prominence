@@ -14,10 +14,9 @@ import uuid
 import requests
 
 from prominence import auth
-from prominence import ProminenceJob
-from prominence import ProminenceTask
-from prominence import ProminenceClient
+from prominence import exceptions
 from prominence import __version__
+from prominence import ProminenceClient
 
 def elapsed(job):
     """
@@ -46,7 +45,10 @@ def print_json(content, transform=False, detail=False, resource='job'):
     Print JSON in a nice way
     """
     if transform:
-        content = transform_item_list(content, detail, resource)
+        if isinstance(content, list):
+            content = transform_item_list(content, detail, resource)
+        else:
+            content = transform_item(content, detail, resource)
     print(json.dumps(content, indent=2))
 
 def image_name(name):
@@ -167,8 +169,9 @@ def transform_job(job, detail):
     """
     job_t = OrderedDict()
     job_t['id'] = job['id']
-    if job['name'] != '' or not detail:
-        job_t['name'] = job['name']
+    if 'name' in job:
+        if job['name'] != '' or not detail:
+            job_t['name'] = job['name']
 
     job_t['status'] = job['status']
 
@@ -285,6 +288,15 @@ def transform_workflow(workflow, detail):
 
     return workflow_t
 
+def transform_item(data, detail, resource):
+    """
+    Transform a job/workflow into the required format ordered by id
+    """
+    if 'job' in resource:
+        return transform_job(data, detail)
+    else:
+        return transform_workflow(data, detail)
+
 def transform_item_list(result, detail, resource):
     """
     Transform a job/workflow list into the required format ordered by id
@@ -310,7 +322,8 @@ def command_login(args):
     Obtain token from OIDC provider
     """
     try:
-        auth.authenticate_user(False)
+        if auth.authenticate_user(False):
+            print('Successfully retrieved token')
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -338,6 +351,9 @@ def command_list(args):
             data = client.list_jobs(completed, all, num, constraint)
         else:
             data = client.list_workflows(completed, all, num, constraint)
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -351,13 +367,15 @@ def command_describe(args):
     """
     Describe a specific job/workflow
     """
-
     try:
         client = ProminenceClient()
         if args.resource == 'job':
             data = client.describe_job(args.id)
         else:
             data = client.describe_workflow(args.id)
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -379,6 +397,9 @@ def command_upload(args):
     try:
         client = ProminenceClient()
         response = client.upload(args.name, args.filename)
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -398,6 +419,9 @@ def command_download(args):
                 print('Error: A job id must be given if a constraint if not specified')
                 exit(1)
             jobs = client.describe_job(args.id, True)
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -467,6 +491,9 @@ def command_delete(args):
             client.delete_job(args.id)
         else:
             client.delete_workflow(args.id)
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -484,6 +511,9 @@ def command_stdout(args):
             print(client.stdout_workflow(args.id, args.job))
         else:
             print(client.stdout_job(args.id))
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -498,6 +528,9 @@ def command_stderr(args):
             print(client.stderr_workflow(args.id, args.job))
         else:
             print(client.stderr_job(args.id))
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -531,11 +564,14 @@ def command_run(args):
     try:
         client = ProminenceClient()
         if 'dependencies' in data:
-            id = client.create_workflow_from_json(data)
+            id = client.create_workflow(data)
             resource = 'Workflow'
         else:
-            id = client.create_job_from_json(data)
+            id = client.create_job(data)
             resource = 'Job'
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
@@ -546,75 +582,75 @@ def command_create(args):
     """
     Create a job
     """
-    job = ProminenceJob()
-    task = ProminenceTask()
-
-    task.image = args.image
-    job.memory = args.memory
-    job.cpus = args.cpus
-    job.nodes = args.nodes
-    job.disk = args.disk
-    job.name = args.name
+    task = {}
+    job = {}
+    task['image'] = args.image
+    job['memory'] = args.memory
+    job['cpus'] = args.cpus
+    job['nodes'] = args.nodes
+    job['disk'] = args.disk
+    job['name'] = args.name
 
     # MPI processes per node
     if args.openmpi or args.mpich:
         if args.ppn == 0:
-            task.procs_per_node = job.cpus
+            task['procsPerNode'] = job.cpus
         else:
-            task.procs_per_node = args.ppn
+            task['procsPerNode'] = args.ppn
 
     # Working directory
     if args.workdir:
-        task.workdir = args.workdir
+        task['workdir'] = args.workdir
 
     # Walltine limit
-    job.walltime = args.walltime
+    job['walltime'] = args.walltime
 
     # Container runtime - use singularity by default but use udocker if the user has
     # specified a tarball using a URL
     if args.runtime:
-        task.runtime = args.runtime
+        task['runtime'] = args.runtime
     else:
         if re.match(r'^http', args.image) and '.tar' in args.image:
-            task.runtime = 'udocker'
+            task['runtime'] = 'udocker'
         else:
-            task.runtime = 'singularity'
+            task['runtime'] = 'singularity'
 
     # Job type
     if args.openmpi:
-        task.type = 'openmpi'
+        task['type'] = 'openmpi'
     elif args.mpich:
-        task.type = 'mpich'
+        task['type'] = 'mpich'
 
     # If multiple nodes are specified need to specify MPI type
-    if job.nodes > 1 and task.type != 'openmpi' and task.type != 'mpich':
+    if job['nodes'] > 1 and task['type'] != 'openmpi' and task['type'] != 'mpich':
         print('Error: more than one node has been requested but MPI has not been specified')
         exit(1)
 
     # Optional command to run
     if args.command:
-        task.cmd = args.command
+        task['cmd'] = args.command
 
     # Output files
     if args.outputfile:
-        job.output_files = args.outputfile
+        job['outputFiles'] = args.outputfile
 
     # Output directories
     if args.outputdir:
-        job.output_dirs = args.outputdir
+        job['outputDirs'] = args.outputdir
 
     # Files to be fetched
     if args.artifact:
-        job.artifacts = []
+        job['artifacts'] = []
         for file in args.artifact:
             artifact = {}
             artifact['url'] = file
-            if ':' in file and ('https:' not in file or ('https:' in file and file.count(':') > 1)):
+            if (':' in file and ('http:' not in file or ('http:' in file and file.count(':') > 1))
+                            and ('https:' not in file or ('https:' in file and file.count(':') > 1))):
                 artifact['url'] = file.split(':')[0]
                 artifact['mountpoint'] = '%s:%s' % (file.split(':')[1], file.split(':')[2])
             else:
                 artifact['url'] = file
-            job.artifacts.append(artifact)
+            job['artifacts'].append(artifact)
 
     # Files to be uploaded
     if args.inputfile:
@@ -630,7 +666,7 @@ def command_create(args):
             else:
                 print('Error: File "%s" does not exist' % filename)
                 exit(1)
-        job.inputs = inputs
+        job['inputs'] = inputs
 
     # Environment variables
     if args.env:
@@ -639,7 +675,7 @@ def command_create(args):
             if '=' in pair:
                 items = pair.split('=')
                 env[items[0]] = items[1]
-        task.env = env
+        task['env'] = env
 
     # Metadata
     if args.label:
@@ -648,11 +684,11 @@ def command_create(args):
             if '=' in pair:
                 items = pair.split('=')
                 labels[items[0]] = items[1]
-        job.labels = labels
+        job['labels'] = labels
 
     # Constraints
     if args.constraints:
-        job.constraints = json.loads(args.constraints)
+        job['constraints'] = json.loads(args.constraints)
 
     # Storage
     if args.storage:
@@ -667,23 +703,26 @@ def command_create(args):
             exit(1)
         storage = json.loads(storage)
         if 'storage' in storage:
-            job.storage = storage['storage']
+            job['storage'] = storage['storage']
 
     # Preemptible
     if args.preemptible:
-        job.preemptible = args.preemptible
+        job['preemptible'] = args.preemptible
 
     # Add task to job
-    job.tasks = [task]
+    job['tasks'] = [task]
 
     # Print JSON description of job if requested
     if args.dryrun:
-        print_json(job.to_json())
+        print_json(job)
         exit(0)
 
     try:
         client = ProminenceClient()
         id = client.create_job(job)
+    except exceptions.AuthenticationFailure:
+        print('Error: authentication failed')
+        exit(1)
     except Exception as e:
         print('Error:', e)
         exit(1)
