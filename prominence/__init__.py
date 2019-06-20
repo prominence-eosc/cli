@@ -1,3 +1,3 @@
 from prominence.client import ProminenceClient
 
-__version__ = '0.1.9'
+__version__ = '0.1.10'
