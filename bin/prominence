@@ -582,14 +582,20 @@ def command_create(args):
     """
     Create a job
     """
-    task = {}
+    resources = {}
+    resources['memory'] = args.memory
+    resources['cpus'] = args.cpus
+    resources['nodes'] = args.nodes
+    resources['disk'] = args.disk
+    if args.walltime:
+        resources['walltime'] = args.walltime
+
     job = {}
-    task['image'] = args.image
-    job['memory'] = args.memory
-    job['cpus'] = args.cpus
-    job['nodes'] = args.nodes
-    job['disk'] = args.disk
+    job['resources'] = resources
     job['name'] = args.name
+
+    task = {}
+    task['image'] = args.image
 
     # MPI processes per node
     if args.openmpi or args.mpich:
@@ -601,9 +607,6 @@ def command_create(args):
     # Working directory
     if args.workdir:
         task['workdir'] = args.workdir
-
-    # Walltine limit
-    job['walltime'] = args.walltime
 
     # Container runtime - use singularity by default but use udocker if the user has
     # specified a tarball using a URL
@@ -622,7 +625,7 @@ def command_create(args):
         task['type'] = 'mpich'
 
     # If multiple nodes are specified need to specify MPI type
-    if job['nodes'] > 1 and task['type'] != 'openmpi' and task['type'] != 'mpich':
+    if job['resources']['nodes'] > 1 and task['type'] != 'openmpi' and task['type'] != 'mpich':
         print('Error: more than one node has been requested but MPI has not been specified')
         exit(1)
 
