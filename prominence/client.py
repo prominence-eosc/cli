@@ -5,19 +5,33 @@ import requests
 from prominence import auth
 from prominence import exceptions
 
+__all__ = ['ProminenceClient']
+
 class ProminenceClient(object):
     """
     PROMINENCE client class
     """
-    def __init__(self, timeout=30):
+    def __init__(self, timeout=30, token_in_file=True):
         self._url = os.environ['PROMINENCE_URL']
         self._timeout = timeout
 
-        token = auth.get_token()
-        if not token:
-            raise exceptions.TokenError('Unable to obtain a token')
+        if token_in_file:
+            token = auth.get_token()
+            if not token:
+                raise exceptions.TokenError('Unable to obtain a token')
 
-        self._headers = {"Authorization":"Bearer %s" % token}
+            self._headers = {"Authorization":"Bearer %s" % token}
+
+    def authenticate_user(self):
+        """
+        Obtain token from OIDC provider
+        """
+        token = auth.authenticate_user(create_client_if_needed=True, token_in_file=False)
+        if token:
+            print('Successfully retrieved token')
+            self._headers = {"Authorization":"Bearer %s" % token}
+        else:
+            raise exceptions.TokenError('Unable to obtain a token')
 
     def list_jobs(self, completed=False, all=False, num=1, constraint=None):
         """
@@ -42,7 +56,7 @@ class ProminenceClient(object):
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
@@ -74,7 +88,7 @@ class ProminenceClient(object):
         if response.status_code == 200:
             return response.json()
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
@@ -96,7 +110,7 @@ class ProminenceClient(object):
             if 'id' in response.json():
                 return response.json()['id']
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
@@ -118,7 +132,7 @@ class ProminenceClient(object):
             if 'id' in response.json():
                 return response.json()['id']
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
@@ -151,7 +165,7 @@ class ProminenceClient(object):
         if response.status_code == 200:
             return True
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code == 500:
@@ -174,7 +188,7 @@ class ProminenceClient(object):
         if response.status_code == 200:
             return response.json()[0]
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
@@ -195,7 +209,7 @@ class ProminenceClient(object):
         if response.status_code == 200:
             return response.json()[0]
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
@@ -233,7 +247,7 @@ class ProminenceClient(object):
         if response.status_code == 200:
             return response.text
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         else:
@@ -271,7 +285,7 @@ class ProminenceClient(object):
         if response.status_code == 200:
             return response.text
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         else:
@@ -296,7 +310,7 @@ class ProminenceClient(object):
             if 'url' in response.json():
                 url = response.json()['url']
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         else:
@@ -316,9 +330,8 @@ class ProminenceClient(object):
         if response.status_code == 201:
             return True
         elif response.status_code == 401:
-            raise exceptions.AuthenticationFailure()
+            raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid cloud storage URL, got a 404 not found error from cloud storage')
 
         raise exceptions.FileUploadError('Got status code', response.status_code, 'from cloud storage')
-
