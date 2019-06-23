@@ -22,7 +22,7 @@ class TokenError(ProminenceError):
     """
     pass
 
-class AuthenticationFailure(ProminenceError):
+class AuthenticationError(ProminenceError):
     """
     Raised when authentication fails
     """
@@ -48,31 +48,30 @@ class WorkflowCreationError(ProminenceError):
 
 class JobGetError(ProminenceError):
     """
-    Raised when 
+    Raised when listing or describing a job fails
     """
     pass
 
 class WorkflowGetError(ProminenceError):
     """
-    Raised when 
+    Raised when listing or describing a workflow fails
     """
     pass
 
 class DeletionError(ProminenceError):
     """
-    Raised when
+    Raised when deletion fails
     """
     pass
 
 class FileUploadError(ProminenceError):
     """
-    Raised when
+    Raised when a file upload fails
     """
     pass
 
 class StdStreamsError(ProminenceError):
     """
-    Raised when
+    Raised when there is a problem getting the standard output or error
     """
     pass
-
