@@ -10,7 +10,6 @@ import os
 import re
 import sys
 import time
-import uuid
 import requests
 
 from prominence import auth
@@ -53,9 +52,9 @@ def print_json(content, transform=False, detail=False, resource='job'):
 
 def image_name(name):
     """
-    Extract container image name for display purposes only
+    Extract container image name for display purposes
     """
-    if 'http' in name:
+    if name.startswith('http'):
         name = os.path.basename(name)
         name = name[:name.find('?')]
     return name
@@ -64,8 +63,6 @@ def list_jobs(jobs):
     """
     Print list of jobs
     """
-
-    # Firstly determine column widths
     width_id = 2
     width_name = 4
     width_created = 19
@@ -96,7 +93,6 @@ def list_jobs(jobs):
         if width_cmd_current > width_cmd:
             width_cmd = width_cmd_current
 
-    # Print headings
     print('%s   %s   %s   %s   %s   %s   %s' % ('ID'.ljust(width_id),
                                                 'NAME'.ljust(width_name),
                                                 'CREATED'.ljust(width_created),
@@ -105,7 +101,6 @@ def list_jobs(jobs):
                                                 'IMAGE'.ljust(width_container),
                                                 'CMD'.ljust(width_cmd)))
 
-    # Print jobs
     for job in jobs:
         my_cmd = ''
         if 'cmd' in job['tasks'][0]:
@@ -122,8 +117,6 @@ def list_workflows(workflows):
     """
     Print list of workflows
     """
-
-    # Firstly determine column widths
     width_id = 2
     width_name = 4
     width_created = 19
@@ -146,7 +139,6 @@ def list_workflows(workflows):
         if width_progress_current > width_progress:
             width_progress = width_progress_current
 
-    # Print headings
     print('%s   %s   %s   %s   %s   %s' % ('ID'.ljust(width_id),
                                            'NAME'.ljust(width_name),
                                            'CREATED'.ljust(width_created),
@@ -154,7 +146,6 @@ def list_workflows(workflows):
                                            'ELAPSED'.ljust(width_elapsed),
                                            'PROGRESS'.ljust(width_progress)))
 
-    # Print workflows
     for workflow in workflows:
         print('%s   %s   %s   %s   %s   %s' % (str(workflow['id']).ljust(width_id),
                                                workflow['name'].ljust(width_name),
@@ -313,8 +304,8 @@ def command_register(args):
     """
     try:
         auth.register_client()
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
 def command_login(args):
@@ -322,10 +313,10 @@ def command_login(args):
     Obtain token from OIDC provider
     """
     try:
-        if auth.authenticate_user(False):
+        if auth.authenticate_user(create_client_if_needed=False, token_in_file=True):
             print('Successfully retrieved token')
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
 def command_list(args):
@@ -335,9 +326,9 @@ def command_list(args):
     completed = False
     if args.completed:
         completed = True
-    all = False
+    active_and_completed = False
     if args.all:
-        all = True
+        active_and_completed = True
     num = None
     if args.num:
         num = args.num
@@ -348,16 +339,16 @@ def command_list(args):
     try:
         client = ProminenceClient()
         if args.resource == 'jobs':
-            data = client.list_jobs(completed, all, num, constraint)
+            data = client.list_jobs(completed, active_and_completed, num, constraint)
         else:
-            data = client.list_workflows(completed, all, num, constraint)
-    except exceptions.AuthenticationFailure:
+            data = client.list_workflows(completed, active_and_completed, num, constraint)
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
-        
+
     if args.resource == 'jobs':
         list_jobs(transform_item_list(data, False, 'job'))
     else:
@@ -373,15 +364,14 @@ def command_describe(args):
             data = client.describe_job(args.id)
         else:
             data = client.describe_workflow(args.id)
-    except exceptions.AuthenticationFailure:
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
     print_json(data, transform=True, detail=True, resource=args.resource)
-    exit(0)
 
 def command_upload(args):
     """
@@ -397,11 +387,11 @@ def command_upload(args):
     try:
         client = ProminenceClient()
         response = client.upload(args.name, args.filename)
-    except exceptions.AuthenticationFailure:
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
     print('Success')
@@ -413,17 +403,17 @@ def command_download(args):
     try:
         client = ProminenceClient()
         if args.constraint:
-            jobs = client.list(False, True, 0, args.constraint)
+            jobs = client.list_jobs(False, True, 0, args.constraint)
         else:
             if not args.id:
                 print('Error: A job id must be given if a constraint if not specified')
                 exit(1)
             jobs = client.describe_job(args.id, True)
-    except exceptions.AuthenticationFailure:
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
     for job in jobs:
@@ -434,8 +424,8 @@ def command_download(args):
                 path = './%d/' % job['id']
                 try:
                     os.mkdir(path)
-                except OSError as exc:
-                    if exc.errno != errno.EEXIST:
+                except OSError as err:
+                    if err.errno != errno.EEXIST:
                         print('WARNING: skipping job %d as job directory cannot be created' % job['id'])
                         continue
                     else:
@@ -491,15 +481,14 @@ def command_delete(args):
             client.delete_job(args.id)
         else:
             client.delete_workflow(args.id)
-    except exceptions.AuthenticationFailure:
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
     print('Success')
-    exit(0)
 
 def command_stdout(args):
     """
@@ -511,11 +500,11 @@ def command_stdout(args):
             print(client.stdout_workflow(args.id, args.job))
         else:
             print(client.stdout_job(args.id))
-    except exceptions.AuthenticationFailure:
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
 def command_stderr(args):
@@ -528,11 +517,11 @@ def command_stderr(args):
             print(client.stderr_workflow(args.id, args.job))
         else:
             print(client.stderr_job(args.id))
-    except exceptions.AuthenticationFailure:
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
 def command_run(args):
@@ -542,13 +531,17 @@ def command_run(args):
     if args.file.startswith('http://') or args.file.startswith('https://'):
         try:
             response = requests.get(args.file)
-        except requests.exceptions.RequestException:
-            print('Error getting URL due to: %s' % reponse.text)
+        except requests.exceptions.RequestException as err:
+            print('Error getting URL due to: %s' % err)
             exit(1)
         if response.status_code == 200:
-            data = response.json()
+            try:
+                data = response.json()
+            except Exception as err:
+                print('Error: problem with JSON at URL: %s' % err)
+                exit(1)
         else:
-            print('Got status %d from URL with message: %s' % (response.status_code, response.text))
+            print('Error: got status %d from URL with message: %s' % (response.status_code, response.text))
             exit(1)
     else:
         try:
@@ -564,19 +557,19 @@ def command_run(args):
     try:
         client = ProminenceClient()
         if 'dependencies' in data:
-            id = client.create_workflow(data)
+            res_id = client.create_workflow(data)
             resource = 'Workflow'
         else:
-            id = client.create_job(data)
+            res_id = client.create_job(data)
             resource = 'Job'
-    except exceptions.AuthenticationFailure:
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
-    print('%s created with id %d' % (resource, id))
+    print('%s created with id %d' % (resource, res_id))
        
 def command_create(args):
     """
@@ -600,7 +593,7 @@ def command_create(args):
     # MPI processes per node
     if args.openmpi or args.mpich:
         if args.ppn == 0:
-            task['procsPerNode'] = job.cpus
+            task['procsPerNode'] = job['resources']['cpus']
         else:
             task['procsPerNode'] = args.ppn
 
@@ -647,7 +640,7 @@ def command_create(args):
         for file in args.artifact:
             artifact = {}
             artifact['url'] = file
-            if (':' in file and ('http:' not in file or ('http:' in file and file.count(':') > 1))
+            if (':' in file and ('http:' not in file or ('http:' in file and file.count(':') > 1)) \
                             and ('https:' not in file or ('https:' in file and file.count(':') > 1))):
                 artifact['url'] = file.split(':')[0]
                 artifact['mountpoint'] = '%s:%s' % (file.split(':')[1], file.split(':')[2])
@@ -722,60 +715,95 @@ def command_create(args):
 
     try:
         client = ProminenceClient()
-        id = client.create_job(job)
-    except exceptions.AuthenticationFailure:
+        job_id = client.create_job(job)
+    except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as e:
-        print('Error:', e)
+    except Exception as err:
+        print('Error:', err)
         exit(1)
 
-    print('Job created with id %d' % id)
+    print('Job created with id %d' % job_id)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Prominence - \
-                                     run jobs in containers across clouds')
+def create_parser():
+    """
+    Create the argument parser
+    """
+    parser = argparse.ArgumentParser(description='PROMINENCE - \
+                                                  run jobs in containers across clouds')
     subparsers = parser.add_subparsers(help='sub-command help')
-    
+
     # Create the parser for the "register" command
-    parser_register = subparsers.add_parser('register', help='Register as a client with the OIDC server')
+    parser_register = subparsers.add_parser('register',
+                                            help='Register as a client with the OIDC server')
     parser_register.set_defaults(func=command_register)
 
     # Create the parser for the "login" command
-    parser_login = subparsers.add_parser('login', help='Get a token from the OIDC server')
+    parser_login = subparsers.add_parser('login',
+                                         help='Get a token from the OIDC server')
     parser_login.set_defaults(func=command_login)
 
     # Create the parser for the "run" command
-    parser_run = subparsers.add_parser('run', help='Create a job or workflow from JSON in a file or URL')
-    parser_run.add_argument('file', help='JSON filename or URL containing JSON')
+    parser_run = subparsers.add_parser('run',
+                                       help='Create a job or workflow from JSON in a file or URL')
+    parser_run.add_argument('file',
+                            help='JSON filename or URL containing JSON')
     parser_run.set_defaults(func=command_run)
 
     # Create the parser for the "create" command
-    parser_create = subparsers.add_parser('create', help='Create a job')
-    parser_create.add_argument('--name', dest='name', default='',
+    parser_create = subparsers.add_parser('create',
+                                          help='Create a job')
+    parser_create.add_argument('--name',
+                               dest='name',
+                               default='',
                                help='Job name.')
-    parser_create.add_argument('--memory', dest='memory', default=1, type=int,
+    parser_create.add_argument('--memory',
+                               dest='memory',
+                               default=1,
+                               type=int,
                                help='Memory in GB per node.')
-    parser_create.add_argument('--cpus', dest='cpus', default=1, type=int,
+    parser_create.add_argument('--cpus',
+                               dest='cpus',
+                               default=1,
+                               type=int,
                                help='Cores per node.')
-    parser_create.add_argument('--nodes', dest='nodes', default=1, type=int,
+    parser_create.add_argument('--nodes',
+                               dest='nodes',
+                               default=1,
+                               type=int,
                                help='Number of nodes.')
-    parser_create.add_argument('--procs-per-node', dest='ppn', default=0, type=int,
+    parser_create.add_argument('--procs-per-node',
+                               dest='ppn',
+                               default=0,
+                               type=int,
                                help='Number of MPI processes to launch per node. By default this \
                                      will be the number of CPU cores requested per node but it can \
                                      be changed if necessary.')
-    parser_create.add_argument('--disk', dest='disk', default=10, type=int,
+    parser_create.add_argument('--disk',
+                               dest='disk',
+                               default=10,
+                               type=int,
                                help='Size of disk containing the job\'s scratch directory. For \
                                      multi-node jobs it will be shared across each of the nodes. \
                                      By default a 10 GB disk will be used.')
-    parser_create.add_argument('--walltime', dest='walltime', type=int,
+    parser_create.add_argument('--walltime',
+                               dest='walltime',
+                               type=int,
                                help='Walltime limit in minutes. If the job is still running after \
                                      this time it will be killed.')
-    parser_create.add_argument('--openmpi', dest='openmpi', default=False, action='store_true',
+    parser_create.add_argument('--openmpi',
+                               dest='openmpi',
+                               default=False,
+                               action='store_true',
                                help="Specify that this is an OpenMPI job.")
-    parser_create.add_argument('--mpich', dest='mpich', default=False, action='store_true',
+    parser_create.add_argument('--mpich',
+                               dest='mpich',
+                               default=False,
+                               action='store_true',
                                help="Specify that this is an MPICH job.")
-    parser_create.add_argument('--artifact', dest='artifact', action='append',
+    parser_create.add_argument('--artifact',
+                               dest='artifact',
+                               action='append',
                                help='A URL to be transferred to the job. Archives will be \
                                      automatically unpacked/extracted. Optionally, for the \
                                      case of a tarball or zip archive, a directory name and \
@@ -783,112 +811,192 @@ if __name__ == "__main__":
                                      "<URL>:<directory>:<mountpoint>". The mount point must be \
                                      an absolute path. \
                                      This option can be specified multiple times.')
-    parser_create.add_argument('--input', dest='inputfile', action='append',
+    parser_create.add_argument('--input',
+                               dest='inputfile',
+                               action='append',
                                help='Full path to a file on the current host to be \
                                      uploaded and made available to the job. This option \
                                      can be specified multiple times to set multiple output files.')
-    parser_create.add_argument('--output', dest="outputfile", action='append',
+    parser_create.add_argument('--output',
+                               dest="outputfile",
+                               action='append',
                                help='An output file to be copied to transient storage. This option \
                                      can be specified multiple times to set multiple output files.')
-    parser_create.add_argument('--outputdir', dest="outputdir", action='append',
+    parser_create.add_argument('--outputdir',
+                               dest="outputdir",
+                               action='append',
                                help='A directory to be copied to transient storage. This option \
                                      can be specified multiple times to set multiple directories.')
-    parser_create.add_argument('--workdir', dest='workdir',
+    parser_create.add_argument('--workdir',
+                               dest='workdir',
                                help='Set the current working directory.')
-    parser_create.add_argument('--env', dest='env', action='append',
+    parser_create.add_argument('--env',
+                               dest='env',
+                               action='append',
                                help='Specify environment variables in the form name=value. \
                                      This option can be specified multiple times to set \
                                      multiple environment variables.')
-    parser_create.add_argument('--label', dest='label', action='append',
+    parser_create.add_argument('--label',
+                               dest='label',
+                               action='append',
                                help='Set metadata in the form key=value. This option can \
                                      be specified multiple times to set multiple labels.')
-    parser_create.add_argument('--runtime', dest='runtime',
+    parser_create.add_argument('--runtime',
+                               dest='runtime',
                                choices=['singularity', 'udocker'],
                                help='Container runtime, either singularity or udocker. The default \
                                      is singularity.')
-    parser_create.add_argument('--preemptible', dest='preemptible', default=False, action='store_true',
+    parser_create.add_argument('--preemptible',
+                               dest='preemptible',
+                               default=False,
+                               action='store_true',
                                help='Specify that this job is preemptible')
-    parser_create.add_argument('--constraints', dest='constraints',
+    parser_create.add_argument('--constraints',
+                               dest='constraints',
                                help='Specify constraints')
-    parser_create.add_argument('--storage', dest='storage',
+    parser_create.add_argument('--storage',
+                               dest='storage',
                                help='Filename specifying storage details')
-    parser_create.add_argument('--dry-run', dest='dryrun', default=False, action='store_true',
+    parser_create.add_argument('--dry-run',
+                               dest='dryrun',
+                               default=False,
+                               action='store_true',
                                help='Print json to stdout but do not actually create job.')
-    parser_create.add_argument('image', help='Container image')
-    parser_create.add_argument('command', nargs='?',
+    parser_create.add_argument('image',
+                               help='Container image')
+    parser_create.add_argument('command',
+                               nargs='?',
                                help='Command to run in the container. If you need to specify \
                                      arguments, put the combined command and arguments inside quotes.')
     parser_create.set_defaults(func=command_create)
 
     # Create the parser for the "list" command
-    parser_list = subparsers.add_parser('list', help='List jobs or workflows')
-    parser_list.add_argument('--completed', dest='completed', default=False,
-                             help='List completed jobs/workflows', action='store_true')
-    parser_list.add_argument('-n', '--last', dest='num', default=1, type=int,
+    parser_list = subparsers.add_parser('list',
+                                        help='List jobs or workflows')
+    parser_list.add_argument('--completed',
+                             dest='completed',
+                             default=False,
+                             help='List completed jobs/workflows',
+                             action='store_true')
+    parser_list.add_argument('-n',
+                             '--last',
+                             dest='num',
+                             default=1,
+                             type=int,
                              help='Number of completed jobs/workflows to return')
-    parser_list.add_argument('--constraint', dest='constraint', action='append',
+    parser_list.add_argument('--constraint',
+                             dest='constraint',
+                             action='append',
                              help='Constraint of the form key=value')
-    parser_list.add_argument('-a', '--all', dest='all', default=False,
-                             help='List jobs/workflows in all states', action='store_true')
-    parser_list.add_argument('resource', help='Resource type', default='jobs', nargs='?',
+    parser_list.add_argument('-a',
+                             '--all',
+                             dest='all',
+                             default=False,
+                             action='store_true',
+                             help='List jobs/workflows in all states')
+    parser_list.add_argument('resource',
+                             help='Resource type',
+                             default='jobs',
+                             nargs='?',
                              choices=['jobs', 'workflows'])
     parser_list.set_defaults(func=command_list)
 
     # Create the parser for the "describe" command
-    parser_describe = subparsers.add_parser('describe', help='Describe a job or workflow')
-    parser_describe.add_argument('resource', help='Resource type', default='job', nargs='?',
+    parser_describe = subparsers.add_parser('describe',
+                                            help='Describe a job or workflow')
+    parser_describe.add_argument('resource',
+                                 help='Resource type',
+                                 default='job',
+                                 nargs='?',
                                  choices=['job', 'workflow'])
-    parser_describe.add_argument('id', help='Job id', type=int)
+    parser_describe.add_argument('id',
+                                 help='Job id',
+                                 type=int)
     parser_describe.set_defaults(func=command_describe)
 
     # Create the parser for the "delete" command
-    parser_delete = subparsers.add_parser('delete', help='Delete a job or workflow')
-    parser_delete.add_argument('resource', help='Resource type', default='job', nargs='?',
+    parser_delete = subparsers.add_parser('delete',
+                                          help='Delete a job or workflow')
+    parser_delete.add_argument('resource',
+                               help='Resource type',
+                               default='job',
+                               nargs='?',
                                choices=['job', 'workflow'])
-    parser_delete.add_argument('id', help='Job/workflow id', type=int)
+    parser_delete.add_argument('id',
+                               help='Job/workflow id',
+                               type=int)
     parser_delete.set_defaults(func=command_delete)
 
     # Create the parser for the "upload" command
-    parser_upload = subparsers.add_parser('upload', help='Upload a file to transient storage')
-    parser_upload.add_argument('--name', dest='name', help='Name to be used by jobs to identity the file')
-    parser_upload.add_argument('--filename', dest='filename', help='Local filename')
+    parser_upload = subparsers.add_parser('upload',
+                                          help='Upload a file to transient storage')
+    parser_upload.add_argument('--name',
+                               dest='name',
+                               help='Name to be used by jobs to identity the file')
+    parser_upload.add_argument('--filename',
+                               dest='filename',
+                               help='Local filename')
     parser_upload.set_defaults(func=command_upload)
 
     # Create the parser for the "download" command
-    parser_download = subparsers.add_parser('download', help='Download output files from a completed job or workflow')
-    parser_download.add_argument('--constraint', dest='constraint', action='append',
+    parser_download = subparsers.add_parser('download',
+                                            help='Download output files from a completed job or workflow')
+    parser_download.add_argument('--constraint',
+                                 dest='constraint',
+                                 action='append',
                                  help='Constraint of the form key=value')
-    parser_download.add_argument('--force', dest='force', default=False,
-                                 help='Force overwrite of existing file', action='store_true')
-    parser_download.add_argument('--dir', dest='dir', default=False,
-                                 help='Save output files in a directory named by the job id', action='store_true')
-    parser_download.add_argument('id', help='Job id', type=int)
+    parser_download.add_argument('--force',
+                                 dest='force',
+                                 default=False,
+                                 help='Force overwrite of existing file',
+                                 action='store_true')
+    parser_download.add_argument('--dir',
+                                 dest='dir',
+                                 default=False,
+                                 help='Save output files in a directory named by the job id',
+                                 action='store_true')
+    parser_download.add_argument('id',
+                                 help='Job id',
+                                 type=int)
     parser_download.set_defaults(func=command_download)
 
     # Create the parser for the "stdout" command
-    parser_stdout = subparsers.add_parser('stdout', help='Get standard output from a running or completed job')
-    parser_stdout.add_argument('id', help='Job or workflow id', type=int)
-    parser_stdout.add_argument('job', help='Job name', nargs='?')
+    parser_stdout = subparsers.add_parser('stdout',
+                                          help='Get standard output from a running or completed job')
+    parser_stdout.add_argument('id',
+                               help='Job or workflow id',
+                               type=int)
+    parser_stdout.add_argument('job',
+                               help='Job name',
+                               nargs='?')
     parser_stdout.set_defaults(func=command_stdout)
 
     # Create the parser for the "stderr" command
-    parser_stderr = subparsers.add_parser('stderr', help='Get standard error from a running or completed job')
-    parser_stderr.add_argument('id', help='Job or workflow id', type=int)
-    parser_stderr.add_argument('job', help='Job name', nargs='?')
+    parser_stderr = subparsers.add_parser('stderr',
+                                          help='Get standard error from a running or completed job')
+    parser_stderr.add_argument('id',
+                               help='Job or workflow id',
+                               type=int)
+    parser_stderr.add_argument('job',
+                               help='Job name',
+                               nargs='?')
     parser_stderr.set_defaults(func=command_stderr)
 
     # Version
-    parser.add_argument('--version', action='version',
+    parser.add_argument('--version',
+                        action='version',
                         version='%(prog)s {}'.format(__version__),
                         help='show the version number and exit')
+
+    return parser
+
+if __name__ == "__main__":
+    parser = create_parser()
 
     # Print help if necessary
     if len(sys.argv) < 2:
         parser.print_help(sys.stderr)
         exit(1)
-
-    # Parse the arguments & run the required function if necessary
-    args = parser.parse_args()
 
     # Authentication
     if 'PROMINENCE_OIDC_URL' not in os.environ:
@@ -900,6 +1008,8 @@ if __name__ == "__main__":
         print('Error: Environment variable PROMINENCE_URL is not set')
         exit(1)
 
+    # Parse the arguments & run the required function if necessary
+    args = parser.parse_args()
+
     # Run
     args.func(args)
-     
