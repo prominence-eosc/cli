@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from __future__ import print_function
 import errno
 import json
@@ -45,7 +43,7 @@ def register_client():
     
     raise exceptions.ClientRegistrationError('Client registration failed with status code %d' % response.status_code)
 
-def authenticate_user(create_client_if_needed=True):
+def authenticate_user(create_client_if_needed=True, token_in_file=True):
     """
     Obtain token from OIDC provider
     """
@@ -76,7 +74,7 @@ def authenticate_user(create_client_if_needed=True):
                              allow_redirects=True)
 
     if response.status_code == 401:
-        raise exceptions.AuthenticationFailure('Unable to initiate the device code flow')
+        raise exceptions.AuthenticationError('Unable to initiate the device code flow')
 
     device_code_response = response.json()
 
@@ -102,13 +100,17 @@ def authenticate_user(create_client_if_needed=True):
 
         if response.status_code == 200:
             authenticated = True
-            with open(os.path.expanduser('~/.prominence/token'), 'w') as token_file:
-                json.dump(response.json(), token_file)
-            os.chmod(os.path.expanduser('~/.prominence/token'), 384)
-            return True
+            if token_in_file:
+                with open(os.path.expanduser('~/.prominence/token'), 'w') as token_file:
+                    json.dump(response.json(), token_file)
+                os.chmod(os.path.expanduser('~/.prominence/token'), 384)
+            else:
+                return response.json()['access_token']
 
     if not authenticated:
-        raise exceptions.AuthenticationFailure('Authenication failed')
+        raise exceptions.AuthenticationError('Authentication failed')
+
+    return True
 
 def get_client():
     """
@@ -138,4 +140,3 @@ def get_token():
         else:
             raise exceptions.TokenError('The saved token file does not contain access_token')
     raise exceptions.TokenError('The file ~/.prominence/token does not exist')
-
