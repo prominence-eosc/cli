@@ -1,6 +1,9 @@
 # Change Log
 
-## 0.1.10
+## 0.1.11
+* Numerous bug fixes
+
+## 0.1.10
 * Numerous bug fixes
 
 ## 0.1.9
