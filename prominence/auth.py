@@ -24,19 +24,28 @@ def register_client():
     data['response_types'] = ['code']
 
     # Create .prominence directory if necessary
-    if not os.path.exists(os.path.expanduser('~/.prominence')):
-        os.mkdir(os.path.expanduser('~/.prominence'))
+    try:
+        if not os.path.exists(os.path.expanduser('~/.prominence')):
+            os.mkdir(os.path.expanduser('~/.prominence'))
+    except IOError as err:
+        raise exceptions.ClientRegistrationError(err)
 
     # Create OIDC client
-    response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/register',
-                             json=data,
-                             timeout=10,
-                             allow_redirects=True)
+    try:
+        response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/register',
+                                 json=data,
+                                 timeout=10,
+                                 allow_redirects=True)
+    except requests.exceptions.RequestException as err:
+        raise exceptions.ClientRegistrationError(err)
 
     if response.status_code == 201:
-        with open(os.path.expanduser('~/.prominence/client'), 'w') as client_file:
-            json.dump(response.json(), client_file)
-        os.chmod(os.path.expanduser('~/.prominence/client'), 384)
+        try:
+            with open(os.path.expanduser('~/.prominence/client'), 'w') as client_file:
+                json.dump(response.json(), client_file)
+            os.chmod(os.path.expanduser('~/.prominence/client'), 384)
+        except IOError as err:
+            raise exceptions.ClientRegistrationError(err)
 
         print('Client registration successful')
         return True
@@ -67,13 +76,16 @@ def authenticate_user(create_client_if_needed=True, token_in_file=True):
     data['scope'] = 'openid profile email'
     data['client_id'] = client_id
 
-    response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/devicecode',
-                             data=data,
-                             timeout=10,
-                             auth=(client_id, client_secret),
-                             allow_redirects=True)
+    try:
+        response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/devicecode',
+                                 data=data,
+                                 timeout=10,
+                                 auth=(client_id, client_secret),
+                                 allow_redirects=True)
+    except requests.exceptions.RequestException as err:
+        raise exceptions.AuthenticationError('Unable to initiate the device code flow')
 
-    if response.status_code == 401:
+    if response.status_code != 200:
         raise exceptions.AuthenticationError('Unable to initiate the device code flow')
 
     device_code_response = response.json()
@@ -101,9 +113,12 @@ def authenticate_user(create_client_if_needed=True, token_in_file=True):
         if response.status_code == 200:
             authenticated = True
             if token_in_file:
-                with open(os.path.expanduser('~/.prominence/token'), 'w') as token_file:
-                    json.dump(response.json(), token_file)
-                os.chmod(os.path.expanduser('~/.prominence/token'), 384)
+                try:
+                    with open(os.path.expanduser('~/.prominence/token'), 'w') as token_file:
+                        json.dump(response.json(), token_file)
+                    os.chmod(os.path.expanduser('~/.prominence/token'), 384)
+                except IOError:
+                    raise exceptions.AuthenticationError('Unable to write to ~/.prominence/token')
             else:
                 return response.json()['access_token']
 
