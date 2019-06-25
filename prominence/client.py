@@ -186,14 +186,17 @@ class ProminenceClient(object):
             raise exceptions.ConnectionError(e)
 
         if response.status_code == 200:
-            return response.json()[0]
+            if response.json():
+                return response.json()[0]
+            else:
+                raise exceptions.JobGetError('No such job')
         elif response.status_code == 401:
             raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
             if 'error' in response.json():
-                return self.Response(return_code=1, data={'error': '%s' % response.json()['error']})
+                raise exceptions.JobGetError(response.json()['error'])
 
         raise exceptions.JobGetError('Unknown error')
 
@@ -207,7 +210,10 @@ class ProminenceClient(object):
             raise exceptions.ConnectionError(e)
 
         if response.status_code == 200:
-            return response.json()[0]
+            if response.json():
+                return response.json()[0]
+            else:
+                raise exceptions.JobGetError('No such workflow')
         elif response.status_code == 401:
             raise exceptions.AuthenticationError()
         elif response.status_code == 404:
