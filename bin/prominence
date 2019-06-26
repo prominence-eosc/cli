@@ -405,13 +405,7 @@ def command_download(args):
     """
     try:
         client = ProminenceClient()
-        if args.constraint:
-            jobs = client.list_jobs(False, True, 0, args.constraint)
-        else:
-            if not args.id:
-                print('Error: A job id must be given if a constraint if not specified')
-                exit(1)
-            jobs = client.describe_job(args.id, True)
+        job = client.describe_job(args.id)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -419,60 +413,59 @@ def command_download(args):
         print('Error:', err)
         exit(1)
 
-    for job in jobs:
-        if ('outputFiles' in job or 'outputDirs' in job) and job['status'] == 'completed':
-            # Create per-job directory if necessary & set path for files
-            path = './'
-            if args.dir:
-                path = './%d/' % job['id']
-                try:
-                    os.mkdir(path)
-                except OSError as err:
-                    if err.errno != errno.EEXIST:
-                        print('WARNING: skipping job %d as job directory cannot be created' % job['id'])
-                        continue
-                    else:
-                        pass
+    if ('outputFiles' in job or 'outputDirs' in job) and job['status'] == 'completed':
+        # Create per-job directory if necessary & set path for files
+        path = './'
+        if args.dir:
+            path = './%d/' % job['id']
+            try:
+                os.mkdir(path)
+            except OSError as err:
+                if err.errno != errno.EEXIST:
+                    print('Error: job directory cannot be created')
+                    exit(1)
+                else:
+                    pass
 
-            files_and_dirs = []
-            if 'outputFiles' in job:
-                files_and_dirs += job['outputFiles']
+        files_and_dirs = []
+        if 'outputFiles' in job:
+            files_and_dirs += job['outputFiles']
+        if 'outputDirs' in job:
+            files_and_dirs += job['outputDirs']
+
+        for pair in files_and_dirs:
+            file_name = os.path.basename(pair['name'])
             if 'outputDirs' in job:
-                files_and_dirs += job['outputDirs']
+                if pair in job['outputDirs']:
+                    file_name = file_name + '.tgz'
 
-            for pair in files_and_dirs:
-                file_name = os.path.basename(pair['name'])
-                if 'outputDirs' in job:
-                    if pair in job['outputDirs']:
-                        file_name = file_name + '.tgz'
+            url = pair['url']
 
-                url = pair['url']
+            if os.path.isfile(path + file_name) and not args.force:
+                print('WARNING: skipping "%s" from job %d as file already exists and force option not specified' % (file_name, job['id']))
+                continue
 
-                if os.path.isfile(path + file_name) and not args.force:
-                    print('WARNING: skipping "%s" from job %d as file already exists and force option not specified' % (file_name, job['id']))
-                    continue
+            response = requests.get(url, stream=True)
+            total_length = response.headers.get('content-length')
 
-                response = requests.get(url, stream=True)
-                total_length = response.headers.get('content-length')
+            if response.status_code != 200:
+                print('WARNING: skipping "%s" from job %d as it does not exist' % (file_name, job['id']))
+                continue
 
-                if response.status_code != 200:
-                    print('WARNING: skipping "%s" from job %d as it does not exist' % (file_name, job['id']))
-                    continue
-
-                with open(path + file_name, 'wb') as file_download:
-                    print('Downloading file "%s" from job %d' % (file_name, job['id']))
-                    if total_length is None:
-                        file_download.write(response.content)
-                    else:
-                        downloaded = 0
-                        total_length = int(total_length)
-                        for data in response.iter_content(chunk_size=4096):
-                            downloaded += len(data)
-                            file_download.write(data)
-                            done = int(50 * downloaded / total_length)
-                            sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
-                            sys.stdout.flush()
-                print('')
+            with open(path + file_name, 'wb') as file_download:
+                print('Downloading file "%s" from job %d' % (file_name, job['id']))
+                if total_length is None:
+                    file_download.write(response.content)
+                else:
+                    downloaded = 0
+                    total_length = int(total_length)
+                    for data in response.iter_content(chunk_size=4096):
+                        downloaded += len(data)
+                        file_download.write(data)
+                        done = int(50 * downloaded / total_length)
+                        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
+                        sys.stdout.flush()
+            print('')
 
 def command_delete(args):
     """
@@ -944,10 +937,6 @@ def create_parser():
     # Create the parser for the "download" command
     parser_download = subparsers.add_parser('download',
                                             help='Download output files from a completed job or workflow')
-    parser_download.add_argument('--constraint',
-                                 dest='constraint',
-                                 action='append',
-                                 help='Constraint of the form key=value')
     parser_download.add_argument('--force',
                                  dest='force',
                                  default=False,
