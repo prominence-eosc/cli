@@ -324,7 +324,7 @@ def command_login(args):
 
 def command_list(args):
     """
-    List running/idle jobs/workflows or completed jobs/workflows
+    List running/idle or completed jobs or workflows
     """
     completed = False
     if args.completed:
@@ -348,7 +348,7 @@ def command_list(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as err:
+    except (exceptions.ConnectionError, exceptions.JobGetError) as err:
         print('Error:', err)
         exit(1)
 
@@ -359,7 +359,7 @@ def command_list(args):
 
 def command_describe(args):
     """
-    Describe a specific job/workflow
+    Describe a specific job or workflow
     """
     try:
         client = ProminenceClient()
@@ -393,7 +393,7 @@ def command_upload(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as err:
+    except (exceptions.FileUploadError, exceptions.ConnectionError) as err:
         print('Error:', err)
         exit(1)
 
@@ -409,7 +409,7 @@ def command_download(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except Exception as err:
+    except (exceptions.JobGetError, exceptions.ConnectionError) as err:
         print('Error:', err)
         exit(1)
 
@@ -442,18 +442,23 @@ def command_download(args):
             url = pair['url']
 
             if os.path.isfile(path + file_name) and not args.force:
-                print('WARNING: skipping "%s" from job %d as file already exists and force option not specified' % (file_name, job['id']))
-                continue
+                print('Error: file "%s" already exists and force option not specified' % file_name)
+                exit(1)
 
-            response = requests.get(url, stream=True)
+            try:
+                response = requests.get(url, stream=True, timeout=30)
+            except requests.exceptions.RequestException as err:
+                print('Error getting file due to: %s' % err)
+                exit(1)
+            
             total_length = response.headers.get('content-length')
 
             if response.status_code != 200:
-                print('WARNING: skipping "%s" from job %d as it does not exist' % (file_name, job['id']))
-                continue
+                print('Error: content from file "%s" does not exist' % file_name)
+                exit(1)
 
             with open(path + file_name, 'wb') as file_download:
-                print('Downloading file "%s" from job %d' % (file_name, job['id']))
+                print('Downloading file "%s"' % file_name)
                 if total_length is None:
                     file_download.write(response.content)
                 else:
@@ -469,7 +474,7 @@ def command_download(args):
 
 def command_delete(args):
     """
-    Delete a job
+    Delete a job or workflow
     """
     try:
         client = ProminenceClient()
@@ -533,7 +538,7 @@ def command_run(args):
         if response.status_code == 200:
             try:
                 data = response.json()
-            except Exception as err:
+            except json.decoder.JSONDecodeError as err:
                 print('Error: problem with JSON at URL: %s' % err)
                 exit(1)
         else:
