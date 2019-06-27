@@ -327,7 +327,7 @@ class ProminenceClient(object):
         # Upload
         try:
             with open(filename, 'rb') as file_obj:
-                response = requests.put(url, data=file_obj)
+                response = requests.put(url, data=file_obj, timeout=30)
         except requests.exceptions.RequestException as e:
             raise exceptions.ConnectionError(e)     
         except IOError as e:
