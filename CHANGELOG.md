@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.12
+* Correction to file download required due to change from Swift to S3 API
+
 ## 0.1.11
 * Numerous bug fixes
 
