@@ -333,7 +333,7 @@ class ProminenceClient(object):
         except IOError as e:
             raise exceptions.FileUploadError(e)
 
-        if response.status_code == 201:
+        if response.status_code == 200:
             return True
         elif response.status_code == 401:
             raise exceptions.AuthenticationError()
