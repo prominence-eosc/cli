@@ -75,9 +75,12 @@ def list_jobs(jobs):
         my_cmd = ''
         if 'cmd' in job['tasks'][0]:
             my_cmd = job['tasks'][0]['cmd']
+        my_name = ''
+        if 'name' in job:
+            my_name = job['name']
 
         width_id_current = len(str(job['id']))
-        width_name_current = len(job['name'])
+        width_name_current = len(my_name)
         width_status_current = len(job['status'])
         width_container_current = len(image_name(job['tasks'][0]['image']))
         width_cmd_current = len(my_cmd)
@@ -106,7 +109,7 @@ def list_jobs(jobs):
         if 'cmd' in job['tasks'][0]:
             my_cmd = job['tasks'][0]['cmd']
         print('%s   %s   %s   %s   %s   %s   %s' % (str(job['id']).ljust(width_id),
-                                                    job['name'].ljust(width_name),
+                                                    my_name.ljust(width_name),
                                                     datetime_format(job['events']['createTime']).ljust(width_created),
                                                     job['status'].ljust(width_status),
                                                     elapsed(job).ljust(width_elapsed),
@@ -854,7 +857,7 @@ def create_parser():
                                help='Specify that this job is preemptible')
     parser_create.add_argument('--constraints',
                                dest='constraints',
-                               help='Specify constraints')
+                               help='Specify constraints on where to run the job/workflow')
     parser_create.add_argument('--storage',
                                dest='storage',
                                help='Filename specifying storage details')
