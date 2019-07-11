@@ -343,7 +343,7 @@ def command_list(args):
         constraint = args.constraint
 
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         if args.resource == 'jobs':
             data = client.list_jobs(completed, active_and_completed, num, constraint)
         else:
@@ -351,7 +351,7 @@ def command_list(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.ConnectionError, exceptions.JobGetError) as err:
+    except (exceptions.ConnectionError, exceptions.JobGetError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
@@ -365,7 +365,7 @@ def command_describe(args):
     Describe a specific job or workflow
     """
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         if args.resource == 'job':
             data = client.describe_job(args.id)
         else:
@@ -373,7 +373,7 @@ def command_describe(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.JobGetError, exceptions.ConnectionError) as err:
+    except (exceptions.JobGetError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
@@ -391,12 +391,12 @@ def command_upload(args):
         exit(1)
 
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         response = client.upload(args.name, args.filename)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.FileUploadError, exceptions.ConnectionError) as err:
+    except (exceptions.FileUploadError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
@@ -407,12 +407,12 @@ def command_download(args):
     Download output files and directories
     """
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         job = client.describe_job(args.id)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.JobGetError, exceptions.ConnectionError) as err:
+    except (exceptions.JobGetError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
@@ -480,7 +480,7 @@ def command_delete(args):
     Delete a job or workflow
     """
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         if args.resource == 'job':
             client.delete_job(args.id)
         else:
@@ -488,7 +488,7 @@ def command_delete(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except exceptions.ConnectionError as err:
+    except (exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
@@ -499,7 +499,7 @@ def command_stdout(args):
     Get standard output for a specific job/workflow
     """
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         if args.job:
             print(client.stdout_workflow(args.id, args.job))
         else:
@@ -507,7 +507,7 @@ def command_stdout(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.ConnectionError, exceptions.StdStreamsError) as err:
+    except (exceptions.ConnectionError, exceptions.StdStreamsError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
@@ -516,7 +516,7 @@ def command_stderr(args):
     Get standard error for a specific job/workflow
     """
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         if args.job:
             print(client.stderr_workflow(args.id, args.job))
         else:
@@ -524,7 +524,7 @@ def command_stderr(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.ConnectionError, exceptions.StdStreamsError) as err:
+    except (exceptions.ConnectionError, exceptions.StdStreamsError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
@@ -559,7 +559,7 @@ def command_run(args):
             exit(1)
 
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         if 'dependencies' in data:
             res_id = client.create_workflow(data)
             resource = 'Workflow'
@@ -569,7 +569,7 @@ def command_run(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.ConnectionError, exceptions.JobCreationError) as err:
+    except (exceptions.ConnectionError, exceptions.JobCreationError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
@@ -718,12 +718,12 @@ def command_create(args):
         exit(0)
 
     try:
-        client = ProminenceClient()
+        client = ProminenceClient(authenticated=True)
         job_id = client.create_job(job)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.ConnectionError, exceptions.JobCreationError) as err:
+    except (exceptions.ConnectionError, exceptions.JobCreationError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
 
