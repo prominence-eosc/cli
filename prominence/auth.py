@@ -131,6 +131,9 @@ def get_client():
     """
     Load saved OIDC client details
     """
+    if 'PROMINENCE_OIDC_CLIENT_ID' in os.environ and 'PROMINENCE_OIDC_CLIENT_SECRET' in os.environ:
+        return (os.environ['PROMINENCE_OIDC_CLIENT_ID'], os.environ['PROMINENCE_OIDC_CLIENT_SECRET'])
+
     if os.path.isfile(os.path.expanduser('~/.prominence/client')):
         with open(os.path.expanduser('~/.prominence/client')) as json_data:
             data = json.load(json_data)
