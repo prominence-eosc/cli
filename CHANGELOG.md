@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.13
+* Handle situation if a job name is not defined
+* Changes to ProminenceClient so that authentication from within a Jupyter notebook will work again
+
 ## 0.1.12
 * Correction to file download required due to change from Swift to S3 API
 
