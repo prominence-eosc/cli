@@ -11,11 +11,11 @@ class ProminenceClient(object):
     """
     PROMINENCE client class
     """
-    def __init__(self, timeout=30, token_in_file=True):
+    def __init__(self, authenticated=False, timeout=30):
         self._url = os.environ['PROMINENCE_URL']
         self._timeout = timeout
 
-        if token_in_file:
+        if authenticated:
             token = auth.get_token()
             if not token:
                 raise exceptions.TokenError('Unable to obtain a token')
