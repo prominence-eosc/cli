@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.14
+* Allow OIDC client id and secret to be obtained from environment variables
+
 ## 0.1.13
 * Handle situation if a job name is not defined
 * Changes to ProminenceClient so that authentication from within a Jupyter notebook will work again
