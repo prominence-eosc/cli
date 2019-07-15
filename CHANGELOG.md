@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.15
+* (bug fix) When listing multiple jobs the name of the last job was shown for all jobs
+* Automatically create the ~/.prominence directory when running `login` - this is necessary for the case when the OIDC client id and secret are obtained from environment variables
+
 ## 0.1.14
 * Allow OIDC client id and secret to be obtained from environment variables
 
