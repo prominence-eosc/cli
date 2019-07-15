@@ -108,6 +108,9 @@ def list_jobs(jobs):
         my_cmd = ''
         if 'cmd' in job['tasks'][0]:
             my_cmd = job['tasks'][0]['cmd']
+        my_name = ''
+        if 'name' in job:
+            my_name = job['name']
         print('%s   %s   %s   %s   %s   %s   %s' % (str(job['id']).ljust(width_id),
                                                     my_name.ljust(width_name),
                                                     datetime_format(job['events']['createTime']).ljust(width_created),
