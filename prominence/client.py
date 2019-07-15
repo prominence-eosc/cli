@@ -101,8 +101,11 @@ class ProminenceClient(object):
         """
         Create a job from a JSON description
         """
+        headers = dict(self._headers)
+        headers['Content-type'] = 'application/json'
+
         try:
-            response = requests.post(self._url + '/jobs', json=job, timeout=self._timeout, headers=self._headers)
+            response = requests.post(self._url + '/jobs', data=json.dumps(job), timeout=self._timeout, headers=headers)
         except requests.exceptions.RequestException as e:
             raise exceptions.ConnectionError(e)
 
@@ -123,8 +126,11 @@ class ProminenceClient(object):
         """
         Create a workflow from a JSON description
         """
+        headers = dict(self._headers)
+        headers['Content-type'] = 'application/json'
+
         try:
-            response = requests.post(self._url + '/workflows', json=workflow, timeout=self._timeout, headers=self._headers)
+            response = requests.post(self._url + '/workflows', data=json.dumps(workflow), timeout=self._timeout, headers=headers)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
