@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.1.16
+## 0.1.16
 * Job and workflow creation will now work on systems with old versions of the Python requests module (older than 2.4.2)
 
 ## 0.1.15
