@@ -75,3 +75,9 @@ class StdStreamsError(ProminenceError):
     Raised when there is a problem getting the standard output or error
     """
     pass
+
+class IOError(ProminenceError):
+    """
+    Raised when there is a file read/write operation fails
+    """
+    pass
