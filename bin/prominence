@@ -192,6 +192,8 @@ def transform_job(job, detail):
     if detail:
         if 'preemptible' in job:
             job_t['preemptible'] = True
+        if 'numberOfRetries' in job:
+            job_t['numberOfRetries'] = job['numberOfRetries']
 
     events = OrderedDict()
     if 'events' in job:
@@ -223,6 +225,8 @@ def transform_job(job, detail):
                 task_t = {}
                 if 'exitCode' in task:
                     task_t['exitCode'] = task['exitCode']
+                if 'retries' in task:
+                    task_t['retries'] = task['retries']
                 if 'imagePullTime' in task:
                     task_t['imagePullTime'] = float('%.4g' % task['imagePullTime'])
                 if 'wallTimeUsage' in task:
@@ -709,6 +713,10 @@ def command_create(args):
     if args.preemptible:
         job['preemptible'] = args.preemptible
 
+    # Retries
+    if args.retries:
+        job['numberOfRetries'] = args.retries
+
     # Add task to job
     job['tasks'] = [task]
 
@@ -850,6 +858,11 @@ def create_parser():
                                choices=['singularity', 'udocker'],
                                help='Container runtime, either singularity or udocker. The default \
                                      is singularity.')
+    parser_create.add_argument('--retries',
+                               dest='retries',
+                               type=int,
+                               help='Number of retries if the application exit code is not 0. By \
+                                     default no retries will be attempted.')
     parser_create.add_argument('--preemptible',
                                dest='preemptible',
                                default=False,
