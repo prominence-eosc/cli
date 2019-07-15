@@ -8,6 +8,16 @@ import requests
 
 from prominence import exceptions
 
+def create_config_dir():
+    """
+    Create the ~/.prominence directory
+    """
+    try:
+        if not os.path.exists(os.path.expanduser('~/.prominence')):
+            os.mkdir(os.path.expanduser('~/.prominence'))
+    except IOError as err:
+        raise exceptions.IOError(err)
+
 def register_client():
     """
     Obtain a client id and secret from the OIDC provider
@@ -24,11 +34,7 @@ def register_client():
     data['response_types'] = ['code']
 
     # Create .prominence directory if necessary
-    try:
-        if not os.path.exists(os.path.expanduser('~/.prominence')):
-            os.mkdir(os.path.expanduser('~/.prominence'))
-    except IOError as err:
-        raise exceptions.ClientRegistrationError(err)
+    create_config_dir()
 
     # Create OIDC client
     try:
@@ -56,6 +62,10 @@ def authenticate_user(create_client_if_needed=True, token_in_file=True):
     """
     Obtain token from OIDC provider
     """
+    # Create .prominence directory if necessary: this is done automatically if the user registers as a client, but for
+    # the case of reading the client credentials from environment variables this step will be missed
+    create_config_dir()
+
     try:
         (client_id, client_secret) = get_client()
     except exceptions.ClientCredentialsError:
