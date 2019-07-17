@@ -310,11 +310,14 @@ class ProminenceClient(object):
         """
         Upload a file to transient cloud storage
         """   
-        # Get Swift URL
+        # Get S3 URL
         data = {'filename':file}
+
+        headers = dict(self._headers)
+        headers['Content-type'] = 'application/json'
         
         try:
-            response = requests.post(self._url + '/data/upload', json=data, headers=self._headers)
+            response = requests.post(self._url + '/data/upload', data=json.dumps(data), headers=headers)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
