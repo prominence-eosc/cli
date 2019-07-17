@@ -347,3 +347,29 @@ class ProminenceClient(object):
             raise exceptions.ConnectionError('Invalid cloud storage URL, got a 404 not found error from cloud storage')
 
         raise exceptions.FileUploadError('Got status code', response.status_code, 'from cloud storage')
+
+    def list_objects(self, path):
+        """
+        List objects in cloud storage
+        """
+        url = self._url + '/data'
+        if path:
+            url += '/%s' % path
+
+        try:
+            response = requests.get(url, headers=self._headers)
+        except requests.exceptions.RequestException:
+            raise exceptions.ConnectionError(e)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        else:
+            if 'error' in response.json():
+                raise exceptions.ObjectError(response.json()['error'])
+            raise exceptions.ObjectError('Unknown error when querying the PROMINENCE server')
+
+
