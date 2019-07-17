@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.17
+* Added `ls` command for listing objects in cloud storage
+
 ## 0.1.16
 * Job and workflow creation will now work on systems with old versions of the Python requests module (older than 2.4.2)
 
