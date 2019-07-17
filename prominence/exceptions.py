@@ -81,3 +81,9 @@ class IOError(ProminenceError):
     Raised when there is a file read/write operation fails
     """
     pass
+
+class ObjectError(ProminenceError):
+    """
+    Raised when there is an attempt to read/write objects fails
+    """
+    pass
