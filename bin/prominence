@@ -482,6 +482,35 @@ def command_download(args):
                         sys.stdout.flush()
             print('')
 
+def command_ls(args):
+    """
+    List objects in cloud storage
+    """
+    path = None
+    if args.path:
+        path = args.path
+
+    try:
+        client = ProminenceClient(authenticated=True)
+        objects = client.list_objects(path)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.ObjectError) as err:
+        print('Error:', err)
+        exit(1)
+
+    p1 = max([len('%d' % obj['size']) for obj in objects])
+    p2 = max([len('%s' % obj['lastModified']) for obj in objects])
+    p3 = max([len('%s' % obj['name']) for obj in objects])
+    
+
+    for object in objects:
+        if args.long:
+            print(object['name'].ljust(p3), ' ', ('%d' % object['size']).rjust(p1), ' ', object['lastModified'].rjust(p2))
+        else:
+            print(object['name'])
+
 def command_delete(args):
     """
     Delete a job or workflow
@@ -975,6 +1004,21 @@ def create_parser():
                                  help='Job id',
                                  type=int)
     parser_download.set_defaults(func=command_download)
+
+    # Create the parser for the "ls" command
+    parser_ls = subparsers.add_parser('ls',
+                                      help='List output files')
+    parser_ls.add_argument('-l',
+                           '--long',
+                           dest='long',
+                           default=False,
+                           action='store_true',
+                           help='Show object sizes and last modification times.')
+
+    parser_ls.add_argument('path',
+                           nargs='?',
+                           help='Path')
+    parser_ls.set_defaults(func=command_ls)
 
     # Create the parser for the "stdout" command
     parser_stdout = subparsers.add_parser('stdout',
