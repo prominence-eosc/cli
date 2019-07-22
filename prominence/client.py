@@ -15,6 +15,11 @@ class ProminenceClient(object):
         self._url = os.environ['PROMINENCE_URL']
         self._timeout = timeout
 
+        self._verify = True
+        if 'PROMINENCE_SSL_VERIFY' in os.environ:
+            if os.environ['PROMINENCE_SSL_VERIFY'] == 'False':
+                self._verify = False
+
         if authenticated:
             token = auth.get_token()
             if not token:
@@ -49,7 +54,7 @@ class ProminenceClient(object):
             params['constraint'] = constraint
 
         try:
-            response = requests.get(self._url + '/jobs', params=params, timeout=self._timeout, headers=self._headers)
+            response = requests.get(self._url + '/jobs', params=params, timeout=self._timeout, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException as e:
             raise exceptions.ConnectionError(e)
 
@@ -81,7 +86,7 @@ class ProminenceClient(object):
             params['constraint'] = constraint
 
         try:
-            response = requests.get(self._url + '/workflows', params=params, timeout=self._timeout, headers=self._headers)
+            response = requests.get(self._url + '/workflows', params=params, timeout=self._timeout, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException as e:
             raise exceptions.ConnectionError(e)
 
@@ -105,7 +110,7 @@ class ProminenceClient(object):
         headers['Content-type'] = 'application/json'
 
         try:
-            response = requests.post(self._url + '/jobs', data=json.dumps(job), timeout=self._timeout, headers=headers)
+            response = requests.post(self._url + '/jobs', data=json.dumps(job), timeout=self._timeout, headers=headers, verify=self._verify)
         except requests.exceptions.RequestException as e:
             raise exceptions.ConnectionError(e)
 
@@ -130,7 +135,7 @@ class ProminenceClient(object):
         headers['Content-type'] = 'application/json'
 
         try:
-            response = requests.post(self._url + '/workflows', data=json.dumps(workflow), timeout=self._timeout, headers=headers)
+            response = requests.post(self._url + '/workflows', data=json.dumps(workflow), timeout=self._timeout, headers=headers, verify=self._verify)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
@@ -164,7 +169,7 @@ class ProminenceClient(object):
         Delete the specified job or workflow
         """
         try:
-            response = requests.delete(self._url + '/%s/%d' % (resource, id), timeout=self._timeout, headers=self._headers)
+            response = requests.delete(self._url + '/%s/%d' % (resource, id), timeout=self._timeout, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
@@ -187,7 +192,7 @@ class ProminenceClient(object):
         Describe a specific job
         """
         try:
-            response = requests.get(self._url + '/jobs/%d' % job_id, timeout=self._timeout, headers=self._headers)
+            response = requests.get(self._url + '/jobs/%d' % job_id, timeout=self._timeout, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
@@ -211,7 +216,7 @@ class ProminenceClient(object):
         Describe a specific workflow
         """
         try:
-            response = requests.get(self._url + '/workflows/%d' % workflow_id, timeout=self._timeout, headers=self._headers)
+            response = requests.get(self._url + '/workflows/%d' % workflow_id, timeout=self._timeout, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
@@ -252,7 +257,7 @@ class ProminenceClient(object):
             path = '/%s/%d/stdout' % (type, id)
 
         try:
-            response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers)
+            response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
@@ -290,7 +295,7 @@ class ProminenceClient(object):
             path = '/%s/%d/stderr' % (type, id)
 
         try:
-            response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers)
+            response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
@@ -317,7 +322,7 @@ class ProminenceClient(object):
         headers['Content-type'] = 'application/json'
         
         try:
-            response = requests.post(self._url + '/data/upload', data=json.dumps(data), headers=headers)
+            response = requests.post(self._url + '/data/upload', data=json.dumps(data), headers=headers, verify=self._verify)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
@@ -360,7 +365,7 @@ class ProminenceClient(object):
             url += '/%s' % path
 
         try:
-            response = requests.get(url, headers=self._headers)
+            response = requests.get(url, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException:
             raise exceptions.ConnectionError(e)
 
