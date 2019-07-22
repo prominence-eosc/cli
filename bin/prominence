@@ -236,6 +236,8 @@ def transform_job(job, detail):
                     task_t['wallTimeUsage'] = float('%.4g' % task['wallTimeUsage'])
                 if 'cpuTimeUsage' in task:
                     task_t['cpuTimeUsage'] = float('%.4g' % task['cpuTimeUsage'])
+                if 'maxResidentSetSizeKB' in task:
+                    task_t['maxResidentSetSizeKB'] = task['maxResidentSetSizeKB']
                 tasks.append(task_t)
 
             execution['tasks'] = tasks

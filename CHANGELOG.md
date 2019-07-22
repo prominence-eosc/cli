@@ -2,6 +2,7 @@
 
 ## 0.1.18
 * If the environment variable PROMINENCE_SSL_VERIFY is set to "False", certificate verification will be disabled. This is for test purposes only.
+* Report maximum resident set size
 
 ## 0.1.17
 * Added `ls` command for listing objects in cloud storage
