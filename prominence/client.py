@@ -380,4 +380,25 @@ class ProminenceClient(object):
                 raise exceptions.ObjectError(response.json()['error'])
             raise exceptions.ObjectError('Unknown error when querying the PROMINENCE server')
 
+    def delete_object(self, object):
+        """
+        Delete an object in cloud storage
+        """
+        url = self._url + '/data/' + object
+        try:
+            response = requests.delete(url, headers=self._headers, verify=self._verify)
+        except requests.exceptions.RequestException:
+            raise exceptions.ConnectionError(e)
 
+        if response.status_code == 204:
+            return True
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        else:
+            if 'error' in response.json():
+                raise exceptions.ObjectError(response.json()['error'])
+            raise exceptions.ObjectError('Unknown error when querying the PROMINENCE server')
+
+        return False

@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.19
+* Added `rm` command for deleting objects from cloud storage
+
 ## 0.1.18
 * If the environment variable PROMINENCE_SSL_VERIFY is set to "False", certificate verification will be disabled. This is for test purposes only.
 * Report maximum resident set size

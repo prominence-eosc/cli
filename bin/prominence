@@ -513,6 +513,27 @@ def command_ls(args):
         else:
             print(object['name'])
 
+def command_rm(args):
+    """
+    Delete an object in cloud storage
+    """
+    if not args.object:
+        print('Error: an object name must be specified')
+        exit(1)
+    
+    try:
+        client = ProminenceClient(authenticated=True)
+        client.delete_object(args.object)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.ObjectError) as err:
+        print('Error:', err)
+        exit(1)
+
+    print('Success')
+
+
 def command_delete(args):
     """
     Delete a job or workflow
@@ -1021,6 +1042,13 @@ def create_parser():
                            nargs='?',
                            help='Path')
     parser_ls.set_defaults(func=command_ls)
+
+    # Create the parser for the "rm" command
+    parser_rm = subparsers.add_parser('rm',
+                                      help='Delete a file uploaded to object storage')
+    parser_rm.add_argument('object',
+                           help='Object name')
+    parser_rm.set_defaults(func=command_rm)
 
     # Create the parser for the "stdout" command
     parser_stdout = subparsers.add_parser('stdout',
