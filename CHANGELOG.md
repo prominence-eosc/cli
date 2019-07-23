@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.20
+* Fixed bug for situation where `ls` returns no objects
+
 ## 0.1.19
 * Added `rm` command for deleting objects from cloud storage
 

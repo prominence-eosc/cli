@@ -502,16 +502,17 @@ def command_ls(args):
         print('Error:', err)
         exit(1)
 
-    p1 = max([len('%d' % obj['size']) for obj in objects])
-    p2 = max([len('%s' % obj['lastModified']) for obj in objects])
-    p3 = max([len('%s' % obj['name']) for obj in objects])
-    
+    if objects:
+        p1 = max([len('%d' % obj['size']) for obj in objects])
+        p2 = max([len('%s' % obj['lastModified']) for obj in objects])
+        p3 = max([len('%s' % obj['name']) for obj in objects])
 
-    for object in objects:
-        if args.long:
-            print(object['name'].ljust(p3), ' ', ('%d' % object['size']).rjust(p1), ' ', object['lastModified'].rjust(p2))
-        else:
-            print(object['name'])
+        for object in objects:
+            if args.long:
+                print(object['name'].ljust(p3), ' ', ('%d' % object['size']).rjust(p1), ' ', object['lastModified'].rjust(p2))
+            else:
+                print(object['name'])
+
 
 def command_rm(args):
     """
