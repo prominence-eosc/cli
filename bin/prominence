@@ -550,7 +550,7 @@ def command_delete(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
-    except (exceptions.ConnectionError, exceptions.TokenError) as err:
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.DeletionError) as err:
         print('Error:', err)
         exit(1)
 

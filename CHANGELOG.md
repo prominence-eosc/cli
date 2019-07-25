@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.22
+* Handle DeletionError for `delete` command
+
 ## 0.1.21
 * Report overall job maximum memory usage (maxMemoryUsageKB) for completed jobs
 
