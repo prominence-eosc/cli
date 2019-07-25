@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.21
+* Report overall job maximum memory usage (maxMemoryUsageKB) for completed jobs
+
 ## 0.1.20
 * Fixed bug for situation where `ls` returns no objects
 

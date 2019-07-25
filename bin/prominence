@@ -222,6 +222,8 @@ def transform_job(job, detail):
     if 'execution' in job:
         if 'site' in job['execution']:
             execution['site'] = job['execution']['site']
+        if 'maxMemoryUsageKB' in job['execution']:
+            execution['maxMemoryUsageKB'] = job['execution']['maxMemoryUsageKB']
         if 'tasks' in job['execution']:
             tasks = []
             for task in job['execution']['tasks']:
