@@ -2,6 +2,7 @@
 
 ## 0.1.22
 * Handle DeletionError for `delete` command
+* Allow output files & directories to be downloaded if job state is deleted or failed
 
 ## 0.1.21
 * Report overall job maximum memory usage (maxMemoryUsageKB) for completed jobs

@@ -427,7 +427,7 @@ def command_download(args):
         print('Error:', err)
         exit(1)
 
-    if ('outputFiles' in job or 'outputDirs' in job) and job['status'] == 'completed':
+    if ('outputFiles' in job or 'outputDirs' in job) and job['status'] in ('completed', 'failed', 'deleted'):
         # Create per-job directory if necessary & set path for files
         path = './'
         if args.dir:
