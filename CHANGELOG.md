@@ -6,16 +6,16 @@
 * Show elapsed time of workflows
 * Include factory (when necessary) when running `prominence describe workflow`
 
-## 0.1.21
+## 0.1.21
 * Report overall job maximum memory usage (maxMemoryUsageKB) for completed jobs
 
 ## 0.1.20
 * Fixed bug for situation where `ls` returns no objects
 
-## 0.1.19
+## 0.1.19
 * Added `rm` command for deleting objects from cloud storage
 
-## 0.1.18
+## 0.1.18
 * If the environment variable PROMINENCE_SSL_VERIFY is set to "False", certificate verification will be disabled. This is for test purposes only.
 * Report maximum resident set size
 
