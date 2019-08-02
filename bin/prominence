@@ -157,7 +157,7 @@ def list_workflows(workflows):
                                                workflow['name'].ljust(width_name),
                                                datetime_format(workflow['events']['createTime']).ljust(width_created),
                                                workflow['status'].ljust(width_status),
-                                               ''.ljust(width_elapsed),
+                                               elapsed(workflow).ljust(width_elapsed),
                                                ('%d/%d' % (workflow['progress']['done'], workflow['progress']['total'])).ljust(width_progress)))
 
 def transform_job(job, detail):
