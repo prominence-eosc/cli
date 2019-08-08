@@ -5,6 +5,7 @@
 * Allow output files & directories to be downloaded if job state is deleted or failed
 * Show elapsed time of workflows
 * Include factory (when necessary) when running `prominence describe workflow`
+* Allow `intelmpi` as a choice of MPI type
 
 ## 0.1.21
 * Report overall job maximum memory usage (maxMemoryUsageKB) for completed jobs
