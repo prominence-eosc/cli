@@ -659,7 +659,7 @@ def command_create(args):
     task['image'] = args.image
 
     # MPI processes per node
-    if args.openmpi or args.mpich:
+    if args.openmpi or args.mpich or args.intelmpi:
         if args.ppn == 0:
             task['procsPerNode'] = job['resources']['cpus']
         else:
@@ -684,9 +684,11 @@ def command_create(args):
         task['type'] = 'openmpi'
     elif args.mpich:
         task['type'] = 'mpich'
+    elif args.intelmpi:
+        task['type'] = 'intelmpi'
 
     # If multiple nodes are specified need to specify MPI type
-    if job['resources']['nodes'] > 1 and task['type'] != 'openmpi' and task['type'] != 'mpich':
+    if job['resources']['nodes'] > 1 and task['type'] != 'openmpi' and task['type'] != 'mpich' and task['type'] != 'intelmpi':
         print('Error: more than one node has been requested but MPI has not been specified')
         exit(1)
 
@@ -873,6 +875,11 @@ def create_parser():
                                default=False,
                                action='store_true',
                                help="Specify that this is an MPICH job.")
+    parser_create.add_argument('--intelmpi',
+                               dest='intelmpi',
+                               default=False,
+                               action='store_true',
+                               help="Specify that this is an Intel MPI job.")
     parser_create.add_argument('--artifact',
                                dest='artifact',
                                action='append',
