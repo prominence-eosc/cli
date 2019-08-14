@@ -2,6 +2,7 @@
 
 ## 0.1.23
 * Improve error messages when there are issues relating to device code flow initiation
+* (bug fix) Workflows without dependencies were being being submitted to the /jobs API endpoint rather than /workflows
 
 ## 0.1.22
 * Handle DeletionError for `delete` command

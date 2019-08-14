@@ -624,7 +624,7 @@ def command_run(args):
 
     try:
         client = ProminenceClient(authenticated=True)
-        if 'dependencies' in data:
+        if 'jobs' in data:
             res_id = client.create_workflow(data)
             resource = 'Workflow'
         else:
