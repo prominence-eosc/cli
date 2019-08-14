@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.23
+* Improve error messages when there are issues relating to device code flow initiation
+
 ## 0.1.22
 * Handle DeletionError for `delete` command
 * Allow output files & directories to be downloaded if job state is deleted or failed
