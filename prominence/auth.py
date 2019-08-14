@@ -93,10 +93,10 @@ def authenticate_user(create_client_if_needed=True, token_in_file=True):
                                  auth=(client_id, client_secret),
                                  allow_redirects=True)
     except requests.exceptions.RequestException as err:
-        raise exceptions.AuthenticationError('Unable to initiate the device code flow')
+        raise exceptions.AuthenticationError('Unable to initiate the device code flow: cannot connect to OIDC server')
 
     if response.status_code != 200:
-        raise exceptions.AuthenticationError('Unable to initiate the device code flow')
+        raise exceptions.AuthenticationError('Unable to initiate the device code flow: got status code %d' % response.status_code)
 
     device_code_response = response.json()
 
