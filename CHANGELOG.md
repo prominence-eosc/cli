@@ -4,7 +4,8 @@
 * Improve error messages when there are issues relating to device code flow initiation
 * (bug fix) Workflows without dependencies were being being submitted to the /jobs API endpoint rather than /workflows
 * Include policies section when describing jobs
-* Specify preemptible & numberOfRetries in policies section
+* Specify preemptible & numberOfRetries in policies section of job json description
+* Change numberOfRetries to maximumRetries in job json description
 
 ## 0.1.22
 * Handle DeletionError for `delete` command

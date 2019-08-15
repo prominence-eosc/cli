@@ -778,7 +778,7 @@ def command_create(args):
     if args.retries:
         if 'policies' not in job:
             job['policies'] = {}
-        job['policies']['numberOfRetries'] = args.retries
+        job['policies']['maximumRetries'] = args.retries
 
     # Add task to job
     job['tasks'] = [task]
