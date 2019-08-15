@@ -193,10 +193,8 @@ def transform_job(job, detail):
     job_t['tasks'] = job['tasks']
 
     if detail:
-        if 'preemptible' in job:
-            job_t['preemptible'] = True
-        if 'numberOfRetries' in job:
-            job_t['numberOfRetries'] = job['numberOfRetries']
+        if 'policies' in job:
+            job_t['policies'] = job['policies']
 
     events = OrderedDict()
     if 'events' in job:
@@ -773,11 +771,14 @@ def command_create(args):
 
     # Preemptible
     if args.preemptible:
-        job['preemptible'] = args.preemptible
+        job['policies'] = {}
+        job['policies']['preemptible'] = args.preemptible
 
     # Retries
     if args.retries:
-        job['numberOfRetries'] = args.retries
+        if 'policies' not in job:
+            job['policies'] = {}
+        job['policies']['numberOfRetries'] = args.retries
 
     # Add task to job
     job['tasks'] = [task]
