@@ -28,6 +28,12 @@ class AuthenticationError(ProminenceError):
     """
     pass
 
+class TokenExpiredError(ProminenceError):
+    """
+    Raised when a token has expired
+    """
+    pass
+
 class ConnectionError(ProminenceError):
     """
     Raised when we cannot connect to the PROMINENCE server
