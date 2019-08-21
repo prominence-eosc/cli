@@ -6,6 +6,7 @@
 * Include policies section when describing jobs
 * Specify preemptible & numberOfRetries in policies section of job json description
 * Change numberOfRetries to maximumRetries in job json description
+* Check token expiry date before contacting REST API
 
 ## 0.1.22
 * Handle DeletionError for `delete` command
