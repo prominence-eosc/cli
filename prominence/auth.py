@@ -1,6 +1,7 @@
 from __future__ import print_function
 import errno
 import json
+import jwt
 import os
 import time
 import uuid
@@ -168,3 +169,14 @@ def get_token():
         else:
             raise exceptions.TokenError('The saved token file does not contain access_token')
     raise exceptions.TokenError('The file ~/.prominence/token does not exist')
+
+def get_expiry(token):
+    """
+    Get expiry date from a JWT token
+    """
+    expiry = 0
+    try:
+        expiry = jwt.decode(token, verify=False)['exp']
+    except:
+        pass
+    return expiry
