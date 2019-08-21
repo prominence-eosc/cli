@@ -22,8 +22,13 @@ class ProminenceClient(object):
 
         if authenticated:
             token = auth.get_token()
+            # Check if we could get a token
             if not token:
                 raise exceptions.TokenError('Unable to obtain a token')
+
+            # Check if the token has expired
+            if time.time() - auth.get_expiry(token) > 0:
+                raise exceptions.TokenExpiredError('Token has expired')
 
             self._headers = {"Authorization":"Bearer %s" % token}
 
