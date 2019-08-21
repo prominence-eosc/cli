@@ -362,6 +362,9 @@ def command_list(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
+        exit(1)
     except (exceptions.ConnectionError, exceptions.JobGetError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
@@ -383,6 +386,9 @@ def command_describe(args):
             data = client.describe_workflow(args.id)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
         exit(1)
     except (exceptions.JobGetError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -407,6 +413,9 @@ def command_upload(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
+        exit(1)
     except (exceptions.FileUploadError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
@@ -422,6 +431,9 @@ def command_download(args):
         job = client.describe_job(args.id)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
         exit(1)
     except (exceptions.JobGetError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -500,6 +512,9 @@ def command_ls(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
+        exit(1)
     except (exceptions.ConnectionError, exceptions.TokenError, exceptions.ObjectError) as err:
         print('Error:', err)
         exit(1)
@@ -530,6 +545,9 @@ def command_rm(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
+        exit(1)
     except (exceptions.ConnectionError, exceptions.TokenError, exceptions.ObjectError) as err:
         print('Error:', err)
         exit(1)
@@ -550,6 +568,9 @@ def command_delete(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
+        exit(1)
     except (exceptions.ConnectionError, exceptions.TokenError, exceptions.DeletionError) as err:
         print('Error:', err)
         exit(1)
@@ -569,6 +590,9 @@ def command_stdout(args):
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
+        exit(1)
     except (exceptions.ConnectionError, exceptions.StdStreamsError, exceptions.TokenError) as err:
         print('Error:', err)
         exit(1)
@@ -585,6 +609,9 @@ def command_stderr(args):
             print(client.stderr_job(args.id))
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.StdStreamsError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -630,6 +657,9 @@ def command_run(args):
             resource = 'Job'
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.JobCreationError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -793,6 +823,9 @@ def command_create(args):
         job_id = client.create_job(job)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.JobCreationError, exceptions.TokenError) as err:
         print('Error:', err)
