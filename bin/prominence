@@ -1111,8 +1111,8 @@ if __name__ == "__main__":
         print('Error: Environment variable PROMINENCE_URL is not set')
         exit(1)
 
-    # Parse the arguments & run the required function if necessary
+    # Parse the arguments
     args = parser.parse_args()
 
-    # Run
+    # Run the required function
     args.func(args)
