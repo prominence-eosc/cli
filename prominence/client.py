@@ -264,7 +264,7 @@ class ProminenceClient(object):
 
         try:
             response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
             raise exceptions.ConnectionError(e)
 
         if response.status_code == 200:
@@ -302,7 +302,7 @@ class ProminenceClient(object):
 
         try:
             response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException:
+        except requests.exceptions.RequestException as e:
             raise exceptions.ConnectionError(e)
 
         if response.status_code == 200:
