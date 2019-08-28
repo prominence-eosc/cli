@@ -7,6 +7,8 @@
 * Specify preemptible & numberOfRetries in policies section of job json description
 * Change numberOfRetries to maximumRetries in job json description
 * Check token expiry date before contacting REST API
+* Renamed `--constraint` option to `--placement`
+* Add `--openmp-procs-per-node` as a shortcut which sets the MPI processes per node and OpenMP threads per node automatically
 
 ## 0.1.22
 * Handle DeletionError for `delete` command

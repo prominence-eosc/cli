@@ -686,12 +686,23 @@ def command_create(args):
     task = {}
     task['image'] = args.image
 
+    user_env = []
+    if args.env:
+        user_env = args.env
+    
     # MPI processes per node
     if args.openmpi or args.mpich or args.intelmpi:
         if args.ppn == 0:
             task['procsPerNode'] = job['resources']['cpus']
         else:
             task['procsPerNode'] = args.ppn
+
+        if args.ompppn > 0 and args.ppn > 0:
+            print('Error: do not specify both --procs-per-node and --openmp-procs-per-node')
+            exit(1)
+        elif args.ompppn > 0 and args.ppn == 0:
+            task['procsPerNode'] = job['resources']['cpus'] - args.ompppn
+            user_env.append('OMP_NUM_THREADS=%d' % args.ompppn)
 
     # Working directory
     if args.workdir:
@@ -763,9 +774,9 @@ def command_create(args):
         job['inputs'] = inputs
 
     # Environment variables
-    if args.env:
+    if user_env:
         env = {}
-        for pair in args.env:
+        for pair in user_env:
             if '=' in pair:
                 items = pair.split('=')
                 env[items[0]] = items[1]
@@ -781,8 +792,8 @@ def command_create(args):
         job['labels'] = labels
 
     # Constraints
-    if args.constraints:
-        job['constraints'] = json.loads(args.constraints)
+    if args.placement:
+        job['placement'] = json.loads(args.placement)
 
     # Storage
     if args.storage:
@@ -887,6 +898,12 @@ def create_parser():
                                help='Number of MPI processes to launch per node. By default this \
                                      will be the number of CPU cores requested per node but it can \
                                      be changed if necessary.')
+    parser_create.add_argument('--omp-procs-per-node',
+                               dest='ompppn',
+                               default=0,
+                               type=int,
+                               help='Number of OpenMP threads to launch per node. The number of MPI \
+                                     processes per node will be reduced accordingly.')
     parser_create.add_argument('--disk',
                                dest='disk',
                                default=10,
@@ -969,9 +986,9 @@ def create_parser():
                                default=False,
                                action='store_true',
                                help='Specify that this job is preemptible')
-    parser_create.add_argument('--constraints',
-                               dest='constraints',
-                               help='Specify constraints on where to run the job/workflow')
+    parser_create.add_argument('--placement',
+                               dest='placement',
+                               help='Specify requirements and preferences on where to run the job/workflow')
     parser_create.add_argument('--storage',
                                dest='storage',
                                help='Filename specifying storage details')
