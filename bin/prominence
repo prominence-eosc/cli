@@ -36,7 +36,7 @@ def datetime_format(epoch):
     """
     Convert a unix epoch in a formatted date/time string
     """
-    datetime_fmt = '%Y-%m-%dT%H:%M:%S'
+    datetime_fmt = '%Y-%m-%d %H:%M:%S'
     return time.strftime(datetime_fmt, time.gmtime(epoch))
 
 def print_json(content, transform=False, detail=False, resource='job'):
