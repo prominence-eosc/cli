@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.1.23 (WIP)
+## 0.1.23
 * Improve error messages when there are issues relating to device code flow initiation
 * (bug fix) Workflows without dependencies were being being submitted to the /jobs API endpoint rather than /workflows
 * Include policies section when describing jobs
