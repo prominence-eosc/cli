@@ -125,8 +125,14 @@ class ProminenceClient(object):
 
         if response.status_code == 200:
             return response.text
-        else:
-            return ''
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        elif 'error' in response.json():
+            raise exceptions.ExecError(response.json()['error'])
+
+        raise exceptions.ExecError('Unknown error')
 
     def create_job(self, job):
         """
