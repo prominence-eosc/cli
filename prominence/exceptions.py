@@ -93,3 +93,9 @@ class ObjectError(ProminenceError):
     Raised when there is an attempt to read/write objects fails
     """
     pass
+
+class ExecError(ProminenceError):
+    """
+    Raised when there is an error executing a command inside a job
+    """
+    pass
