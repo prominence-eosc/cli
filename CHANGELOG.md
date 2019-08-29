@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.1.24
+* The `register` command made use of the json argument in the requests module when doing a post - changed this from json to data so that old versions of Python 2 will work
+
 ## 0.1.23
 * Improve error messages when there are issues relating to device code flow initiation
 * (bug fix) Workflows without dependencies were being being submitted to the /jobs API endpoint rather than /workflows
