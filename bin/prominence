@@ -364,7 +364,7 @@ def command_list(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.JobGetError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -381,12 +381,15 @@ def command_exec(args):
     """
     try:
         client = ProminenceClient(authenticated=True)
-        output = client.execute_command(args.id, shlex.split(args.command))
+        output = client.execute_command(args.id, shlex.split(str(args.command)))
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
+        exit(1)
+    except exceptions.ExecError as err:
+        print('Error: Unable to execute command:', err)
         exit(1)
     except Exception as err:
         print('Error:', err)
@@ -408,7 +411,7 @@ def command_describe(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.JobGetError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -434,7 +437,7 @@ def command_upload(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.FileUploadError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -453,7 +456,7 @@ def command_download(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.JobGetError, exceptions.ConnectionError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -533,7 +536,7 @@ def command_ls(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.TokenError, exceptions.ObjectError) as err:
         print('Error:', err)
@@ -566,7 +569,7 @@ def command_rm(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.TokenError, exceptions.ObjectError) as err:
         print('Error:', err)
@@ -589,7 +592,7 @@ def command_delete(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.TokenError, exceptions.DeletionError) as err:
         print('Error:', err)
@@ -611,7 +614,7 @@ def command_stdout(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.StdStreamsError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -631,7 +634,7 @@ def command_stderr(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.StdStreamsError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -679,7 +682,7 @@ def command_run(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.JobCreationError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -856,7 +859,7 @@ def command_create(args):
         print('Error: authentication failed')
         exit(1)
     except exceptions.TokenExpiredError:
-        print('Error: token has expired')
+        print('Error: access token has expired')
         exit(1)
     except (exceptions.ConnectionError, exceptions.JobCreationError, exceptions.TokenError) as err:
         print('Error:', err)
@@ -1088,10 +1091,10 @@ def create_parser():
     parser_exec.add_argument('id',
                                  help='Job id',
                                  type=int)
-    parser_create.add_argument('command',
-                               nargs='?',
-                               help='Command to run in the container. If you need to specify \
-                                     arguments, put the combined command and arguments inside quotes.')
+    parser_exec.add_argument('command',
+                             nargs='?',
+                             help='Command to run in the container. If you need to specify \
+                                   arguments, put the combined command and arguments inside quotes.')
     parser_exec.set_defaults(func=command_exec)
 
     # Create the parser for the "upload" command
