@@ -108,6 +108,26 @@ class ProminenceClient(object):
 
         raise exceptions.WorkflowGetError('Unknown error')
 
+    def execute_command(self, job_id, command):
+        """
+        Execute a command inside a job
+        """
+        headers = dict(self._headers)
+        headers['Content-type'] = 'application/json'
+
+        params = {}
+        params['command'] = ','.join(command)
+
+        try:
+            response = requests.post(self._url + '/jobs/%d/exec' % job_id, timeout=self._timeout, headers=headers, params=params, verify=self._verify)
+        except requests.exceptions.RequestException as e:
+            raise exceptions.ConnectionError(e)
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            return ''
+
     def create_job(self, job):
         """
         Create a job from a JSON description

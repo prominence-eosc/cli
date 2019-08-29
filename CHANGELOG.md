@@ -9,6 +9,7 @@
 * Check token expiry date before contacting REST API
 * Renamed `--constraint` option to `--placement`
 * Add `--openmp-procs-per-node` as a shortcut which sets the MPI processes per node and OpenMP threads per node automatically
+* Add `exec` command for running arbitrary commands in running jobs
 
 ## 0.1.22
 * Handle DeletionError for `delete` command

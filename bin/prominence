@@ -8,6 +8,7 @@ import errno
 import json
 import os
 import re
+import shlex
 import sys
 import time
 import requests
@@ -373,6 +374,25 @@ def command_list(args):
         list_jobs(transform_item_list(data, False, 'job'))
     else:
         list_workflows(transform_item_list(data, False, 'workflow'))
+
+def command_exec(args):
+    """
+    Execute a command inside a running job
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        output = client.execute_command(args.id, shlex.split(args.command))
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: token has expired')
+        exit(1)
+    except Exception as err:
+        print('Error:', err)
+        exit(1)
+
+    print(output)
 
 def command_describe(args):
     """
@@ -1061,6 +1081,18 @@ def create_parser():
                                help='Job/workflow id',
                                type=int)
     parser_delete.set_defaults(func=command_delete)
+
+    # Create the parser for the "exec" command
+    parser_exec = subparsers.add_parser('exec',
+                                        help='Execute a command inside a job')
+    parser_exec.add_argument('id',
+                                 help='Job id',
+                                 type=int)
+    parser_create.add_argument('command',
+                               nargs='?',
+                               help='Command to run in the container. If you need to specify \
+                                     arguments, put the combined command and arguments inside quotes.')
+    parser_exec.set_defaults(func=command_exec)
 
     # Create the parser for the "upload" command
     parser_upload = subparsers.add_parser('upload',
