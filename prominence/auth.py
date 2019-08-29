@@ -26,6 +26,9 @@ def register_client():
     if os.path.isfile(os.path.expanduser('~/.prominence/client')):
         return True
 
+    headers = {}
+    headers['Content-type'] = 'application/json'
+
     data = {}
     data['redirect_uris'] = ['%s/redirect_url' % os.environ['PROMINENCE_URL']]
     data['client_name'] = 'prominence-user-%s' % str(uuid.uuid4())
@@ -40,8 +43,9 @@ def register_client():
     # Create OIDC client
     try:
         response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/register',
-                                 json=data,
+                                 data=json.dumps(data),
                                  timeout=10,
+                                 headers=headers,
                                  allow_redirects=True)
     except requests.exceptions.RequestException as err:
         raise exceptions.ClientRegistrationError(err)
