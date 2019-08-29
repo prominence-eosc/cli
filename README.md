@@ -15,6 +15,7 @@ The PROMINENCE CLI can be installed in a user's home directory by running:
 ```
 pip install --user prominence
 ```
+and then ensure that `$HOME/.local/bin` is added to your `PATH`.
 
 ## As a normal user using virtualenv
 If `virtualenv` is not available it can be installed in a user's home directory by typing:
