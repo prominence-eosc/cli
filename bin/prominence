@@ -493,6 +493,10 @@ def command_download(args):
             if os.path.isfile(path + file_name) and not args.force:
                 print('Error: file "%s" already exists and force option not specified' % file_name)
                 exit(1)
+  
+            if url == '':
+                print('Error: no URL available for "%s"' % pair['name'])
+                exit(1)
 
             try:
                 response = requests.get(url, stream=True, timeout=30)
