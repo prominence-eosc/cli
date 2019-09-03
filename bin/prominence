@@ -752,7 +752,7 @@ def command_create(args):
         task['type'] = 'intelmpi'
 
     # If multiple nodes are specified need to specify MPI type
-    if job['resources']['nodes'] > 1 and task['type'] != 'openmpi' and task['type'] != 'mpich' and task['type'] != 'intelmpi':
+    if job['resources']['nodes'] > 1 and 'type' not in task:
         print('Error: more than one node has been requested but MPI has not been specified')
         exit(1)
 
