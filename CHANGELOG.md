@@ -3,6 +3,7 @@
 ## 0.1.25 (WIP)
 * If no URL is available for an output file or directory, give a clear error message
 * No longer set procsPerNode to the number of requested CPUs by default (if the actual number of CPUs per node is greater than what the user requested, we want to make use of them)
+* (bug fix) Check for multiple nodes but no MPI flavour now works
 
 ## 0.1.24
 * The `register` command made use of the json argument in the requests module when doing a post - changed this from json to data so that old versions of Python 2 will work
