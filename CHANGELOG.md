@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.1.25 (WIP)
+## 0.1.25
 * If no URL is available for an output file or directory, give a clear error message
 * No longer set procsPerNode to the number of requested CPUs by default (if the actual number of CPUs per node is greater than what the user requested, we want to make use of them)
 * (bug fix) Check for multiple nodes but no MPI flavour now works
