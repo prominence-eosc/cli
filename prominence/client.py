@@ -320,7 +320,7 @@ class ProminenceClient(object):
         """
         return self.stdout_generic('jobs', job_id)
 
-    def stdout_workflow(self, job_id, job, instance=-1):
+    def stdout_workflow(self, job_id, job, instance):
         """
         Get standard output from a workflow
         """
@@ -331,7 +331,10 @@ class ProminenceClient(object):
         Get standard output from a job or workflow
         """
         if job is not None:
-            path = '/%s/%d/%s/stdout' % (type, id, job)
+            if instance > -1:
+                path = '/%s/%d/%s/%d/stdout' % (type, id, job, instance)
+            else:
+                path = '/%s/%d/%s/stdout' % (type, id, job)
         else:
             path = '/%s/%d/stdout' % (type, id)
 
@@ -358,7 +361,7 @@ class ProminenceClient(object):
         """
         return self.stderr_generic('jobs', job_id)
 
-    def stderr_workflow(self, job_id, job, instance=-1):
+    def stderr_workflow(self, job_id, job, instance):
         """
         Get standard error from a workflow
         """
@@ -369,7 +372,10 @@ class ProminenceClient(object):
         Get standard error from a job
         """
         if job is not None:
-            path = '/%s/%d/%s/stderr' % (type, id, job)
+            if instance > -1:
+                path = '/%s/%d/%s/%d/stderr' % (type, id, job, instance)
+            else:
+                path = '/%s/%d/%s/stderr' % (type, id, job)
         else:
             path = '/%s/%d/stderr' % (type, id)
 
