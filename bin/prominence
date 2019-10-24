@@ -762,6 +762,10 @@ def command_create(args):
         print('Error: more than one node has been requested but MPI has not been specified')
         exit(1)
 
+    if job['resources']['nodes'] > 1 and task['type'] != 'openmpi' and task['type'] != 'mpich' and task['type'] != 'intelmpi':
+        print('Error: more than one node has been requested but MPI has not been specified')
+        exit(1)
+
     # Optional command to run
     if args.command:
         task['cmd'] = args.command
@@ -1168,6 +1172,7 @@ def create_parser():
     parser_stdout.add_argument('instance',
                                help='Instance',
                                nargs='?',
+                               default=-1,
                                type=int)
     parser_stdout.set_defaults(func=command_stdout)
 
@@ -1183,6 +1188,7 @@ def create_parser():
     parser_stderr.add_argument('instance',
                                help='Instance',
                                nargs='?',
+                               default=-1,
                                type=int)
     parser_stderr.set_defaults(func=command_stderr)
 
