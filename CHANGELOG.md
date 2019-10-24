@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.0
+* Standard output and error for factory jobs can be retrieved by specifying an instance id
+* New command `prominence snapshot` allows users to create and retrieve a shapshot of a file or directory for a running job
+
 ## 0.1.25
 * If no URL is available for an output file or directory, give a clear error message
 * No longer set procsPerNode to the number of requested CPUs by default (if the actual number of CPUs per node is greater than what the user requested, we want to make use of them)
