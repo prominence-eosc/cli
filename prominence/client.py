@@ -134,6 +134,53 @@ class ProminenceClient(object):
 
         raise exceptions.ExecError('Unknown error')
 
+    def get_snapshot_url(self, job_id):
+        """
+        Get the URL of the current snapshot
+        """
+        try:
+            response = requests.get(self._url + '/jobs/%d/snapshot' % job_id, timeout=self._timeout, headers=self._headers, verify=self._verify)
+        except requests.exceptions.RequestException as e:
+            raise exceptions.ConnectionError(e)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        elif response.status_code < 500:
+            if 'error' in response.json():
+                raise exceptions.SnapshotGetError(response.json()['error'])
+
+        raise exceptions.SnapshotGetError('Unknown error')
+
+    def create_snapshot(self, job_id, path):
+        """
+        Create a snapshot of a file or directory in a running job
+        """
+        headers = dict(self._headers)
+        headers['Content-type'] = 'application/json'
+
+        params = {}
+        params['path'] = path
+
+        try:
+            response = requests.put(self._url + '/jobs/%d/snapshot' % job_id, timeout=self._timeout, headers=headers, params=params, verify=self._verify)
+        except requests.exceptions.RequestException as e:
+            raise exceptions.ConnectionError(e)
+
+        if response.status_code == 200:
+            return response.text
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        elif 'error' in response.json():
+            raise exceptions.SnapshotCreateError(response.json()['error'])
+
+        raise exceptions.SnapshotCreateError('Unknown error')
+
     def create_job(self, job):
         """
         Create a job from a JSON description
