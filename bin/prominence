@@ -399,6 +399,75 @@ def command_exec(args):
 
     print(output)
 
+def command_snapshot(args):
+    """
+    Create a snapshot of a file or directory in a running job and download it
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        output = client.create_snapshot(args.id, args.path)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except exceptions.SnapshotCreateError as err:
+        print('Error: Unable to create snapshot:', err)
+        exit(1)
+    except Exception as err:
+        print('Error:', err)
+        exit(1)
+
+    try:
+        client = ProminenceClient(authenticated=True)
+        data = client.get_snapshot_url(args.id)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except exceptions.SnapshotGetError as err:
+        print('Error: Unable to get snapshot:', err)
+        exit(1)
+    except Exception as err:
+        print('Error:', err)
+        exit(1)
+
+    if 'url' in data:
+        url = data['url']
+    else:
+        print('Error: URL of snapshot not available')
+        exit(1)
+
+    try:
+        response = requests.get(url, stream=True, timeout=30)
+    except requests.exceptions.RequestException as err:
+        print('Error getting file due to: %s' % err)
+        exit(1)
+
+    total_length = response.headers.get('content-length')
+
+    if response.status_code != 200:
+        print('Error: content from file "%s" does not exist' % file_name)
+        exit(1)
+
+    with open('snapshot.tgz', 'wb') as file_download:
+        print('Downloading file "snapshot.tgz"')
+        if total_length is None:
+            file_download.write(response.content)
+        else:
+            downloaded = 0
+            total_length = int(total_length)
+            for data in response.iter_content(chunk_size=4096):
+                downloaded += len(data)
+                file_download.write(data)
+                done = int(50 * downloaded / total_length)
+                sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
+                sys.stdout.flush()
+    print('')
+
 def command_describe(args):
     """
     Describe a specific job or workflow
@@ -612,7 +681,7 @@ def command_stdout(args):
     """
     try:
         client = ProminenceClient(authenticated=True)
-        if args.job and args.instance:
+        if args.job:
             print(client.stdout_workflow(args.id, args.job, args.instance))
         elif args.job:
             print(client.stdout_workflow(args.id, args.job))
@@ -634,7 +703,7 @@ def command_stderr(args):
     """
     try:
         client = ProminenceClient(authenticated=True)
-        if args.job and args.instance:
+        if args.job:
             print(client.stderr_workflow(args.id, args.job, args.instance))
         elif args.job:
             print(client.stderr_workflow(args.id, args.job))
@@ -1108,6 +1177,16 @@ def create_parser():
                              help='Command to run in the container. If you need to specify \
                                    arguments, put the combined command and arguments inside quotes.')
     parser_exec.set_defaults(func=command_exec)
+
+    # Create the parser for the "snapshot" command
+    parser_snapshot = subparsers.add_parser('snapshot',
+                                            help='Create and download a snapshot of a file or directory in a running job')
+    parser_snapshot.add_argument('id',
+                                 help='Job id',
+                                 type=int)
+    parser_snapshot.add_argument('path',
+                                 help='Path of file or directory to snapshot')
+    parser_snapshot.set_defaults(func=command_snapshot)
 
     # Create the parser for the "upload" command
     parser_upload = subparsers.add_parser('upload',
