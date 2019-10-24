@@ -273,13 +273,13 @@ class ProminenceClient(object):
         """
         return self.stdout_generic('jobs', job_id)
 
-    def stdout_workflow(self, job_id, job):
+    def stdout_workflow(self, job_id, job, instance=-1):
         """
         Get standard output from a workflow
         """
-        return self.stdout_generic('workflows', job_id, job)
+        return self.stdout_generic('workflows', job_id, job, instance)
 
-    def stdout_generic(self, type, id, job=None):
+    def stdout_generic(self, type, id, job=None, instance=-1):
         """
         Get standard output from a job or workflow
         """
@@ -311,13 +311,13 @@ class ProminenceClient(object):
         """
         return self.stderr_generic('jobs', job_id)
 
-    def stderr_workflow(self, job_id, job):
+    def stderr_workflow(self, job_id, job, instance=-1):
         """
         Get standard error from a workflow
         """
-        return self.stderr_generic('workflows', job_id, job)
+        return self.stderr_generic('workflows', job_id, job, instance)
 
-    def stderr_generic(self, type, id, job=None):
+    def stderr_generic(self, type, id, job=None, instance=-1):
         """
         Get standard error from a job
         """
