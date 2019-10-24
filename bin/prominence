@@ -610,7 +610,9 @@ def command_stdout(args):
     """
     try:
         client = ProminenceClient(authenticated=True)
-        if args.job:
+        if args.job and args.instance:
+            print(client.stdout_workflow(args.id, args.job, args.instance))
+        elif args.job:
             print(client.stdout_workflow(args.id, args.job))
         else:
             print(client.stdout_job(args.id))
@@ -630,7 +632,9 @@ def command_stderr(args):
     """
     try:
         client = ProminenceClient(authenticated=True)
-        if args.job:
+        if args.job and args.instance:
+            print(client.stderr_workflow(args.id, args.job, args.instance))
+        elif args.job:
             print(client.stderr_workflow(args.id, args.job))
         else:
             print(client.stderr_job(args.id))
@@ -1159,6 +1163,10 @@ def create_parser():
     parser_stdout.add_argument('job',
                                help='Job name',
                                nargs='?')
+    parser_stdout.add_argument('instance',
+                               help='Instance',
+                               nargs='?',
+                               type=int)
     parser_stdout.set_defaults(func=command_stdout)
 
     # Create the parser for the "stderr" command
@@ -1170,6 +1178,10 @@ def create_parser():
     parser_stderr.add_argument('job',
                                help='Job name',
                                nargs='?')
+    parser_stderr.add_argument('instance',
+                               help='Instance',
+                               nargs='?',
+                               type=int)
     parser_stderr.set_defaults(func=command_stderr)
 
     # Version
