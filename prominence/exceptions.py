@@ -99,3 +99,16 @@ class ExecError(ProminenceError):
     Raised when there is an error executing a command inside a job
     """
     pass
+
+class SnapshotCreateError(ProminenceError):
+    """
+    Raised when there is an error creating a snapshot
+    """
+    pass
+
+class SnapshotGetErorr(ProminenceError):
+    """
+    Raised when there is an error getting a snapshot URL
+    """
+    pass
+
