@@ -190,6 +190,8 @@ def transform_job(job, detail):
             job_t['outputFiles'] = job['outputFiles']
         if 'outputDirs' in job:
             job_t['outputDirs'] = job['outputDirs']
+        if 'parameters' in job:
+            job_t['parameters'] = job['parameters']
 
     job_t['tasks'] = job['tasks']
 
