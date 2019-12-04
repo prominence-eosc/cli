@@ -44,7 +44,7 @@ class ProminenceClient(object):
         else:
             raise exceptions.TokenError('Unable to obtain a token')
 
-    def list_jobs(self, completed=False, all=False, num=1, constraint=None):
+    def list_jobs(self, completed=False, all=False, num=1, constraint=None, workflow_id=None):
         """
         List running/idle jobs or completed jobs
         """
@@ -58,6 +58,10 @@ class ProminenceClient(object):
             params['all'] = 'true'
         if constraint:
             params['constraint'] = constraint
+        if workflow_id:
+            params['id'] = workflow_id
+            params['workflow'] = 'true'
+            params['num'] = -1
 
         try:
             response = requests.get(self._url + '/jobs', params=params, timeout=self._timeout, headers=self._headers, verify=self._verify)

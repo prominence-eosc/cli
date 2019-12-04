@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.3.0
+* Added the ability to list individual jobs from a workflow
+
 ## 0.2.0
 * Standard output and error for factory jobs can be retrieved by specifying an instance id
 * New command `prominence snapshot` allows users to create and retrieve a shapshot of a file or directory for a running job

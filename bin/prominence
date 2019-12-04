@@ -356,10 +356,14 @@ def command_list(args):
     if args.constraint:
         constraint = args.constraint
 
+    workflow = None
+    if args.id:
+        workflow = args.id
+
     try:
         client = ProminenceClient(authenticated=True)
         if args.resource == 'jobs':
-            data = client.list_jobs(completed, active_and_completed, num, constraint)
+            data = client.list_jobs(completed, active_and_completed, num, constraint, workflow)
         else:
             data = client.list_workflows(completed, active_and_completed, num, constraint)
     except exceptions.AuthenticationError:
@@ -1138,6 +1142,10 @@ def create_parser():
                              default='jobs',
                              nargs='?',
                              choices=['jobs', 'workflows'])
+    parser_list.add_argument('id',
+                             help='Workflow id',
+                             nargs='?',
+                             type=int)
     parser_list.set_defaults(func=command_list)
 
     # Create the parser for the "describe" command
