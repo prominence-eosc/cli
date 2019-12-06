@@ -65,8 +65,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.get(self._url + '/jobs', params=params, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return response.json()
@@ -97,8 +97,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.get(self._url + '/workflows', params=params, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return response.json()
@@ -124,8 +124,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.post(self._url + '/jobs/%d/exec' % job_id, timeout=self._timeout, headers=headers, params=params, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return response.text
@@ -144,8 +144,8 @@ class ProminenceClient(object):
         """
         try:
             response = requests.get(self._url + '/jobs/%d/snapshot' % job_id, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return response.json()
@@ -171,8 +171,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.put(self._url + '/jobs/%d/snapshot' % job_id, timeout=self._timeout, headers=headers, params=params, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return response.text
@@ -194,8 +194,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.post(self._url + '/jobs', data=json.dumps(job), timeout=self._timeout, headers=headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 201:
             if 'id' in response.json():
@@ -219,8 +219,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.post(self._url + '/workflows', data=json.dumps(workflow), timeout=self._timeout, headers=headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 201:
             if 'id' in response.json():
@@ -253,8 +253,8 @@ class ProminenceClient(object):
         """
         try:
             response = requests.delete(self._url + '/%s/%d' % (resource, id), timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return True
@@ -276,8 +276,8 @@ class ProminenceClient(object):
         """
         try:
             response = requests.get(self._url + '/jobs/%d' % job_id, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             if response.json():
@@ -300,8 +300,8 @@ class ProminenceClient(object):
         """
         try:
             response = requests.get(self._url + '/workflows/%d' % workflow_id, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             if response.json():
@@ -344,8 +344,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return response.text
@@ -385,8 +385,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.get(self._url + path, timeout=self._timeout, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return response.text
@@ -412,8 +412,8 @@ class ProminenceClient(object):
         
         try:
             response = requests.post(self._url + '/data/upload', data=json.dumps(data), headers=headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 201:
             if 'url' in response.json():
@@ -431,10 +431,10 @@ class ProminenceClient(object):
         try:
             with open(filename, 'rb') as file_obj:
                 response = requests.put(url, data=file_obj, timeout=30)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)     
-        except IOError as e:
-            raise exceptions.FileUploadError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
+        except IOError as err:
+            raise exceptions.FileUploadError(err)
 
         if response.status_code == 200:
             return True
@@ -455,8 +455,8 @@ class ProminenceClient(object):
 
         try:
             response = requests.get(url, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
             return response.json()
@@ -476,8 +476,8 @@ class ProminenceClient(object):
         url = self._url + '/data/' + object
         try:
             response = requests.delete(url, headers=self._headers, verify=self._verify)
-        except requests.exceptions.RequestException as e:
-            raise exceptions.ConnectionError(e)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
 
         if response.status_code == 204:
             return True
