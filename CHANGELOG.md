@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.3.0
+## 0.3.0
 * Added the ability to list individual jobs from a workflow
 
 ## 0.2.0
