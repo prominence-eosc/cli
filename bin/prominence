@@ -198,6 +198,8 @@ def transform_job(job, detail):
     if detail:
         if 'policies' in job:
             job_t['policies'] = job['policies']
+        if 'notifications' in job:
+            job_t['notifications'] = job['notifications']
 
     events = OrderedDict()
     if 'events' in job:
