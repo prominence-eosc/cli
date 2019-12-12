@@ -491,3 +491,31 @@ class ProminenceClient(object):
             raise exceptions.ObjectError('Unknown error when querying the PROMINENCE server')
 
         return False
+
+    def get_usage(self, start_date, end_date, by_group):
+        """
+        Return historical usage
+        """
+        params = {}
+        params['start'] = start_date
+        params['end'] = end_date
+        if by_group:
+            params['by_group'] = 'true'
+
+        try:
+            response = requests.get(self._url + '/accounting', params=params, headers=self._headers, verify=self._verify)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        else:
+            if 'error' in response.json():
+                raise exceptions.ObjectError(response.json()['error'])
+            raise exceptions.ObjectError('Unknown error when querying the PROMINENCE server')
+
+        return {}

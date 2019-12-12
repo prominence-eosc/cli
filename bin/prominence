@@ -954,6 +954,37 @@ def command_create(args):
 
     print('Job created with id %d' % job_id)
 
+def command_usage(args):
+    """
+    Return historical usage information
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        usage = client.get_usage(args.start, args.end, args.group)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.DeletionError) as err:
+        print('Error:', err)
+        exit(1)
+
+    if 'usage' in usage:
+        if 'users' in usage['usage']:
+            for user in usage['usage']['users']:
+                print(user)
+                print('   Number of jobs             %d' % usage['usage']['users'][user]['numberOfJobs'])
+                print('   CPU time (CPU hours)       %d' % usage['usage']['users'][user]['cpuTime'])
+                print('   Wall time (CPU hours)      %d' % usage['usage']['users'][user]['wallTime'])
+        if 'groups' in usage['usage']:
+            for group in  usage['usage']['groups']:
+                print(group)
+                print('   Number of jobs             %d' % usage['usage']['groups'][group]['numberOfJobs'])
+                print('   CPU time (CPU hours)       %d' % usage['usage']['groups'][group]['cpuTime'])
+                print('   Wall time (CPU hours)      %d' % usage['usage']['groups'][group]['wallTime'])
+
 def create_parser():
     """
     Create the argument parser
@@ -1280,6 +1311,20 @@ def create_parser():
                                default=-1,
                                type=int)
     parser_stderr.set_defaults(func=command_stderr)
+
+    # Create the parser for the "usage" command
+    parser_usage = subparsers.add_parser('usage',
+                                          help='Return historical usage information')
+    parser_usage.add_argument('--group',
+                                 dest='group',
+                                 default=False,
+                                 help='Return usage by group',
+                                 action='store_true')
+    parser_usage.add_argument('start',
+                              help='Start date in the form YYYY-MM-DD')
+    parser_usage.add_argument('end',
+                              help='End date in the form YYYY-MM-DD')
+    parser_usage.set_defaults(func=command_usage)
 
     # Version
     parser.add_argument('--version',
