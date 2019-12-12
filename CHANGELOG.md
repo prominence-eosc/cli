@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.4.0
+## 0.4.0
  * Added `usage` command to obtain historical CPU usage data
 
 ## 0.3.0
