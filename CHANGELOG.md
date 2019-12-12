@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.4.0
+ * Added the ability to obtain historical CPU usage data
+
 ## 0.3.0
 * Added the ability to list individual jobs from a workflow
 
