@@ -874,7 +874,8 @@ def command_create(args):
             if os.path.isfile(filename):
                 if os.path.getsize(filename) < 1000000:
                     with open(filename, 'rb') as input_file:
-                        inputs.append({'filename':filename, 'content':base64.b64encode(input_file.read()).decode("utf-8")})
+                        inputs.append({'filename':os.path.basename(filename),
+                                       'content':base64.b64encode(input_file.read()).decode("utf-8")})
                 else:
                     print('Error: Input file size too large')
                     exit(1)
