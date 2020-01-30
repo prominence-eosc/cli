@@ -819,7 +819,7 @@ def command_create(args):
     if args.runtime:
         task['runtime'] = args.runtime
     else:
-        if re.match(r'^http', args.image) and '.tar' in args.image:
+        if re.match(r'^http', args.image) and ('.tar' in args.image or '.tgz' in args.image):
             task['runtime'] = 'udocker'
         else:
             task['runtime'] = 'singularity'
