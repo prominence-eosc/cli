@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5.0
+* The udocker runtime is automatically selected if the container image is a URL for a file with extension `.tgz`
+* Added `rerun` command to re-run any failed jobs from a completed workflow
+
 ## 0.4.0
  * Added `usage` command to obtain historical CPU usage data
 
