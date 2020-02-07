@@ -725,6 +725,25 @@ def command_stderr(args):
         print('Error:', err)
         exit(1)
 
+def command_rerun(args):
+    """
+    Re-run any failed jobs from a completed workflow
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        workflow_id = client.rerun_workflow(args.id)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.JobCreationError, exceptions.TokenError) as err:
+        print('Error:', err)
+        exit(1)
+
+    print('Workflow created with id %d' % workflow_id)
+
 def command_run(args):
     """
     Create a job from a JSON file or URL
@@ -1010,6 +1029,14 @@ def create_parser():
     parser_run.add_argument('file',
                             help='JSON filename or URL containing JSON')
     parser_run.set_defaults(func=command_run)
+
+    # Create the parser for the "rerun" command
+    parser_rerun = subparsers.add_parser('rerun',
+                                         help='Re-run any failed jobs from a completed workflow')
+    parser_rerun.add_argument('id',
+                              help='Workflow id',
+                              type=int)
+    parser_rerun.set_defaults(func=command_rerun)
 
     # Create the parser for the "create" command
     parser_create = subparsers.add_parser('create',
