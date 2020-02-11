@@ -514,7 +514,7 @@ class ProminenceClient(object):
 
         return False
 
-    def get_usage(self, start_date, end_date, by_group):
+    def get_usage(self, start_date, end_date, by_group, show_all_users):
         """
         Return historical usage
         """
@@ -523,6 +523,8 @@ class ProminenceClient(object):
         params['end'] = end_date
         if by_group:
             params['by_group'] = 'true'
+        if show_all_users:
+            params['show_all_users'] = 'true'
 
         try:
             response = requests.get(self._url + '/accounting', params=params, headers=self._headers, verify=self._verify)
