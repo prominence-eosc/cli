@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.6.0
+* Added an option `--all` to the `usage` command which shows usage by user in the user's group
+
 ## 0.5.0
 * The udocker runtime is automatically selected if the container image is a URL for a file with extension `.tgz`
 * Added `rerun` command to re-run any failed jobs from a completed workflow
