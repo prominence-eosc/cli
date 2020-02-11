@@ -921,10 +921,6 @@ def command_create(args):
                 labels[items[0]] = items[1]
         job['labels'] = labels
 
-    # Constraints
-    if args.placement:
-        job['placement'] = json.loads(args.placement)
-
     # Storage
     if args.storage:
         try:
@@ -1168,9 +1164,6 @@ def create_parser():
                                      setting the maximum time in queue to a non-zero value enables jobs \
                                      to wait in the queue until resources become available. Units are \
                                      minutes.')
-    parser_create.add_argument('--placement',
-                               dest='placement',
-                               help='Specify requirements and preferences on where to run the job/workflow')
     parser_create.add_argument('--storage',
                                dest='storage',
                                help='Filename specifying storage details')
