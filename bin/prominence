@@ -951,6 +951,12 @@ def command_create(args):
             job['policies'] = {}
         job['policies']['maximumRetries'] = args.retries
 
+    # Maximum time in queue
+    if args.maxtimeinqueue:
+        if 'policies' not in job:
+            job['policies'] = {}
+        job['policies']['maximumTimeInQueue'] = args.maxtimeinqueue
+
     # Add task to job
     job['tasks'] = [task]
 
@@ -1155,6 +1161,13 @@ def create_parser():
                                default=False,
                                action='store_true',
                                help='Specify that this job is preemptible')
+    parser_create.add_argument('--max-time-in-queue',
+                               dest='maxtimeinqueue',
+                               type=int,
+                               help='By default jobs will fail quickly if deployment is not possible. By \
+                                     setting the maximum time in queue to a non-zero value enables jobs \
+                                     to wait in the queue until resources become available. Units are \
+                                     minutes.')
     parser_create.add_argument('--placement',
                                dest='placement',
                                help='Specify requirements and preferences on where to run the job/workflow')

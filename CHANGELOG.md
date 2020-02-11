@@ -2,6 +2,7 @@
 
 ## 0.6.0
 * Added an option `--all` to the `usage` command which shows usage by user in the user's group
+* Added an option `--maxtimeinqueue` when creating jobs to enable users to specify the maximum time that a job should remain in the queue while waiting for resources
 
 ## 0.5.0
 * The udocker runtime is automatically selected if the container image is a URL for a file with extension `.tgz`
