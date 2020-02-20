@@ -112,3 +112,8 @@ class SnapshotGetErorr(ProminenceError):
     """
     pass
 
+class UsageError(ProminenceError):
+    """
+    Raised when there is an error getting usage information
+    """
+    pass
