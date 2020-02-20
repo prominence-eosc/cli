@@ -537,9 +537,11 @@ class ProminenceClient(object):
             raise exceptions.AuthenticationError()
         elif response.status_code == 404:
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        elif response.status_code == 500:
+            raise exceptions.UsageError('Unknown error when querying the PROMINENCE server')
         else:
             if 'error' in response.json():
-                raise exceptions.ObjectError(response.json()['error'])
-            raise exceptions.ObjectError('Unknown error when querying the PROMINENCE server')
+                raise exceptions.UsageError(response.json()['error'])
+            raise exceptions.UsageError('Unknown error when querying the PROMINENCE server')
 
         return {}
