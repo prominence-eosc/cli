@@ -989,7 +989,7 @@ def command_usage(args):
     except exceptions.TokenExpiredError:
         print('Error: access token has expired')
         exit(1)
-    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.DeletionError) as err:
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.UsageError) as err:
         print('Error:', err)
         exit(1)
 
