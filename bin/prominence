@@ -357,6 +357,9 @@ def command_list(args):
     constraint = None
     if args.constraint:
         constraint = args.constraint
+    name_constraint = None
+    if args.name:
+        name_constraint = args.name
 
     workflow = None
     if args.id:
@@ -365,9 +368,9 @@ def command_list(args):
     try:
         client = ProminenceClient(authenticated=True)
         if args.resource == 'jobs':
-            data = client.list_jobs(completed, active_and_completed, num, constraint, workflow)
+            data = client.list_jobs(completed, active_and_completed, num, constraint, name_constraint, workflow)
         else:
-            data = client.list_workflows(completed, active_and_completed, num, constraint)
+            data = client.list_workflows(completed, active_and_completed, num, constraint, name_constraint)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -1197,7 +1200,11 @@ def create_parser():
     parser_list.add_argument('--constraint',
                              dest='constraint',
                              action='append',
-                             help='Constraint of the form key=value')
+                             help='Constraint of the form key=value. This option can be specified \
+                                   multiple times if multiple constraints are needed.')
+    parser_list.add_argument('--name',
+                             dest='name',
+                             help='Constraint on the job/workflow name')
     parser_list.add_argument('-a',
                              '--all',
                              dest='all',
