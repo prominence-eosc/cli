@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.7.0
+* Added an option `--name` to the `list` command which enables users to list only jobs or workflows which a specific name
+
 ## 0.6.0
 * Added an option `--all` to the `usage` command which shows usage by user in the user's group
 * Added an option `--maxtimeinqueue` when creating jobs to enable users to specify the maximum time that a job should remain in the queue while waiting for resources
