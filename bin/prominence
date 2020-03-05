@@ -939,11 +939,6 @@ def command_create(args):
         if 'storage' in storage:
             job['storage'] = storage['storage']
 
-    # Preemptible
-    if args.preemptible:
-        job['policies'] = {}
-        job['policies']['preemptible'] = args.preemptible
-
     # Retries
     if args.retries:
         if 'policies' not in job:
@@ -1155,11 +1150,6 @@ def create_parser():
                                type=int,
                                help='Number of retries if the application exit code is not 0. By \
                                      default no retries will be attempted.')
-    parser_create.add_argument('--preemptible',
-                               dest='preemptible',
-                               default=False,
-                               action='store_true',
-                               help='Specify that this job is preemptible')
     parser_create.add_argument('--max-time-in-queue',
                                dest='maxtimeinqueue',
                                type=int,
