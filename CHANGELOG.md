@@ -1,5 +1,7 @@
 # Change Log
 
+* Removed ability to mark a job as being preemptible, as this functionality has not yet been implemented anyway
+
 ## 0.7.0
 * Added an option `--name` to the `list` command which enables users to list only jobs or workflows which a specific name
 
