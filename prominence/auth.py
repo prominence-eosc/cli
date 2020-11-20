@@ -9,6 +9,9 @@ import requests
 
 from prominence import exceptions
 
+DEFAULT_PROMINENCE_URL = 'https://host-130-246-215-158.nubes.stfc.ac.uk/prominence/v1'
+DEFAULT_PROMINENCE_OIDC_URL = 'https://host-130-246-215-158.nubes.stfc.ac.uk'
+
 def create_config_dir():
     """
     Create the ~/.prominence directory
@@ -30,7 +33,7 @@ def register_client():
     headers['Content-type'] = 'application/json'
 
     data = {}
-    data['redirect_uris'] = ['%s/redirect_url' % os.environ['PROMINENCE_URL']]
+    data['redirect_uris'] = ['%s/redirect_url' % os.environ.get('PROMINENCE_URL', DEFAULT_PROMINENCE_URL)]
     data['client_name'] = 'prominence-user-%s' % str(uuid.uuid4())
     data['token_endpoint_auth_method'] = 'client_secret_basic'
     data['scope'] = 'openid profile email'
@@ -42,7 +45,7 @@ def register_client():
 
     # Create OIDC client
     try:
-        response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/register',
+        response = requests.post(os.environ.get('PROMINENCE_OIDC_URL', DEFAULT_PROMINENCE_OIDC_URL)+'/register',
                                  data=json.dumps(data),
                                  timeout=10,
                                  headers=headers,
@@ -92,7 +95,7 @@ def authenticate_user(create_client_if_needed=True, token_in_file=True):
     data['client_id'] = client_id
 
     try:
-        response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/devicecode',
+        response = requests.post(os.environ.get('PROMINENCE_OIDC_URL', DEFAULT_PROMINENCE_OIDC_URL)+'/devicecode',
                                  data=data,
                                  timeout=10,
                                  auth=(client_id, client_secret),
@@ -117,7 +120,7 @@ def authenticate_user(create_client_if_needed=True, token_in_file=True):
     while time.time() < current_time + int(device_code_response['expires_in']) and not authenticated:
         time.sleep(5)
         try:
-            response = requests.post(os.environ['PROMINENCE_OIDC_URL']+'/token',
+            response = requests.post(os.environ.get('PROMINENCE_OIDC_URL', DEFAULT_PROMINENCE_OIDC_URL)+'/token',
                                      data=data,
                                      timeout=10,
                                      auth=(client_id, client_secret),

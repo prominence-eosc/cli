@@ -1378,16 +1378,6 @@ if __name__ == "__main__":
         parser.print_help(sys.stderr)
         exit(1)
 
-    # Authentication
-    if 'PROMINENCE_OIDC_URL' not in os.environ:
-        print('Error: environment variable PROMINENCE_OIDC_URL is not set')
-        exit(1)
-
-    # Check that the URL for the PROMINENCE service exists
-    if 'PROMINENCE_URL' not in os.environ:
-        print('Error: Environment variable PROMINENCE_URL is not set')
-        exit(1)
-
     # Parse the arguments
     args = parser.parse_args()
 
