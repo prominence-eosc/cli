@@ -183,7 +183,7 @@ def get_expiry(token):
     """
     expiry = 0
     try:
-        expiry = jwt.decode(token, verify=False)['exp']
+        expiry = jwt.decode(token, options={"verify_signature": False})['exp']
     except:
         pass
     return expiry

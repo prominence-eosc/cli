@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.8.1
+* No longer use deprecated `verify` parameter in `jwt.decode`
+
 ## 0.8.0
 * Addded default URLs of the PROMINENCE and OIDC servers to make things easier for some users
 * Removed ability to mark a job as being preemptible, as this functionality has not yet been implemented anyway
