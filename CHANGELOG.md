@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.9.0
+* Include CPU info when describing complete jobs
+
 ## 0.8.1
 * No longer use deprecated `verify` parameter in `jwt.decode`
 
