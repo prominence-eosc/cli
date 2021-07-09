@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.10.0
+* Accept token from `PROMINENCE_TOKEN` environment variable
+
 ## 0.9.0
 * Include CPU info when describing complete jobs
 
