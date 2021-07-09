@@ -9,7 +9,6 @@ import requests
 
 from prominence import exceptions
 
-DEFAULT_PROMINENCE_URL = 'https://host-130-246-215-158.nubes.stfc.ac.uk/prominence/v1'
 DEFAULT_PROMINENCE_OIDC_URL = 'https://host-130-246-215-158.nubes.stfc.ac.uk'
 
 def create_config_dir():
@@ -33,7 +32,7 @@ def register_client():
     headers['Content-type'] = 'application/json'
 
     data = {}
-    data['redirect_uris'] = ['%s/redirect_url' % os.environ.get('PROMINENCE_URL', DEFAULT_PROMINENCE_URL)]
+    data['redirect_uris'] = ['%s/redirect_url' % os.environ.get('PROMINENCE_URL')]
     data['client_name'] = 'prominence-user-%s' % str(uuid.uuid4())
     data['token_endpoint_auth_method'] = 'client_secret_basic'
     data['scope'] = 'openid profile email'
@@ -167,6 +166,9 @@ def get_token():
     """
     Load saved token
     """
+    if 'PROMINENCE_TOKEN' in os.environ:
+        return os.environ['PROMINENCE_TOKEN']
+
     if os.path.isfile(os.path.expanduser('~/.prominence/token')):
         with open(os.path.expanduser('~/.prominence/token')) as json_data:
             data = json.load(json_data)
@@ -175,7 +177,7 @@ def get_token():
             return data['access_token']
         else:
             raise exceptions.TokenError('The saved token file does not contain access_token')
-    raise exceptions.TokenError('The file ~/.prominence/token does not exist')
+    raise exceptions.TokenError('Unable to find token in either the file ~/.prominence/token or environment variable PROMINENCE_TOKEN')
 
 def get_expiry(token):
     """
