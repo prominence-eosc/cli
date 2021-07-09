@@ -1380,6 +1380,10 @@ if __name__ == "__main__":
         parser.print_help(sys.stderr)
         exit(1)
 
+    # Check that the URL for the PROMINENCE service exists; if not, define a default
+    if 'PROMINENCE_URL' not in os.environ:
+        os.environ['PROMINENCE_URL'] = 'https://host-130-246-215-158.nubes.stfc.ac.uk/prominence/v1'
+
     # Parse the arguments
     args = parser.parse_args()
 
