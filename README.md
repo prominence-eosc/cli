@@ -4,11 +4,11 @@
 
 The PROMINENCE CLI presents a simple batch-system style interface to PROMINENCE written in Python. It can be installed easily on any system using pip:
 ```
-pip install prominence-cli
+pip install prominence
 ```
 To upgrade the CLI the `--upgrade` option needs to be added:
 ```
-pip install --upgrade prominence-cli
+pip install --upgrade prominence
 ```
 
 See https://prominence-eosc.github.io/docs/ for more information.
