@@ -12,6 +12,7 @@ import shlex
 import sys
 import time
 import requests
+import yaml
 
 from prominence import auth
 from prominence import exceptions
@@ -751,7 +752,7 @@ def command_rerun(args):
 
 def command_run(args):
     """
-    Create a job from a JSON file or URL
+    Create a job from a JSON file, YAML file or URL
     """
     if args.file.startswith('http://') or args.file.startswith('https://'):
         try:
@@ -772,10 +773,14 @@ def command_run(args):
         try:
             with open(args.file) as json_file:
                 data = json.load(json_file)
-        except IOError as err:
-            print('Error: %s' % err)
-            exit(1)
-        except ValueError as err:
+        except json.decoder.JSONDecodeError:
+            try:
+                with open(args.file) as yaml_file:
+                    data = yaml.safe_load(yaml_file)
+            except Exception as err:
+                print('Error: %s' % err)
+                exit(1)
+        except (IOError, ValueError) as err:
             print('Error: %s' % err)
             exit(1)
 

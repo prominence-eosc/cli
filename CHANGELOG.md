@@ -1,4 +1,6 @@
 # Change Log
+## 0.11.0
+* Accept job and workflow descriptions in YAML format. These are converted to JSON before being POSTed to the REST API. YAML format makes it simpler to specify commands without having to worry about escaping characters.
 
 ## 0.10.0
 * Accept token from `PROMINENCE_TOKEN` environment variable
