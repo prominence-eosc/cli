@@ -1,4 +1,8 @@
 # Change Log
+
+## 0.12.1
+* (bug fix) Handle correctly JSON descriptions with already expanded input files
+
 ## 0.12.0
 * If input files in job descriptions are in the form of a list of names beginning with `file://`, the specified files will be read and
 the content automatically added to the job description. This results in much simpler and clearer job description files.
