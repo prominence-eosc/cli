@@ -1,4 +1,8 @@
 # Change Log
+## 0.12.0
+* If input files in job descriptions are in the form of a list of names beginning with `file://`, the specified files will be read and
+the content automatically added to the job description. This results in much simpler and clearer job description files.
+
 ## 0.11.0
 * Accept job and workflow descriptions in YAML format. These are converted to JSON before being POSTed to the REST API. YAML format makes it simpler to specify commands without having to worry about escaping characters.
 

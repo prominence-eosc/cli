@@ -784,6 +784,44 @@ def command_run(args):
             print('Error: %s' % err)
             exit(1)
 
+    # If filenames are specified as inputs, replace with content
+    if 'inputs' in data:
+        new_inputs = []
+        for item in data['inputs']:
+            if item.startswith('file://'):
+                filename = item.replace('file://', '')
+                if os.path.isfile(filename):
+                    if os.path.getsize(filename) < 1000000:
+                        with open(filename, 'rb') as input_file:
+                            new_inputs.append({'filename':os.path.basename(filename),
+                                               'content':base64.b64encode(input_file.read()).decode("utf-8")})
+                    else:
+                        print('Error: Input file size too large')
+                        exit(1)
+        if new_inputs:
+            data['inputs'] = new_inputs
+
+    if 'jobs' in data:
+        new_jobs = []
+        for job in data['jobs']:
+            if 'inputs' in job:
+                new_inputs = []
+                for item in job['inputs']:
+                    if item.startswith('file://'):
+                        filename = item.replace('file://', '')
+                        if os.path.isfile(filename):
+                            if os.path.getsize(filename) < 1000000:
+                                with open(filename, 'rb') as input_file:
+                                    new_inputs.append({'filename':os.path.basename(filename),
+                                                       'content':base64.b64encode(input_file.read()).decode("utf-8")})
+                            else:
+                                print('Error: Input file size too large')
+                                exit(1)
+                if new_inputs:
+                    job['inputs'] = new_inputs
+            new_jobs.append(job)
+        data['jobs'] = new_jobs
+
     try:
         client = ProminenceClient(authenticated=True)
         if 'jobs' in data:
