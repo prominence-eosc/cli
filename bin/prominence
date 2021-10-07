@@ -415,6 +415,7 @@ def command_snapshot(args):
     """
     Create a snapshot of a file or directory in a running job and download it
     """
+    print('Creating snapshot...')
     try:
         client = ProminenceClient(authenticated=True)
         output = client.create_snapshot(args.id, args.path)
@@ -462,7 +463,7 @@ def command_snapshot(args):
     total_length = response.headers.get('content-length')
 
     if response.status_code != 200:
-        print('Error: content from file "%s" does not exist' % file_name)
+        print('Error: content from file/directory "%s" does not exist' % args.path)
         exit(1)
 
     with open('snapshot.tgz', 'wb') as file_download:
