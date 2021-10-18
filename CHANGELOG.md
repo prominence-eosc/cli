@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.13.0
+* If a `cmd` contains multiple lines, the task will be split automatically into multiple tasks with one `cmd` per task. However, if the
+first line begins with a shebang, an input file will be created automatically and the task will execute this input file. This functionality
+is particularly helpful for job descriptions in the YAML format.
+* (bug fix) If snapshot download fails report name of requested filed/directory properly
+
 ## 0.12.1
 * (bug fix) Handle correctly JSON descriptions with already expanded input files
 
