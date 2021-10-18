@@ -13,11 +13,41 @@ import sys
 import time
 import requests
 import yaml
+import uuid
 
 from prominence import auth
 from prominence import exceptions
 from prominence import __version__
 from prominence import ProminenceClient
+
+def handle_multiline_commands(job):
+    """
+    If cmd contains new lines, split into multiple tasks or a single task
+    with an input file
+    """
+    new_tasks = []
+    for task in job['tasks']:
+        if '\n' not in task['cmd']:
+            new_tasks.append(task)
+        elif task['cmd'].startswith('#!'):
+            executable = str(uuid.uuid4())
+            inputs = []
+            if 'inputs' in job:
+                inputs = job['inputs']
+            inputs.append({'filename': executable,
+                           'content': base64.b64encode(task['cmd'].encode()).decode("utf-8"),
+                           'executable': True})
+            task['cmd'] = './%s' % executable
+            job['inputs'] = inputs
+            new_tasks.append(task)
+        else:
+            for command in task['cmd'].split('\n'):
+                if command != '':
+                    new_task = task.copy()
+                    new_task['cmd'] = command
+                    new_tasks.append(new_task)
+    job['tasks'] = new_tasks
+    return job
 
 def elapsed(job):
     """
@@ -577,7 +607,7 @@ def command_download(args):
             if os.path.isfile(path + file_name) and not args.force:
                 print('Error: file "%s" already exists and force option not specified' % file_name)
                 exit(1)
-  
+
             if url == '':
                 print('Error: no URL available for "%s"' % pair['name'])
                 exit(1)
@@ -587,7 +617,7 @@ def command_download(args):
             except requests.exceptions.RequestException as err:
                 print('Error getting file due to: %s' % err)
                 exit(1)
-            
+
             total_length = response.headers.get('content-length')
 
             if response.status_code != 200:
@@ -649,7 +679,7 @@ def command_rm(args):
     if not args.object:
         print('Error: an object name must be specified')
         exit(1)
-    
+
     try:
         client = ProminenceClient(authenticated=True)
         client.delete_object(args.object)
@@ -785,6 +815,13 @@ def command_run(args):
             print('Error: %s' % err)
             exit(1)
 
+    # Handle multi-line cmd
+    if 'jobs' in data:
+        for job in data['jobs']:
+            job = handle_multiline_commands(job)
+    else:
+        data = handle_multiline_commands(data)
+
     # If filenames are specified as inputs, replace with content
     if 'inputs' in data:
         new_inputs = []
@@ -800,6 +837,8 @@ def command_run(args):
                         else:
                             print('Error: Input file size too large')
                             exit(1)
+            else:
+                new_inputs.append(item)
         if new_inputs:
             data['inputs'] = new_inputs
 
@@ -820,6 +859,8 @@ def command_run(args):
                                 else:
                                     print('Error: Input file size too large')
                                     exit(1)
+                    else:
+                        new_inputs.append(item)
                 if new_inputs:
                     job['inputs'] = new_inputs
             new_jobs.append(job)
@@ -844,7 +885,7 @@ def command_run(args):
         exit(1)
 
     print('%s created with id %d' % (resource, res_id))
-       
+
 def command_create(args):
     """
     Create a job
@@ -867,7 +908,7 @@ def command_create(args):
     user_env = []
     if args.env:
         user_env = args.env
-    
+
     # MPI processes per node
     if args.openmpi or args.mpich or args.intelmpi:
         if args.ppn > 0:
