@@ -1,4 +1,6 @@
 # Change Log
+## 0.13.1
+* (bug fix) Handle situation with no `cmd` defined in code introduced in 0.13.0
 
 ## 0.13.0
 * If a `cmd` contains multiple lines, the task will be split automatically into multiple tasks with one `cmd` per task. However, if the
