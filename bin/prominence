@@ -27,7 +27,9 @@ def handle_multiline_commands(job):
     """
     new_tasks = []
     for task in job['tasks']:
-        if '\n' not in task['cmd']:
+        if 'cmd' not in task:
+            new_tasks.append(task)
+        elif '\n' not in task['cmd']:
             new_tasks.append(task)
         elif task['cmd'].startswith('#!'):
             executable = str(uuid.uuid4())
