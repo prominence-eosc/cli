@@ -1,6 +1,6 @@
 # Change Log
 ## 0.14.0
-* The `download` command can be used to download output files/directories from all associated jobs.
+* The `download` command can be used to download output files/directories from all jobs associated with a workflow.
 
 ## 0.13.1
 * (bug fix) Handle situation with no `cmd` defined in code introduced in 0.13.0
