@@ -1,4 +1,7 @@
 # Change Log
+## 0.14.0
+* The `download` command can be used to download output files/directories from all associated jobs.
+
 ## 0.13.1
 * (bug fix) Handle situation with no `cmd` defined in code introduced in 0.13.0
 
