@@ -565,9 +565,13 @@ def command_download(args):
     """
     Download output files and directories
     """
+    jobs = []
     try:
         client = ProminenceClient(authenticated=True)
-        job = client.describe_job(args.id)
+        if args.resource == 'job':
+            jobs.append(client.describe_job(args.id))
+        else:
+            jobs = client.list_jobs(True, False, 1, '', '', args.id, True)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -578,68 +582,71 @@ def command_download(args):
         print('Error:', err)
         exit(1)
 
-    if ('outputFiles' in job or 'outputDirs' in job) and job['status'] in ('completed', 'failed', 'deleted'):
-        # Create per-job directory if necessary & set path for files
-        path = './'
-        if args.dir:
-            path = './%d/' % job['id']
-            try:
-                os.mkdir(path)
-            except OSError as err:
-                if err.errno != errno.EEXIST:
-                    print('Error: job directory cannot be created')
-                    exit(1)
-                else:
-                    pass
+    for job in jobs:
+        if args.resource == 'workflow':
+            print('Working on job %d' % job['id'])
+        if ('outputFiles' in job or 'outputDirs' in job) and job['status'] in ('completed', 'failed', 'deleted'):
+            # Create per-job directory if necessary & set path for files
+            path = './'
+            if args.dir or args.resource == 'workflow':
+                path = './%d/' % job['id']
+                try:
+                    os.mkdir(path)
+                except OSError as err:
+                    if err.errno != errno.EEXIST:
+                        print('Error: job directory cannot be created')
+                        exit(1)
+                    else:
+                        pass
 
-        files_and_dirs = []
-        if 'outputFiles' in job:
-            files_and_dirs += job['outputFiles']
-        if 'outputDirs' in job:
-            files_and_dirs += job['outputDirs']
-
-        for pair in files_and_dirs:
-            file_name = os.path.basename(pair['name'])
+            files_and_dirs = []
+            if 'outputFiles' in job:
+                files_and_dirs += job['outputFiles']
             if 'outputDirs' in job:
-                if pair in job['outputDirs']:
-                    file_name = file_name + '.tgz'
+                files_and_dirs += job['outputDirs']
 
-            url = pair['url']
+            for pair in files_and_dirs:
+                file_name = os.path.basename(pair['name'])
+                if 'outputDirs' in job:
+                    if pair in job['outputDirs']:
+                        file_name = file_name + '.tgz'
 
-            if os.path.isfile(path + file_name) and not args.force:
-                print('Error: file "%s" already exists and force option not specified' % file_name)
-                exit(1)
+                url = pair['url']
 
-            if url == '':
-                print('Error: no URL available for "%s"' % pair['name'])
-                exit(1)
+                if os.path.isfile(path + file_name) and not args.force:
+                    print('Warning: file "%s" already exists and force option not specified' % file_name)
+                    continue
 
-            try:
-                response = requests.get(url, stream=True, timeout=30)
-            except requests.exceptions.RequestException as err:
-                print('Error getting file due to: %s' % err)
-                exit(1)
+                if url == '':
+                    print('Warning: no URL available for "%s"' % pair['name'])
+                    continue
 
-            total_length = response.headers.get('content-length')
+                try:
+                    response = requests.get(url, stream=True, timeout=30)
+                except requests.exceptions.RequestException as err:
+                    print('Error getting file due to: %s' % err)
+                    continue
 
-            if response.status_code != 200:
-                print('Error: content from file "%s" does not exist' % file_name)
-                exit(1)
+                total_length = response.headers.get('content-length')
 
-            with open(path + file_name, 'wb') as file_download:
-                print('Downloading file "%s"' % file_name)
-                if total_length is None:
-                    file_download.write(response.content)
-                else:
-                    downloaded = 0
-                    total_length = int(total_length)
-                    for data in response.iter_content(chunk_size=4096):
-                        downloaded += len(data)
-                        file_download.write(data)
-                        done = int(50 * downloaded / total_length)
-                        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
-                        sys.stdout.flush()
-            print('')
+                if response.status_code != 200:
+                    print('Error: content from file "%s" does not exist' % file_name)
+                    continue
+
+                with open(path + file_name, 'wb') as file_download:
+                    print('Downloading file "%s"' % file_name)
+                    if total_length is None:
+                        file_download.write(response.content)
+                    else:
+                        downloaded = 0
+                        total_length = int(total_length)
+                        for data in response.iter_content(chunk_size=4096):
+                            downloaded += len(data)
+                            file_download.write(data)
+                            done = int(50 * downloaded / total_length)
+                            sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
+                            sys.stdout.flush()
+                print('')
 
 def command_ls(args):
     """
@@ -1375,8 +1382,13 @@ def create_parser():
                                  default=False,
                                  help='Save output files in a directory named by the job id',
                                  action='store_true')
+    parser_download.add_argument('resource',
+                                 help='Resource type',
+                                 default='job',
+                                 nargs='?',
+                                 choices=['job', 'workflow'])
     parser_download.add_argument('id',
-                                 help='Job id',
+                                 help='Job/workflow id',
                                  type=int)
     parser_download.set_defaults(func=command_download)
 
