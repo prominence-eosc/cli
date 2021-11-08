@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shlex
+from string import Template
 import sys
 import time
 import requests
@@ -610,6 +611,11 @@ def command_download(args):
                 if 'outputDirs' in job:
                     if pair in job['outputDirs']:
                         file_name = file_name + '.tgz'
+                file_name_orig = file_name
+
+                if 'parameters' in job:
+                    for parameter in job['parameters']:
+                        file_name = Template(file_name).safe_substitute({parameter:job['parameters'][parameter]})
 
                 url = pair['url']
 
@@ -634,7 +640,7 @@ def command_download(args):
                     continue
 
                 with open(path + file_name, 'wb') as file_download:
-                    print('Downloading file "%s"' % file_name)
+                    print('Downloading file %s as %s' % (file_name_orig, file_name))
                     if total_length is None:
                         file_download.write(response.content)
                     else:
