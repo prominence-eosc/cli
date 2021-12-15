@@ -21,6 +21,8 @@ from prominence import exceptions
 from prominence import __version__
 from prominence import ProminenceClient
 
+CMD_MAX_WIDTH = 100
+
 def handle_multiline_commands(job):
     """
     If cmd contains new lines, split into multiple tasks or a single task
@@ -120,6 +122,10 @@ def list_jobs(jobs):
         width_container_current = len(image_name(job['tasks'][0]['image']))
         width_cmd_current = len(my_cmd)
 
+        if width_cmd_current > CMD_MAX_WIDTH:
+            width_cmd_current = CMD_MAX_WIDTH + 3
+            my_cmd = '%s...' % my_cmd[0:CMD_MAX_WIDTH]
+
         if width_id_current > width_id:
             width_id = width_id_current
         if width_name_current > width_name:
@@ -143,6 +149,8 @@ def list_jobs(jobs):
         my_cmd = ''
         if 'cmd' in job['tasks'][0]:
             my_cmd = job['tasks'][0]['cmd']
+            if len(my_cmd) > CMD_MAX_WIDTH:
+                my_cmd = '%s...' % my_cmd[0:CMD_MAX_WIDTH]
         my_name = ''
         if 'name' in job:
             my_name = job['name']
