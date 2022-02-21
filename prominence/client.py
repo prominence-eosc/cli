@@ -342,7 +342,7 @@ class ProminenceClient(object):
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
             if 'error' in response.json():
-                return self.Response(return_code=1, data={'error': '%s' % response.json()['error']})
+                raise exceptions.WorkflowGetError(response.json()['error'])
 
         raise exceptions.WorkflowGetError('Unknown error')
 
