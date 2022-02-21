@@ -1468,7 +1468,7 @@ def create_parser():
                                nargs='?',
                                default=-1,
                                type=int)
-    parser_stdout.add_argument('-n',
+    parser_stderr.add_argument('-n',
                                '--node',
                                dest='node',
                                default=0,
