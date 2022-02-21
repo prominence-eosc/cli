@@ -271,6 +271,10 @@ def transform_job(job, detail):
             execution['cpu'] = job['execution']['cpu']
         if 'maxMemoryUsageKB' in job['execution']:
             execution['maxMemoryUsageKB'] = job['execution']['maxMemoryUsageKB']
+        if 'stageInTime' in job['execution']:
+            execution['stageInTime'] = job['execution']['stageInTime']
+        if 'stageOutTime' in job['execution']:
+            execution['stageOutTime'] = job['execution']['stageOutTime']
         if 'tasks' in job['execution']:
             tasks = []
             for task in job['execution']['tasks']:
