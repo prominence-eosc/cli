@@ -106,7 +106,7 @@ class SnapshotCreateError(ProminenceError):
     """
     pass
 
-class SnapshotGetErorr(ProminenceError):
+class SnapshotGetError(ProminenceError):
     """
     Raised when there is an error getting a snapshot URL
     """
