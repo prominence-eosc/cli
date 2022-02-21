@@ -748,11 +748,11 @@ def command_stdout(args):
     try:
         client = ProminenceClient(authenticated=True)
         if args.job:
-            print(client.stdout_workflow(args.id, args.job, args.instance))
+            print(client.stdout_workflow(args.id, args.job, args.node, args.instance))
         elif args.job:
-            print(client.stdout_workflow(args.id, args.job))
+            print(client.stdout_workflow(args.id, args.job, args.node))
         else:
-            print(client.stdout_job(args.id))
+            print(client.stdout_job(args.id, args.node))
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -770,11 +770,11 @@ def command_stderr(args):
     try:
         client = ProminenceClient(authenticated=True)
         if args.job:
-            print(client.stderr_workflow(args.id, args.job, args.instance))
+            print(client.stderr_workflow(args.id, args.job, args.node, args.instance))
         elif args.job:
-            print(client.stderr_workflow(args.id, args.job))
+            print(client.stderr_workflow(args.id, args.job, args.node))
         else:
-            print(client.stderr_job(args.id))
+            print(client.stderr_job(args.id, args.node))
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -1442,6 +1442,12 @@ def create_parser():
                                nargs='?',
                                default=-1,
                                type=int)
+    parser_stdout.add_argument('-n',
+                               '--node',
+                               dest='node',
+                               default=0,
+                               type=int,
+                               help='Node') 
     parser_stdout.set_defaults(func=command_stdout)
 
     # Create the parser for the "stderr" command
@@ -1458,6 +1464,12 @@ def create_parser():
                                nargs='?',
                                default=-1,
                                type=int)
+    parser_stdout.add_argument('-n',
+                               '--node',
+                               dest='node',
+                               default=0,
+                               type=int,
+                               help='Node')
     parser_stderr.set_defaults(func=command_stderr)
 
     # Create the parser for the "usage" command
