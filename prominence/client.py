@@ -241,12 +241,12 @@ class ProminenceClient(object):
 
         raise exceptions.WorkflowCreationError('Unknown error')
 
-    def rerun_workflow(self, workflow_id):
+    def rerun(self, resource_type, resource_id):
         """
-        Rerun any failed jobs from a completed workflow
+        Rerun any failed jobs from a completed workflow or re-run a job
         """
         try:
-            response = requests.put(self._url + '/workflows/%d' % workflow_id, timeout=self._timeout, headers=self._headers, verify=self._verify)
+            response = requests.put(self._url + '/%ss/%d' % (resource_type, resource_id), timeout=self._timeout, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException as err:
             raise exceptions.ConnectionError(err)
 

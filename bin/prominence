@@ -795,11 +795,11 @@ def command_stderr(args):
 
 def command_rerun(args):
     """
-    Re-run any failed jobs from a completed workflow
+    Re-run any failed jobs from a completed workflow or re-run a job
     """
     try:
         client = ProminenceClient(authenticated=True)
-        workflow_id = client.rerun_workflow(args.id)
+        resource_id = client.rerun(args.id)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -810,7 +810,10 @@ def command_rerun(args):
         print('Error:', err)
         exit(1)
 
-    print('Workflow created with id %d' % workflow_id)
+    if args.resource == 'workflow':
+        print('Workflow created with id %d' % resource_id)
+    else:
+        print('Job created with id %d' % resource_id)
 
 def command_run(args):
     """
@@ -1166,9 +1169,14 @@ def create_parser():
 
     # Create the parser for the "rerun" command
     parser_rerun = subparsers.add_parser('rerun',
-                                         help='Re-run any failed jobs from a completed workflow')
+                                         help='Re-run a job or re-run all failed jobs from a completed workflow')
+    parser_rerun.add_argument('resource',
+                               help='Resource type',
+                               default='workflow',
+                               nargs='?',
+                               choices=['job', 'workflow'])
     parser_rerun.add_argument('id',
-                              help='Workflow id',
+                              help='Job or workflow id',
                               type=int)
     parser_rerun.set_defaults(func=command_rerun)
 
