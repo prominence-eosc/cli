@@ -267,6 +267,8 @@ def transform_job(job, detail):
     if 'execution' in job:
         if 'site' in job['execution']:
             execution['site'] = job['execution']['site']
+        if 'provisionedResources' in job['execution']:
+            execution['provisionedResources'] = job['execution']['provisionedResources']
         if 'cpu' in job['execution']:
             execution['cpu'] = job['execution']['cpu']
         if 'maxMemoryUsageKB' in job['execution']:
@@ -285,6 +287,8 @@ def transform_job(job, detail):
                     task_t['retries'] = task['retries']
                 if 'imagePullTime' in task:
                     task_t['imagePullTime'] = float('%.4g' % task['imagePullTime'])
+                if 'imageSha256' in task:
+                    task_t['imageSha256'] = task['imageSha256']
                 if 'wallTimeUsage' in task:
                     task_t['wallTimeUsage'] = float('%.4g' % task['wallTimeUsage'])
                 if 'cpuTimeUsage' in task:
@@ -918,12 +922,26 @@ def command_create(args):
     Create a job
     """
     resources = {}
-    resources['memory'] = args.memory
-    resources['cpus'] = args.cpus
     resources['nodes'] = args.nodes
     resources['disk'] = args.disk
     if args.walltime:
         resources['walltime'] = args.walltime
+
+    if args.cpusrange and args.cpusoptions:
+        print('Error: do not specify both --cpus-range and --cpus-options')
+        exit(1)
+
+    if args.cpusrange:
+        resources['cpusRange'] = args.cpusrange.split(',')
+    elif args.cpusoptions:
+        resources['cpusOptions'] = args.cpusoptions.split(',')
+    else:
+        resources['cpus'] = args.cpus
+
+    if args.memorypercpu:
+        resources['memoryPerCpu'] = args.memorypercpu
+    else:
+        resources['memory'] = args.memory
 
     job = {}
     job['resources'] = resources
@@ -1166,11 +1184,28 @@ def create_parser():
                                default=1,
                                type=int,
                                help='Memory in GB per node.')
+    parser_create.add_argument('--memory-per-cpu',
+                               dest='memorypercpu',
+                               default=0,
+                               type=int,
+                               help='Memory in GB per core per node.')
     parser_create.add_argument('--cpus',
                                dest='cpus',
                                default=1,
                                type=int,
                                help='Cores per node.')
+    parser_create.add_argument('--cpus-range',
+                               dest='cpusrange',
+                               default='',
+                               type=str,
+                               help='Range of cores per node, e.g. "16,32" will result in anywhere between 16 and 32 \
+                                     cores being used, with larger values preferred.')
+    parser_create.add_argument('--cpus-options',
+                               dest='cpusoptions',
+                               default='',
+                               type=str,
+                               help='Optional numbers of cores per node, e.g. "14,28" will result in either 28 or 14 \
+                                     cores being used, with 28 preferred.')
     parser_create.add_argument('--nodes',
                                dest='nodes',
                                default=1,
