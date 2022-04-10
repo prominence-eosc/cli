@@ -402,7 +402,7 @@ class ProminenceClient(object):
         """
         return self.stdout_generic('jobs', job_id, node)
 
-    def stdout_workflow(self, job_id, job, node, instance):
+    def stdout_workflow(self, job_id, job, node, instance=-1):
         """
         Get standard output from a workflow
         """
@@ -445,7 +445,7 @@ class ProminenceClient(object):
         """
         return self.stderr_generic('jobs', job_id, node)
 
-    def stderr_workflow(self, job_id, node, job, instance):
+    def stderr_workflow(self, job_id, node, job, instance=-1):
         """
         Get standard error from a workflow
         """
