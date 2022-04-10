@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 from string import Template
 import sys
 import time
@@ -1047,6 +1048,31 @@ def command_create(args):
                 artifact['url'] = file
             job['artifacts'].append(artifact)
 
+    # Automatically transfer contents of specified directory to job
+    tarball = str(uuid.uuid4())
+    if args.directory:
+        if 'artifacts' not in job:
+            job['artifacts'] = []
+        try:
+            shutil.make_archive('/tmp/%s' % tarball, 'gztar', args.directory)
+        except Exception as err:
+            print('Error: Unable to create directory tarball:', err)
+            exit(1)
+        job['artifacts'].append({'url': '%s.tar.gz' % tarball})
+
+        try:
+            client = ProminenceClient(authenticated=True)
+            response = client.upload('%s.tar.gz' % tarball, '/tmp/%s.tar.gz' % tarball)
+        except exceptions.AuthenticationError:
+            print('Error: authentication failed')
+            exit(1)
+        except exceptions.TokenExpiredError:
+            print('Error: access token has expired')
+            exit(1)
+        except (exceptions.FileUploadError, exceptions.ConnectionError, exceptions.TokenError) as err:
+            print('Error:', err)
+            exit(1)
+
     # Files to be uploaded
     if args.inputfile:
         inputs = []
@@ -1131,6 +1157,11 @@ def command_create(args):
         exit(1)
 
     print('Job created with id %d' % job_id)
+
+    # Cleanup if necessary
+    if args.directory:
+        if os.path.exists('/tmp/%s.tar.gz' % tarball):
+            os.unlink('/tmp/%s.tar.gz' % tarball)
 
 def command_usage(args):
     """
@@ -1337,6 +1368,10 @@ def create_parser():
                                      setting the maximum time in queue to a non-zero value enables jobs \
                                      to wait in the queue until resources become available. Units are \
                                      minutes.')
+    parser_create.add_argument('--directory',
+                               dest='directory',
+                               help='Path to a directory to be transferred to the job. The job \
+                                     will be executed within this directory.')
     parser_create.add_argument('--storage',
                                dest='storage',
                                help='Filename specifying storage details')
