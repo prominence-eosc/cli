@@ -817,11 +817,30 @@ def command_stderr(args):
 
 def command_rerun(args):
     """
-    Re-run any failed jobs from a completed workflow or re-run a job
+    Re-run any failed jobs from a completed workflow
     """
     try:
         client = ProminenceClient(authenticated=True)
-        resource_id = client.rerun(args.resource, args.id)
+        resource_id = client.rerun(args.id)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.JobCreationError, exceptions.TokenError) as err:
+        print('Error:', err)
+        exit(1)
+
+    print('Workflow created with id %d' % resource_id)
+
+def command_clone(args):
+    """
+    Clone a job or workflow
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        resource_id = client.clone(args.resource, args.id)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -1237,6 +1256,19 @@ def create_parser():
                               help='Job or workflow id',
                               type=int)
     parser_rerun.set_defaults(func=command_rerun)
+
+    # Create the parser for the "clone" command
+    parser_clone = subparsers.add_parser('clone',
+                                        help='Create a new job or workflow identical to a previously-submitted one')
+    parser_clone.add_argument('resource',
+                             help='Resource type',
+                             default='job',
+                             nargs='?',
+                             choices=['job', 'workflow'])
+    parser_clone.add_argument('id',
+                             help='Job or workflow id',
+                             type=int)
+    parser_clone.set_defaults(func=command_clone)
 
     # Create the parser for the "create" command
     parser_create = subparsers.add_parser('create',
