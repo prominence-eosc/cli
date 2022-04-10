@@ -1135,6 +1135,12 @@ def command_create(args):
             job['policies'] = {}
         job['policies']['maximumTimeInQueue'] = args.maxtimeinqueue
 
+    # Leave in queue
+    if args.leaveinqueue:
+        if 'policies' not in job:
+            job['policies'] = {}
+        job['policies']['leaveInQueue'] = args.leaveinqueue
+
     # Add task to job
     job['tasks'] = [task]
 
@@ -1368,6 +1374,12 @@ def create_parser():
                                      setting the maximum time in queue to a non-zero value enables jobs \
                                      to wait in the queue until resources become available. Units are \
                                      minutes.')
+    parser_create.add_argument('--leave-in-queue',
+                               dest='leaveinqueue',
+                               default=False,
+                               action='store_true',
+                               help='Leave job in queue after successful completion, failure, deletion or being killed. \
+                                     This avoids the need for using "--completed" to see the job.')
     parser_create.add_argument('--directory',
                                dest='directory',
                                help='Path to a directory to be transferred to the job. The job \
