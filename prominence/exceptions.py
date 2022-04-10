@@ -40,6 +40,12 @@ class ConnectionError(ProminenceError):
     """
     pass
 
+class RemoveFromQueueError(ProminenceError):
+    """
+    Raised when removing a job or workflow from the queue
+    """
+    pass
+
 class JobCreationError(ProminenceError):
     """
     Raised when job submission fails
