@@ -281,9 +281,15 @@ class ProminenceClient(object):
             raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
         elif response.status_code < 500:
             if 'error' in response.json():
-                raise exceptions.WorkflowCreationError(response.json()['error'])
+                if resource_type == 'workflow':
+                    raise exceptions.WorkflowCreationError(response.json()['error'])
+                else:
+                    raise exceptions.JobCreationError(response.json()['error'])
 
-        raise exceptions.WorkflowCreationError('Unknown error')
+        if resource_type == 'workflow':
+            raise exceptions.WorkflowCreationError('Unknown error')
+        else:
+            raise exceptions.JobCreationError('Unknown error')
 
     def remove(self, resource_type, resource_id):
         """
