@@ -733,7 +733,7 @@ def command_remove(args):
     """
     try:
         client = ProminenceClient(authenticated=True)
-        resource_id = client.remove(args.resource, args.id)
+        client.remove(args.resource, args.id)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -957,9 +957,9 @@ def command_create(args):
         exit(1)
 
     if args.cpusrange:
-        resources['cpusRange'] = args.cpusrange.split(',')
+        resources['cpusRange'] = [int(x) for x in args.cpusrange.split(',')]
     elif args.cpusoptions:
-        resources['cpusOptions'] = args.cpusoptions.split(',')
+        resources['cpusOptions'] = [int(x) for x in args.cpusoptions.split(',')]
     else:
         resources['cpus'] = args.cpus
 
