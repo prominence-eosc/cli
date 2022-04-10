@@ -726,6 +726,27 @@ def command_rm(args):
 
     print('Success')
 
+def command_remove(args):
+    """
+    Remove a job or workflow from the queue
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        resource_id = client.remove(args.resource, args.id)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.RemoveFromQueueError, exceptions.TokenError) as err:
+        print('Error:', err)
+        exit(1)
+
+    if args.resource == 'workflow':
+        print('Workflow removed from queue')
+    else:
+        print('Job removed from queue')
 
 def command_delete(args):
     """
@@ -799,7 +820,7 @@ def command_rerun(args):
     """
     try:
         client = ProminenceClient(authenticated=True)
-        resource_id = client.rerun(args.id)
+        resource_id = client.rerun(args.resource, args.id)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -1396,6 +1417,19 @@ def create_parser():
                                help='Job/workflow id',
                                type=int)
     parser_delete.set_defaults(func=command_delete)
+
+    # Create the parser for the "remove" command
+    parser_remove = subparsers.add_parser('remove',
+                                          help='Remove a job or workflow from the queue')
+    parser_remove.add_argument('resource',
+                               help='Resource type',
+                               default='job',
+                               nargs='?',
+                               choices=['job', 'workflow'])
+    parser_remove.add_argument('id',
+                               help='Job/workflow id',
+                               type=int)
+    parser_remove.set_defaults(func=command_remove)
 
     # Create the parser for the "exec" command
     parser_exec = subparsers.add_parser('exec',
