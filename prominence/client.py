@@ -263,6 +263,28 @@ class ProminenceClient(object):
 
         raise exceptions.WorkflowCreationError('Unknown error')
 
+    def remove(self, resource_type, resource_id):
+        """
+        Remove a completed job or workflow from the queue
+        """
+        try:
+            response = requests.put(self._url + '/%ss/%d/remove' % (resource_type, resource_id), timeout=self._timeout, headers=self._headers, verify=self._verify)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
+
+        if response.status_code == 200:
+            if 'id' in response.json():
+                return response.json()['id']
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        elif response.status_code < 500:
+            if 'error' in response.json():
+                raise exceptions.RemoveFromQueueError(response.json()['error'])
+
+        raise exceptions.RemoveFromQueueError('Unknown error')
+
     def delete_job(self, job_id):
         """
         Delete the specified job
