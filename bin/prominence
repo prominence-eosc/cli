@@ -975,12 +975,31 @@ def command_create(args):
         print('Error: do not specify both --cpus-range and --cpus-options')
         exit(1)
 
+    if args.nodes > 1 and args.totalcpusrange:
+        print('Error: do not specify both --nodes and --total-cpus-range')
+        exit(1)
+
     if args.cpusrange:
+        match = re.search(r'\d+\,\d+', args.cpusrange)
+        if not match:
+            print('Error: --cpus-range must be in the form "min,max" where min and max are integers')
+            exit(1)
         resources['cpusRange'] = [int(x) for x in args.cpusrange.split(',')]
     elif args.cpusoptions:
+        match = re.search(r'\d+\,\d+', args.cpusoptions)
+        if not match:
+            print('Error: --cpus-options must be in the form "x,y" where x and y are integers')
+            exit(1)
         resources['cpusOptions'] = [int(x) for x in args.cpusoptions.split(',')]
     else:
         resources['cpus'] = args.cpus
+
+    if args.totalcpusrange:
+        match = re.search(r'\d+\,\d+', args.totalcpusrange)
+        if not match:
+            print('Error: --total-cpus-range must be in the form "min,max" where min and max are integers')
+            exit(1)
+        resources['totalCpusRange'] = [int(x) for x in args.totalcpusrange.split(',')]
 
     if args.memorypercpu:
         resources['memoryPerCpu'] = args.memorypercpu
@@ -1246,7 +1265,7 @@ def create_parser():
 
     # Create the parser for the "rerun" command
     parser_rerun = subparsers.add_parser('rerun',
-                                         help='Re-run all failed jobs from a completed workflow')
+                                         help='Re-run a job or re-run all failed jobs from a completed workflow')
     parser_rerun.add_argument('resource',
                                help='Resource type',
                                default='workflow',
@@ -1309,6 +1328,12 @@ def create_parser():
                                default=1,
                                type=int,
                                help='Number of nodes.')
+    parser_create.add_argument('--total-cpus-range',
+                               dest='totalcpusrange',
+                               default='',
+                               help='Range of total number of CPUs for multi-node jobs, e.g. "64,128" will result in \
+                                     anywhere between 64 and 128 cores being used, with the specified range of CPUs being \
+                                     respected, and the number of nodes as required.')
     parser_create.add_argument('--procs-per-node',
                                dest='ppn',
                                default=0,
