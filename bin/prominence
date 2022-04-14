@@ -966,7 +966,8 @@ def command_create(args):
     Create a job
     """
     resources = {}
-    resources['nodes'] = args.nodes
+    if not args.totalcpusrange:
+        resources['nodes'] = args.nodes
     resources['disk'] = args.disk
     if args.walltime:
         resources['walltime'] = args.walltime
@@ -1052,12 +1053,13 @@ def command_create(args):
         task['type'] = 'intelmpi'
 
     # If multiple nodes are specified need to specify MPI type
-    if job['resources']['nodes'] > 1 and 'type' not in task:
-        print('Error: more than one node has been requested but MPI has not been specified')
-        exit(1)
+    if 'nodes' in job['resources']:
+        if job['resources']['nodes'] > 1 and 'type' not in task:
+            print('Error: more than one node has been requested but MPI has not been specified')
+            exit(1)
 
-    if job['resources']['nodes'] > 1 and task['type'] != 'openmpi' and task['type'] != 'mpich' and task['type'] != 'intelmpi':
-        print('Error: more than one node has been requested but MPI has not been specified')
+    if 'totalCpuRange' in job['resources'] and 'type' not in task:
+        print('Error: more than one node may have been requested but MPI has not been specified')
         exit(1)
 
     # Optional command to run
