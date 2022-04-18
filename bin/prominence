@@ -1267,14 +1267,9 @@ def create_parser():
 
     # Create the parser for the "rerun" command
     parser_rerun = subparsers.add_parser('rerun',
-                                         help='Re-run a job or re-run all failed jobs from a completed workflow')
-    parser_rerun.add_argument('resource',
-                               help='Resource type',
-                               default='workflow',
-                               nargs='?',
-                               choices=['job', 'workflow'])
+                                         help='Re-run all failed jobs from a completed workflow')
     parser_rerun.add_argument('id',
-                              help='Job or workflow id',
+                              help='Workflow id',
                               type=int)
     parser_rerun.set_defaults(func=command_rerun)
 
