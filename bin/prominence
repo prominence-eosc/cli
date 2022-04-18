@@ -1297,40 +1297,44 @@ def create_parser():
                                dest='memory',
                                default=1,
                                type=int,
-                               help='Memory in GB per node.')
+                               help='Memory in GB per node. Only one of --memory or --memory-per-cpu can be specified.')
     parser_create.add_argument('--memory-per-cpu',
                                dest='memorypercpu',
                                default=0,
                                type=int,
-                               help='Memory in GB per core per node.')
+                               help='Memory in GB per core per node. Only one of --memory or --memory-per-cpu can be \
+                                     specified.')
     parser_create.add_argument('--cpus',
                                dest='cpus',
                                default=1,
                                type=int,
-                               help='Cores per node.')
+                               help='Cores per node. Only one of --cpus, --cpus-range or --cpus-options can be specified.')
     parser_create.add_argument('--cpus-range',
                                dest='cpusrange',
                                default='',
                                type=str,
                                help='Range of cores per node, e.g. "16,32" will result in anywhere between 16 and 32 \
-                                     cores being used, with larger values preferred.')
+                                     cores being used, with larger values preferred. Only one of --cpus, --cpus-range or \
+                                     --cpus-options can be specified.')
     parser_create.add_argument('--cpus-options',
                                dest='cpusoptions',
                                default='',
                                type=str,
                                help='Optional numbers of cores per node, e.g. "14,28" will result in either 28 or 14 \
-                                     cores being used, with 28 preferred.')
+                                     cores being used, with 28 preferred. Only one of --cpus, --cpus-range or \
+                                     --cpus-options can be specified.')
     parser_create.add_argument('--nodes',
                                dest='nodes',
                                default=1,
                                type=int,
-                               help='Number of nodes.')
+                               help='Number of nodes. Only one of --nodes or --total-cpus-range can be specified.')
     parser_create.add_argument('--total-cpus-range',
                                dest='totalcpusrange',
                                default='',
                                help='Range of total number of CPUs for multi-node jobs, e.g. "64,128" will result in \
                                      anywhere between 64 and 128 cores being used, with the specified range of CPUs being \
-                                     respected, and the number of nodes as required.')
+                                     respected, and the number of nodes as required. Only one of --nodes or --total-cpus-range \
+                                     can be specified.')
     parser_create.add_argument('--procs-per-node',
                                dest='ppn',
                                default=0,
