@@ -1579,7 +1579,7 @@ def create_parser():
                                default=0,
                                type=int,
                                help='Node')
-    parser_stderr.set_defaults(func=command_stderr
+    parser_stderr.set_defaults(func=command_stderr)
 
     # Create the parser for the "exec" command
     parser_exec = subparsers.add_parser('exec',
