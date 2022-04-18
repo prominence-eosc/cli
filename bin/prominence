@@ -172,13 +172,17 @@ def list_workflows(workflows):
     width_created = 19
     width_status = 6
     width_elapsed = 10
-    width_progress = 8
+    width_success = 8
+    width_failed = 8
+    width_total = 8
 
     for workflow in workflows:
         width_id_current = len(str(workflow['id']))
         width_name_current = len(workflow['name'])
         width_status_current = len(workflow['status'])
-        width_progress_current = len('%d/%d' % (workflow['progress']['done'], workflow['progress']['total']))
+        width_success_current = len('%d' % workflow['progress']['done'])
+        width_failed_current = len('%d' % workflow['progress']['failed'])
+        width_total_current = len('%d' % workflow['progress']['total'])
 
         if width_id_current > width_id:
             width_id = width_id_current
@@ -186,23 +190,31 @@ def list_workflows(workflows):
             width_name = width_name_current
         if width_status_current > width_status:
             width_status = width_status_current
-        if width_progress_current > width_progress:
-            width_progress = width_progress_current
+        if width_success_current > width_success:
+            width_success = width_success_current
+        if width_failed_current > width_failed:
+            width_failed = width_failed_current
+        if width_total_current > width_total:
+            width_total = width_total_current
 
-    print('%s   %s   %s   %s   %s   %s' % ('ID'.ljust(width_id),
-                                           'NAME'.ljust(width_name),
-                                           'CREATED'.ljust(width_created),
-                                           'STATUS'.ljust(width_status),
-                                           'ELAPSED'.ljust(width_elapsed),
-                                           'PROGRESS'.ljust(width_progress)))
+    print('%s   %s   %s   %s   %s   %s   %s   %s' % ('ID'.ljust(width_id),
+                                                     'NAME'.ljust(width_name),
+                                                     'CREATED'.ljust(width_created),
+                                                     'STATUS'.ljust(width_status),
+                                                     'ELAPSED'.ljust(width_elapsed),
+                                                     'SUCCESS'.ljust(width_success),
+                                                     'FAILED'.ljust(width_failed),
+                                                     'TOTAL'.ljust(width_total)))
 
     for workflow in workflows:
-        print('%s   %s   %s   %s   %s   %s' % (str(workflow['id']).ljust(width_id),
-                                               workflow['name'].ljust(width_name),
-                                               datetime_format(workflow['events']['createTime']).ljust(width_created),
-                                               workflow['status'].ljust(width_status),
-                                               elapsed(workflow).ljust(width_elapsed),
-                                               ('%d/%d' % (workflow['progress']['done'], workflow['progress']['total'])).ljust(width_progress)))
+        print('%s   %s   %s   %s   %s   %s   %s   %s' % (str(workflow['id']).ljust(width_id),
+                                                         workflow['name'].ljust(width_name),
+                                                         datetime_format(workflow['events']['createTime']).ljust(width_created),
+                                                         workflow['status'].ljust(width_status),
+                                                         elapsed(workflow).ljust(width_elapsed),
+                                                         ('%d' % workflow['progress']['done']).ljust(width_success),
+                                                         ('%d' % workflow['progress']['failed']).ljust(width_failed),
+                                                         ('%d' % workflow['progress']['total']).ljust(width_total)))
 
 def transform_job(job, detail):
     """
