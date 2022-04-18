@@ -1537,6 +1537,50 @@ def create_parser():
                                type=int)
     parser_remove.set_defaults(func=command_remove)
 
+    # Create the parser for the "stdout" command
+    parser_stdout = subparsers.add_parser('stdout',
+                                          help='Get standard output from a running or completed job')
+    parser_stdout.add_argument('id',
+                               help='Job or workflow id',
+                               type=int)
+    parser_stdout.add_argument('job',
+                               help='Job name',
+                               nargs='?')
+    parser_stdout.add_argument('instance',
+                               help='Instance',
+                               nargs='?',
+                               default=-1,
+                               type=int)
+    parser_stdout.add_argument('-n',
+                               '--node',
+                               dest='node',
+                               default=0,
+                               type=int,
+                               help='Node')
+    parser_stdout.set_defaults(func=command_stdout)
+
+    # Create the parser for the "stderr" command
+    parser_stderr = subparsers.add_parser('stderr',
+                                          help='Get standard error from a running or completed job')
+    parser_stderr.add_argument('id',
+                               help='Job or workflow id',
+                               type=int)
+    parser_stderr.add_argument('job',
+                               help='Job name',
+                               nargs='?')
+    parser_stderr.add_argument('instance',
+                               help='Instance',
+                               nargs='?',
+                               default=-1,
+                               type=int)
+    parser_stderr.add_argument('-n',
+                               '--node',
+                               dest='node',
+                               default=0,
+                               type=int,
+                               help='Node')
+    parser_stderr.set_defaults(func=command_stderr
+
     # Create the parser for the "exec" command
     parser_exec = subparsers.add_parser('exec',
                                         help='Execute a command inside a job')
@@ -1614,50 +1658,6 @@ def create_parser():
     parser_rm.add_argument('object',
                            help='Object name')
     parser_rm.set_defaults(func=command_rm)
-
-    # Create the parser for the "stdout" command
-    parser_stdout = subparsers.add_parser('stdout',
-                                          help='Get standard output from a running or completed job')
-    parser_stdout.add_argument('id',
-                               help='Job or workflow id',
-                               type=int)
-    parser_stdout.add_argument('job',
-                               help='Job name',
-                               nargs='?')
-    parser_stdout.add_argument('instance',
-                               help='Instance',
-                               nargs='?',
-                               default=-1,
-                               type=int)
-    parser_stdout.add_argument('-n',
-                               '--node',
-                               dest='node',
-                               default=0,
-                               type=int,
-                               help='Node') 
-    parser_stdout.set_defaults(func=command_stdout)
-
-    # Create the parser for the "stderr" command
-    parser_stderr = subparsers.add_parser('stderr',
-                                          help='Get standard error from a running or completed job')
-    parser_stderr.add_argument('id',
-                               help='Job or workflow id',
-                               type=int)
-    parser_stderr.add_argument('job',
-                               help='Job name',
-                               nargs='?')
-    parser_stderr.add_argument('instance',
-                               help='Instance',
-                               nargs='?',
-                               default=-1,
-                               type=int)
-    parser_stderr.add_argument('-n',
-                               '--node',
-                               dest='node',
-                               default=0,
-                               type=int,
-                               help='Node')
-    parser_stderr.set_defaults(func=command_stderr)
 
     # Create the parser for the "usage" command
     parser_usage = subparsers.add_parser('usage',
