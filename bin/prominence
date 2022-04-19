@@ -1175,6 +1175,12 @@ def command_create(args):
         if 'storage' in storage:
             job['storage'] = storage['storage']
 
+    # Priority
+    if args.priority:
+        if 'policies' not in job:
+            job['policies'] = {}
+        job['policies']['priority'] = args.priority
+
     # Retries
     if args.retries:
         if 'policies' not in job:
@@ -1450,6 +1456,11 @@ def create_parser():
                                action='store_true',
                                help='Leave job in queue after successful completion, failure, deletion or being killed. \
                                      This avoids the need for using "--completed" to see the job.')
+    parser_create.add_argument('--priority',
+                               dest='priority',
+                               type=int,
+                               help='Set job priority, allowing users to influence the order in which their jobs \
+                                     are run. Higher priority jobs are run first, resources permitting.')
     parser_create.add_argument('--directory',
                                dest='directory',
                                help='Path to a directory to be transferred to the job. The job \
