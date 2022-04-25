@@ -31,7 +31,9 @@ def test_create_udocker(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--runtime=udocker", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": [{"image": "centos:7", "runtime": "udocker"}]}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": [{"image": "centos:7", "runtime": "udocker"}]}
 
 def test_create_fixed_cpus(capsys):
     """
@@ -40,7 +42,9 @@ def test_create_fixed_cpus(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--cpus=16", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 1, "disk": 10, "cpus": 16, "memory": 1}, "name": "", "tasks": default_tasks}
+    assert data == {"resources": {"nodes": 1, "disk": 10, "cpus": 16, "memory": 1},
+                    "name": "",
+                    "tasks": default_tasks}
 
 def test_create_fixed_memory(capsys):
     """
@@ -49,7 +53,9 @@ def test_create_fixed_memory(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--memory=16", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 1, "disk": 10, "cpus": 1, "memory": 16}, "name": "", "tasks": default_tasks}
+    assert data == {"resources": {"nodes": 1, "disk": 10, "cpus": 1, "memory": 16},
+                    "name": "",
+                    "tasks": default_tasks}
 
 def test_create_fixed_disk(capsys):
     """
@@ -58,7 +64,9 @@ def test_create_fixed_disk(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--disk=20", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 1, "disk": 20, "cpus": 1, "memory": 1}, "name": "", "tasks": default_tasks}
+    assert data == {"resources": {"nodes": 1, "disk": 20, "cpus": 1, "memory": 1},
+                    "name": "",
+                    "tasks": default_tasks}
 
 def test_create_walltime(capsys):
     """
@@ -67,7 +75,13 @@ def test_create_walltime(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--walltime=12345", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1, "walltime": 12345}, "name": "", "tasks": default_tasks}
+    assert data == {"resources": {"nodes": 1,
+                                  "disk": 10,
+                                  "cpus": 1,
+                                  "memory": 1,
+                                  "walltime": 12345},
+                    "name": "",
+                    "tasks": default_tasks}
 
 def test_create_cpus_range(capsys):
     """
@@ -76,7 +90,9 @@ def test_create_cpus_range(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--cpus-range=16,32", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 1, "disk": 10, "cpusRange": [16, 32], "memory": 1}, "name": "", "tasks": default_tasks}
+    assert data == {"resources": {"nodes": 1, "disk": 10, "cpusRange": [16, 32], "memory": 1},
+                    "name": "",
+                    "tasks": default_tasks}
 
 def test_create_total_cpus_range_and_cpus_range(capsys):
     """
@@ -85,7 +101,12 @@ def test_create_total_cpus_range_and_cpus_range(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--total-cpus-range=16,32", "--cpus-range=4,8", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"disk": 10, "totalCpusRange": [16, 32], "cpusRange": [4, 8], "memory": 1}, "name": "", "tasks": default_tasks}
+    assert data == {"resources": {"disk": 10,
+                                  "totalCpusRange": [16, 32],
+                                  "cpusRange": [4, 8],
+                                  "memory": 1},
+                    "name": "",
+                    "tasks": default_tasks}
 
 def test_create_cpus_options(capsys):
     """
@@ -94,7 +115,9 @@ def test_create_cpus_options(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--cpus-options=16,32", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 1, "disk": 10, "cpusOptions": [16, 32], "memory": 1}, "name": "", "tasks": default_tasks}
+    assert data == {"resources": {"nodes": 1, "disk": 10, "cpusOptions": [16, 32], "memory": 1},
+                    "name": "",
+                    "tasks": default_tasks}
 
 def test_create_memory_per_cpu(capsys):
     """
@@ -103,7 +126,9 @@ def test_create_memory_per_cpu(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--memory-per-cpu=16", "--cpus=2", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 1, "disk": 10, "cpus": 2, "memoryPerCpu": 16}, "name": "", "tasks": default_tasks}
+    assert data == {"resources": {"nodes": 1, "disk": 10, "cpus": 2, "memoryPerCpu": 16},
+                    "name": "",
+                    "tasks": default_tasks}
 
 def test_create_nodes_openmpi(capsys):
     """
@@ -112,7 +137,9 @@ def test_create_nodes_openmpi(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--nodes=2", "--openmpi", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 2, "disk": 10, "cpus": 1, "memory": 1}, "name": "", "tasks": [{"image": "centos:7", "runtime": "singularity", "type": "openmpi"}]}
+    assert data == {"resources": {"nodes": 2, "disk": 10, "cpus": 1, "memory": 1},
+                    "name": "",
+                    "tasks": [{"image": "centos:7", "runtime": "singularity", "type": "openmpi"}]}
 
 def test_create_nodes_intelmpi(capsys):
     """
@@ -121,7 +148,9 @@ def test_create_nodes_intelmpi(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--nodes=2", "--intelmpi", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 2, "disk": 10, "cpus": 1, "memory": 1}, "name": "", "tasks": [{"image": "centos:7", "runtime": "singularity", "type": "intelmpi"}]}
+    assert data == {"resources": {"nodes": 2, "disk": 10, "cpus": 1, "memory": 1},
+                    "name": "",
+                    "tasks": [{"image": "centos:7", "runtime": "singularity", "type": "intelmpi"}]}
 
 def test_create_nodes_mpich(capsys):
     """
@@ -130,7 +159,9 @@ def test_create_nodes_mpich(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--nodes=2", "--mpich", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 2, "disk": 10, "cpus": 1, "memory": 1}, "name": "", "tasks": [{"image": "centos:7", "runtime": "singularity", "type": "mpich"}]}
+    assert data == {"resources": {"nodes": 2, "disk": 10, "cpus": 1, "memory": 1},
+                    "name": "",
+                    "tasks": [{"image": "centos:7", "runtime": "singularity", "type": "mpich"}]}
 
 def test_create_leave_in_queue(capsys):
     """
@@ -139,7 +170,10 @@ def test_create_leave_in_queue(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--leave-in-queue", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "policies": {"leaveInQueue": True}}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "policies": {"leaveInQueue": True}}
 
 def test_create_priority(capsys):
     """
@@ -148,7 +182,10 @@ def test_create_priority(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--priority=8", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "policies": {"priority": 8}}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "policies": {"priority": 8}}
 
 def test_create_max_time_in_queue(capsys):
     """
@@ -157,7 +194,10 @@ def test_create_max_time_in_queue(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--max-time-in-queue=864000", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "policies": {"maximumTimeInQueue": 864000}}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "policies": {"maximumTimeInQueue": 864000}}
 
 def test_create_retries(capsys):
     """
@@ -166,7 +206,10 @@ def test_create_retries(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--retries=4", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "policies": {"maximumRetries": 4}}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "policies": {"maximumRetries": 4}}
 
 def test_create_workdir(capsys):
     """
@@ -175,7 +218,9 @@ def test_create_workdir(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--workdir=/data", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": [{"image": "centos:7", "runtime": "singularity", "workdir": "/data"}]}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": [{"image": "centos:7", "runtime": "singularity", "workdir": "/data"}]}
 
 def test_create_labels(capsys):
     """
@@ -184,7 +229,10 @@ def test_create_labels(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--label=app=app1", "--label=version=1.2.3", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "labels": {"app": "app1", "version": "1.2.3"}}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "labels": {"app": "app1", "version": "1.2.3"}}
 
 def test_create_env(capsys):
     """
@@ -193,25 +241,47 @@ def test_create_env(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--env=var1=2", "--env=var2=a2", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": [{"image": "centos:7", "runtime": "singularity", "env": {"var1":"2", "var2":"a2"}}]}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": [{"image": "centos:7",
+                               "runtime": "singularity",
+                               "env": {"var1":"2", "var2":"a2"}}]}
 
 def test_create_procs_per_node(capsys):
     """
     Test job create with procs per node
     """
     with pytest.raises(SystemExit):
-        main(["create", "--dry-run", "--nodes=2", "--cpus=2", "--openmpi", "--procs-per-node=1", "centos:7"])
+        main(["create",
+              "--dry-run",
+              "--nodes=2",
+              "--cpus=2",
+              "--openmpi",
+              "--procs-per-node=1",
+              "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": {"nodes": 2, "disk": 10, "cpus": 2, "memory": 1}, "name": "", "tasks": [{"image": "centos:7", "runtime": "singularity", "type": "openmpi", "procsPerNode": 1}]}
+    assert data == {"resources": {"nodes": 2, "disk": 10, "cpus": 2, "memory": 1},
+                    "name": "",
+                    "tasks": [{"image": "centos:7",
+                               "runtime": "singularity",
+                               "type": "openmpi",
+                               "procsPerNode": 1}]}
 
 def test_create_artifacts(capsys):
     """
     Test job create with artifacts
     """
     with pytest.raises(SystemExit):
-        main(["create", "--dry-run", "--artifact=testartifact1", "--artifact=testartifact2", "centos:7"])
+        main(["create",
+              "--dry-run",
+              "--artifact=testartifact1",
+              "--artifact=testartifact2",
+              "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "artifacts": [{"url": "testartifact1"}, {"url": "testartifact2"}]}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "artifacts": [{"url": "testartifact1"}, {"url": "testartifact2"}]}
 
 def test_create_artifact_mount(capsys):
     """
@@ -220,7 +290,10 @@ def test_create_artifact_mount(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--artifact=testartifact.tgz:testdir:/data", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "artifacts": [{"url": "testartifact.tgz", "mountpoint": "testdir:/data"}]}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "artifacts": [{"url": "testartifact.tgz", "mountpoint": "testdir:/data"}]}
 
 def test_create_input_file(capsys):
     """
@@ -229,7 +302,10 @@ def test_create_input_file(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--input=test.txt", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "inputs": [{"filename": "test.txt", "content": "aGVsbG8K"}]}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "inputs": [{"filename": "test.txt", "content": "aGVsbG8K"}]}
 
 def test_create_output_files(capsys):
     """
@@ -238,7 +314,9 @@ def test_create_output_files(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--output=out1.cdf", "--output=out2.cdf", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "outputFiles": ["out1.cdf", "out2.cdf"]}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks, "outputFiles": ["out1.cdf", "out2.cdf"]}
 
 def test_create_output_directories(capsys):
     """
@@ -247,4 +325,7 @@ def test_create_output_directories(capsys):
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--outputdir=out1", "--outputdir=out2", "centos:7"])
     data = json.loads(capsys.readouterr().out)
-    assert data == {"resources": default_resources, "name": "", "tasks": default_tasks, "outputDirs": ["out1", "out2"]}
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "outputDirs": ["out1", "out2"]}
