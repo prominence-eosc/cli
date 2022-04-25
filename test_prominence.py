@@ -1,6 +1,7 @@
-from prominence.cli import main
+"""Test PROMINENCE CLI"""
 import json
 import pytest
+from prominence.cli import main
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
