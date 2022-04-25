@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-from prominence.cli import main
+import sys
+from prominence.cli import create_parser, main
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        create_parser().print_help(sys.stderr)
+        exit(0)
+
     main()
