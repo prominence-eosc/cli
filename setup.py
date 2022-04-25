@@ -18,6 +18,7 @@ setuptools.setup(
     url="https://prominence-eosc.github.io/docs",
     platforms=["any"],
     install_requires=["requests", "PyJWT", "pyyaml"],
+    tests_require=["pytest"],
     package_dir={'': '.'},
     scripts=["bin/prominence"],
     packages=['prominence'],
