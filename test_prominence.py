@@ -15,6 +15,17 @@ def test_create(capsys):
     data = json.loads(capsys.readouterr().out)
     assert data == {"resources": default_resources, "name": "", "tasks": default_tasks}
 
+def test_create_command(capsys):
+    """
+    Test job with command
+    """
+    with pytest.raises(SystemExit):
+        main(["create", "--dry-run", "centos:7", "hostname"])
+    data = json.loads(capsys.readouterr().out)
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": [{"image": "centos:7", "runtime": "singularity", "cmd": "hostname"}]}
+
 def test_create_name(capsys):
     """
     Test job create with name
