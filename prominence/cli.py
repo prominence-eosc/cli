@@ -1356,7 +1356,7 @@ def create_parser():
                                default=0,
                                type=int,
                                help='Number of MPI processes to launch per node. By default this \
-                                     will be the number of CPU cores requested per node but it can \
+                                     will be the number of CPU cores available per node but it can \
                                      be changed if necessary.')
     parser_create.add_argument('--omp-procs-per-node',
                                dest='ompppn',
