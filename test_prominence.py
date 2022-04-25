@@ -14,7 +14,7 @@ def test_create(capsys):
     data = json.loads(capsys.readouterr().out)
     assert data == {"resources": default_resources, "name": "", "tasks": default_tasks}
 
-def test_name(capsys):
+def test_create_name(capsys):
     """
     Test job create with name
     """
@@ -23,7 +23,7 @@ def test_name(capsys):
     data = json.loads(capsys.readouterr().out)
     assert data == {"resources": default_resources, "name": "hello", "tasks": default_tasks}
 
-def test_udocker(capsys):
+def test_create_udocker(capsys):
     """
     Test job create with udocker
     """
