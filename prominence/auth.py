@@ -170,13 +170,20 @@ def get_token():
         return os.environ['PROMINENCE_TOKEN']
 
     if os.path.isfile(os.path.expanduser('~/.prominence/token')):
-        with open(os.path.expanduser('~/.prominence/token')) as json_data:
-            data = json.load(json_data)
+        try:
+            # token file is JSON
+            with open(os.path.expanduser('~/.prominence/token')) as fh:
+                data = json.load(fh)
+        except:
+            # token file is not JSON
+            with open(os.path.expanduser('~/.prominence/token')) as fh:
+                return fh.read()
 
         if 'access_token' in data:
             return data['access_token']
         else:
             raise exceptions.TokenError('The saved token file does not contain access_token')
+
     raise exceptions.TokenError('Unable to find token in either the file ~/.prominence/token or environment variable PROMINENCE_TOKEN')
 
 def get_expiry(token):
