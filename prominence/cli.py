@@ -282,6 +282,8 @@ def transform_job(job, detail):
             execution['provisionedResources'] = job['execution']['provisionedResources']
         if 'cpu' in job['execution']:
             execution['cpu'] = job['execution']['cpu']
+        if 'runtimeVersion' in job['execution']:
+            execution['runtimeVersion'] = job['execution']['runtimeVersion']
         if 'maxMemoryUsageKB' in job['execution']:
             execution['maxMemoryUsageKB'] = job['execution']['maxMemoryUsageKB']
         if 'stageInTime' in job['execution']:

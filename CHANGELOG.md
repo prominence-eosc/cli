@@ -6,7 +6,7 @@ node (0, 1, 2, ...) for the case of multi-node jobs. By default standard output/
 displayed when the `--describe` command is run for completed jobs.
 * Support `--memory-per-cpu`, `--cpus-range`, `--cpus-options` and `--cpus-total-range` in `prominence create`.
 * Added `--directory` option to `prominence create` which automatically transfers contents of specified directory to the job.
-* Include `provisionedResources` and `imageSha256` in the output of `prominence describe`.
+* Include `provisionedResources`, `imageSha256` and `runtimeVersion` in the output of `prominence describe`.
 * Added `clone` command to create a clone of a previous job or workflow.
 * Added `remove` command to remove a completed job or workflow from the queue.
 * Added `--priority` option to `prominence create` for specifying job priority.
