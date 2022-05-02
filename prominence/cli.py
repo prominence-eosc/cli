@@ -410,12 +410,15 @@ def command_list(args):
     """
     List running/idle or completed jobs or workflows
     """
-    completed = False
+    status = None
     if args.completed:
-        completed = True
-    active_and_completed = False
+        status = 'completed'
     if args.all:
-        active_and_completed = True
+        status = 'all'
+    if args.running:
+        status = 'running'
+    if args.idle:
+        status = 'idle'
     num = 1
     if args.num:
         num = args.num
@@ -433,9 +436,9 @@ def command_list(args):
     try:
         client = ProminenceClient(authenticated=True)
         if args.resource == 'jobs':
-            data = client.list_jobs(completed, active_and_completed, num, constraint, name_constraint, workflow)
+            data = client.list_jobs(status, num, constraint, name_constraint, workflow)
         else:
-            data = client.list_workflows(completed, active_and_completed, num, constraint, name_constraint)
+            data = client.list_workflows(status, num, constraint, name_constraint)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -601,7 +604,7 @@ def command_download(args):
         if args.resource == 'job':
             jobs.append(client.describe_job(args.id))
         else:
-            jobs = client.list_jobs(True, False, 1, '', '', args.id, True)
+            jobs = client.list_jobs('completed', 1, '', '', args.id, True)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -1489,6 +1492,18 @@ def create_parser():
                              default=False,
                              help='List completed jobs/workflows',
                              action='store_true')
+    parser_list.add_argument('-r',
+                             '--running',
+                             dest='running',
+                             default=False,
+                             action='store_true',
+                             help='List only running jobs/workflows')
+    parser_list.add_argument('-i',
+                             '--idle',
+                             dest='idle',
+                             default=False,
+                             action='store_true',
+                             help='List only idle jobs/workflows')
     parser_list.add_argument('-n',
                              '--last',
                              dest='num',

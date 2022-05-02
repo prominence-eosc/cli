@@ -44,17 +44,17 @@ class ProminenceClient(object):
         else:
             raise exceptions.TokenError('Unable to obtain a token')
 
-    def list_jobs(self, completed=False, all=False, num=1, constraint=None, name_constraint=None, workflow_id=None, detail=False):
+    def list_jobs(self, status=None, num=1, constraint=None, name_constraint=None, workflow_id=None, detail=False):
         """
         List running/idle jobs or completed jobs
         """
         params = {}
 
-        if completed:
+        if status == 'completed':
             params['completed'] = 'true'
         if num:
             params['num'] = num
-        if all:
+        if status == 'all':
             params['all'] = 'true'
         if constraint:
             params['constraint'] = constraint
@@ -66,6 +66,10 @@ class ProminenceClient(object):
             params['num'] = -1
         if detail:
             params['detail'] = 'true'
+        if status == 'running':
+            params['status'] = 'running'
+        if status == 'idle':
+            params['status'] = 'idle'
 
         try:
             response = requests.get(self._url + '/jobs', params=params, timeout=self._timeout, headers=self._headers, verify=self._verify)
@@ -84,18 +88,22 @@ class ProminenceClient(object):
 
         raise exceptions.JobGetError('Unknown error')
 
-    def list_workflows(self, completed=False, all=False, num=1, constraint=None, name_constraint=None):
+    def list_workflows(self, status=None, num=1, constraint=None, name_constraint=None):
         """
         List running/idle workflows or completed workflows
         """
         params = {}
 
-        if completed:
+        if status == 'completed':
             params['completed'] = 'true'
         if num:
             params['num'] = num
-        if all:
+        if status == 'all':
             params['all'] = 'true'
+        if status == 'running':
+            params['status'] = 'running'
+        if status == 'idle':
+            params['status'] = 'idle'
         if constraint:
             params['constraint'] = constraint
         if name_constraint:
