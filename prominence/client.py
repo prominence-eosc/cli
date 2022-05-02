@@ -613,3 +613,109 @@ class ProminenceClient(object):
             raise exceptions.UsageError('Unknown error when querying the PROMINENCE server')
 
         return {}
+
+    def kv_list(self, path=None):
+        """
+        Return a list of keys
+        """
+        url = self._url + '/kv'
+
+        if path:
+            if path.startswith('/'):
+                path = path[1:]
+
+        if path:
+            url = '%s/kv/%s' % (self._url, path)
+
+        params = {}
+        params['list'] = 'true'
+
+        try:
+            response = requests.get(url, headers=self._headers, params=params, verify=self._verify)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
+
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        else:
+            if 'error' in response.json():
+                raise exceptions.KeyValueError(response.json()['error'])
+            raise exceptions.KeyValueError('Unknown error when querying the PROMINENCE server')
+
+    def kv_get(self, key):
+        """
+        Get the value of the specified key
+        """
+        url = '%s/kv/%s' % (self._url, key)
+
+        try:
+            response = requests.get(url, headers=self._headers, verify=self._verify)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
+
+        if response.status_code == 200:
+            return response.text
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            if 'error' in response.json():
+                if 'No such key' in response.json()['error']:
+                    raise exceptions.NoSuchKey()
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        else:
+            if 'error' in response.json():
+                raise exceptions.KeyValueError(response.json()['error'])
+            raise exceptions.KeyValueError('Unknown error when querying the PROMINENCE server')
+
+    def kv_set(self, key, value):
+        """
+        Set the specified key
+        """
+        url = '%s/kv/%s' % (self._url, key)
+
+        try:
+            response = requests.post(url, headers=self._headers, verify=self._verify, data=value)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
+
+        if response.status_code == 201:
+            return response.json()
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        else:
+            if 'error' in response.json():
+                raise exceptions.KeyValueError(response.json()['error'])
+            raise exceptions.KeyValueError('Unknown error when querying the PROMINENCE server')
+
+    def kv_delete(self, key):
+        """
+        Delete the specified key
+        """
+        if key.startswith('/'):
+            key = key[1:]
+
+        url = '%s/kv/%s' % (self._url, key)
+
+        try:
+            response = requests.delete(url, headers=self._headers, verify=self._verify)
+        except requests.exceptions.RequestException as err:
+            raise exceptions.ConnectionError(err)
+
+        if response.status_code == 200:
+            return True
+        elif response.status_code == 401:
+            raise exceptions.AuthenticationError()
+        elif response.status_code == 404:
+            raise exceptions.ConnectionError('Invalid PROMINENCE URL, got a 404 not found error')
+        else:
+            if 'error' in response.json():
+                raise exceptions.KeyValueError(response.json()['error'])
+            raise exceptions.KeyValueError('Unknown error when querying the PROMINENCE server')
+
+        return False
