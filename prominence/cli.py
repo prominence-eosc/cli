@@ -1672,7 +1672,7 @@ def create_parser():
                                dest='node',
                                default=0,
                                type=int,
-                               help='Node')
+                               help='Display stdout from this node for the case of multi-node jobs')
     parser_stdout.set_defaults(func=command_stdout)
 
     # Create the parser for the "stderr" command
@@ -1694,7 +1694,7 @@ def create_parser():
                                dest='node',
                                default=0,
                                type=int,
-                               help='Node')
+                               help='Display stderr from this node for the case of multi-node jobs')
     parser_stderr.set_defaults(func=command_stderr)
 
     # Create the parser for the "exec" command
