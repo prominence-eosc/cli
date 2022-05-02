@@ -1848,4 +1848,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     # Run the required function
-    args.func(args)
+    try:
+        a = getattr(args, "func")
+    except AttributeError:
+        parser.print_help()
+    else:
+        args.func(args)
