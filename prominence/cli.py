@@ -1261,6 +1261,85 @@ def command_usage(args):
                 print('   CPU time (CPU hours)       %d' % usage['usage']['groups'][group]['cpuTime'])
                 print('   Wall time (CPU hours)      %d' % usage['usage']['groups'][group]['wallTime'])
 
+def command_kv_list(args):
+    """
+    List keys
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        keys = client.kv_list(args.path)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.UsageError, exceptions.KeyValueError) as err:
+        print('Error:', err)
+        exit(1)
+
+    for key in keys:
+        print(key)
+
+def command_kv_delete(args):
+    """
+    Delete keys
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        client.kv_delete(args.key)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.UsageError, exceptions.KeyValueError) as err:
+        print('Error:', err)
+        exit(1)
+
+def command_kv_set(args):
+    """
+    Set key
+    """
+    value = args.value
+    if os.path.isfile(args.value):
+        with open(args.value) as fh:
+            value = fh.read()
+
+    try:
+        client = ProminenceClient(authenticated=True)
+        client.kv_set(args.key, value)
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.UsageError, exceptions.KeyValueError) as err:
+        print('Error:', err)
+        exit(1)
+
+def command_kv_get(args):
+    """
+    Get value of a key
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        print(client.kv_get(args.key))
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.TokenError, exceptions.UsageError, exceptions.KeyValueError) as err:
+        print('Error:', err)
+        exit(1)
+    except exceptions.NoSuchKey as err:
+        print('Error: No such key')
+        exit(1)
+
 def create_parser():
     """
     Create the argument parser
@@ -1714,6 +1793,42 @@ def create_parser():
     parser_usage.add_argument('end',
                               help='End date in the form YYYY-MM-DD')
     parser_usage.set_defaults(func=command_usage)
+
+    # Create the parser for the "kv" command
+    parser_kv = subparsers.add_parser('kv',
+                                      help='Interact with the key-value store')
+    kv_subparsers = parser_kv.add_subparsers()
+
+    #  Create the parser for the "kv list" command
+    parser_kv_list = kv_subparsers.add_parser('list',
+                                        help='List keys')
+    parser_kv_list.add_argument('path',
+                                help='Path',
+                                nargs='?')
+    parser_kv_list.set_defaults(func=command_kv_list)
+
+    #  Create the parser for the "kv delete" command
+    parser_kv_delete = kv_subparsers.add_parser('delete',
+                                        help='Delete key')
+    parser_kv_delete.add_argument('key',
+                                  help='Key')
+    parser_kv_delete.set_defaults(func=command_kv_delete)
+
+    #  Create the parser for the "kv set" command
+    parser_kv_set = kv_subparsers.add_parser('set',
+                                        help='Set key-value pair; a value or filename must be specified')
+    parser_kv_set.add_argument('key',
+                               help='Key')
+    parser_kv_set.add_argument('value',
+                               help='Value or filename')
+    parser_kv_set.set_defaults(func=command_kv_set)
+
+    #  Create the parser for the "kv get" command
+    parser_kv_get = kv_subparsers.add_parser('get',
+                                        help='Get value of specified key')
+    parser_kv_get.add_argument('key',
+                               help='Key')
+    parser_kv_get.set_defaults(func=command_kv_get)
 
     # Version
     parser.add_argument('--version',
