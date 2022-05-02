@@ -123,3 +123,15 @@ class UsageError(ProminenceError):
     Raised when there is an error getting usage information
     """
     pass
+
+class NoSuchKey(ProminenceError):
+    """
+    Raised when a key has
+    """
+    pass
+
+class KeyValueError(ProminenceError):
+    """
+    Raised when there is an error interacting with the key-value store
+    """
+    pass
