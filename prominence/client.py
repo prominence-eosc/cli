@@ -693,7 +693,7 @@ class ProminenceClient(object):
                 raise exceptions.KeyValueError(response.json()['error'])
             raise exceptions.KeyValueError('Unknown error when querying the PROMINENCE server')
 
-    def kv_delete(self, key):
+    def kv_delete(self, key, prefix):
         """
         Delete the specified key
         """
@@ -702,8 +702,12 @@ class ProminenceClient(object):
 
         url = '%s/kv/%s' % (self._url, key)
 
+        params = {}
+        if prefix:
+            params['prefix'] = True
+
         try:
-            response = requests.delete(url, headers=self._headers, verify=self._verify)
+            response = requests.delete(url, params=params, headers=self._headers, verify=self._verify)
         except requests.exceptions.RequestException as err:
             raise exceptions.ConnectionError(err)
 

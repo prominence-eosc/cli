@@ -1287,7 +1287,7 @@ def command_kv_delete(args):
     """
     try:
         client = ProminenceClient(authenticated=True)
-        client.kv_delete(args.key)
+        client.kv_delete(args.key, args.prefix)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -1810,6 +1810,11 @@ def create_parser():
     #  Create the parser for the "kv delete" command
     parser_kv_delete = kv_subparsers.add_parser('delete',
                                         help='Delete key')
+    parser_kv_delete.add_argument('--prefix',
+                           dest='prefix',
+                           default=False,
+                           help='Delete a range of keys beginning with the specified prefix',
+                           action='store_true')
     parser_kv_delete.add_argument('key',
                                   help='Key')
     parser_kv_delete.set_defaults(func=command_kv_delete)
