@@ -309,8 +309,7 @@ class ProminenceClient(object):
             raise exceptions.ConnectionError(err)
 
         if response.status_code == 200:
-            if 'id' in response.json():
-                return response.json()['id']
+            return
         elif response.status_code == 401:
             raise exceptions.AuthenticationError()
         elif response.status_code == 404:
