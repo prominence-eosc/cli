@@ -290,6 +290,8 @@ def transform_job(job, detail):
             execution['stageInTime'] = job['execution']['stageInTime']
         if 'stageOutTime' in job['execution']:
             execution['stageOutTime'] = job['execution']['stageOutTime']
+        if 'retries' in job['execution']:
+            execution['retries'] = job['execution']['retries']
         if 'tasks' in job['execution']:
             tasks = []
             for task in job['execution']['tasks']:
