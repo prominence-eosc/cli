@@ -1192,6 +1192,11 @@ def command_create(args):
             job['policies'] = {}
         job['policies']['maximumRetries'] = args.retries
 
+    if args.taskretries:
+        if 'policies' not in job:
+            job['policies'] = {}
+        job['policies']['maximumTaskRetries'] = args.taskretries
+
     # Maximum time in queue
     if args.maxtimeinqueue:
         if 'policies' not in job:
@@ -1525,7 +1530,12 @@ def create_parser():
     parser_create.add_argument('--retries',
                                dest='retries',
                                type=int,
-                               help='Number of retries if the application exit code is not 0. By \
+                               help='Number of job retries if the application exit code is not 0. By \
+                                     default no retries will be attempted.')
+    parser_create.add_argument('--task-retries',
+                               dest='taskretries',
+                               type=int,
+                               help='Number of task retries if the application exit code is not 0. By \
                                      default no retries will be attempted.')
     parser_create.add_argument('--max-time-in-queue',
                                dest='maxtimeinqueue',

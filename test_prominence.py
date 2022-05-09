@@ -210,9 +210,9 @@ def test_create_max_time_in_queue(capsys):
                     "tasks": default_tasks,
                     "policies": {"maximumTimeInQueue": 864000}}
 
-def test_create_retries(capsys):
+def test_create_job_retries(capsys):
     """
-    Test job create with retries
+    Test job create with job retries
     """
     with pytest.raises(SystemExit):
         main(["create", "--dry-run", "--retries=4", "centos:7"])
@@ -221,6 +221,18 @@ def test_create_retries(capsys):
                     "name": "",
                     "tasks": default_tasks,
                     "policies": {"maximumRetries": 4}}
+
+def test_create_task_retries(capsys):
+    """
+    Test job create with task retries
+    """
+    with pytest.raises(SystemExit):
+        main(["create", "--dry-run", "--task-retries=4", "centos:7"])
+    data = json.loads(capsys.readouterr().out)
+    assert data == {"resources": default_resources,
+                    "name": "",
+                    "tasks": default_tasks,
+                    "policies": {"maximumTaskRetries": 4}}
 
 def test_create_workdir(capsys):
     """
