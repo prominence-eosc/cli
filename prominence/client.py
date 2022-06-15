@@ -493,7 +493,7 @@ class ProminenceClient(object):
         """
         Upload a file to transient cloud storage
         """   
-        # Get S3 URL
+        # Get upload URL
         data = {'filename':file}
 
         headers = dict(self._headers)
@@ -517,15 +517,20 @@ class ProminenceClient(object):
             raise exceptions.FileUploadError('Unknown error when querying the PROMINENCE server')
 
         # Upload
+        headers = {}
+        if 'windows' in url:
+            # Header required for Azure blob storage
+            headers['x-ms-blob-type'] = 'BlockBlob'
+
         try:
             with open(filename, 'rb') as file_obj:
-                response = requests.put(url, data=file_obj, timeout=30)
+                response = requests.put(url, data=file_obj, headers=headers, timeout=30)
         except requests.exceptions.RequestException as err:
             raise exceptions.ConnectionError(err)
         except IOError as err:
             raise exceptions.FileUploadError(err)
 
-        if response.status_code == 200:
+        if response.status_code == 200 or response.status_code == 201:
             return True
         elif response.status_code == 401:
             raise exceptions.AuthenticationError()
