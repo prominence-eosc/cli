@@ -1,4 +1,7 @@
 # Change Log
+## 0.17.0
+* Support uploads to Azure blob storage
+
 ## 0.16.0
 * Added a `--node` option to the `stdout` and `stderr` commands so that standard output/error can be viewed from a specified
 node (0, 1, 2, ...) for the case of multi-node jobs. By default standard output/error from the first node (0) is displayed.
