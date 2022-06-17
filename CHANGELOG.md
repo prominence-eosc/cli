@@ -1,6 +1,7 @@
 # Change Log
 ## 0.17.0
-* Support uploads to Azure blob storage
+* Support uploads to Azure blob storage.
+* Added `resources` command to list available resources.
 
 ## 0.16.0
 * Added a `--node` option to the `stdout` and `stderr` commands so that standard output/error can be viewed from a specified
