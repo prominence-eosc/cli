@@ -1268,6 +1268,36 @@ def command_usage(args):
                 print('   CPU time (CPU hours)       %d' % usage['usage']['groups'][group]['cpuTime'])
                 print('   Wall time (CPU hours)      %d' % usage['usage']['groups'][group]['wallTime'])
 
+def command_resources(args):
+    """
+    List resources
+    """
+    try:
+        client = ProminenceClient(authenticated=True)
+        resources = client.resources()
+    except exceptions.AuthenticationError:
+        print('Error: authentication failed')
+        exit(1)
+    except exceptions.TokenExpiredError:
+        print('Error: access token has expired')
+        exit(1)
+    except (exceptions.ConnectionError, exceptions.TokenError) as err:
+        print('Error:', err)
+        exit(1)
+
+    print('Existing resources\n')
+    print('Total           Free')
+    print('Cpus  Memory    Cpus  Memory    Site')
+    for line in res['existing']:
+        print('%s  %s      %s  %s      %s' % (str(line['capacity']['cpus']).ljust(4),
+                                              str(line['capacity']['memory']).ljust(4),
+                                              str(line['free']['cpus']).ljust(4),
+                                              str(line['free']['memory']).ljust(4),
+                                              str(line['site']).ljust(4)))
+
+    print('\nPotential resources\n')
+    print('--coming soon--')
+
 def command_kv_list(args):
     """
     List keys
@@ -1786,6 +1816,11 @@ def create_parser():
     parser_rm.add_argument('object',
                            help='Object name')
     parser_rm.set_defaults(func=command_rm)
+
+    # Create the parser for the "resources" command
+    parser_resources = subparsers.add_parser('resources',
+                                             help='List available resources')
+    parser_resources.set_defaults(func=command_resources)
 
     # Create the parser for the "usage" command
     parser_usage = subparsers.add_parser('usage',
