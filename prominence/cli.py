@@ -1288,7 +1288,7 @@ def command_resources(args):
     print('Existing resources\n')
     print('Total           Free')
     print('Cpus  Memory    Cpus  Memory    Site')
-    for line in res['existing']:
+    for line in resources['existing']:
         print('%s  %s      %s  %s      %s' % (str(line['capacity']['cpus']).ljust(4),
                                               str(line['capacity']['memory']).ljust(4),
                                               str(line['free']['cpus']).ljust(4),
