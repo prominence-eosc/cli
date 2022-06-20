@@ -583,7 +583,7 @@ def command_upload(args):
 
     try:
         client = ProminenceClient(authenticated=True)
-        response = client.upload(args.name, args.filename)
+        response = client.upload(args.name, args.filename, args.checksum)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -1770,6 +1770,10 @@ def create_parser():
     parser_upload.add_argument('--filename',
                                dest='filename',
                                help='Local filename')
+    parser_upload.add_argument('--checksum',
+                               dest='checksum',
+                               default=None,
+                               help='SHA256 checksum')
     parser_upload.set_defaults(func=command_upload)
 
     # Create the parser for the "download" command

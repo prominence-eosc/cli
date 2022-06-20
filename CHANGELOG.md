@@ -1,6 +1,7 @@
 # Change Log
 ## 0.17.0
-* Support uploads to Azure blob storage.
+* Support for user-supplied SHA256 checksums and calculation of checksums for S3 storage.
+* Initial support for uploads to Azure blob storage.
 * Added `resources` command to list available resources.
 
 ## 0.16.0

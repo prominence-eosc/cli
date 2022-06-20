@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import time
@@ -7,6 +8,21 @@ from prominence import auth
 from prominence import exceptions
 
 __all__ = ['ProminenceClient']
+
+def calculate_sha256(filename):
+    """
+    Calculate sha256 checksum of the specified file
+    """
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(filename, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096),b""):
+                sha256_hash.update(byte_block)
+            return sha256_hash.hexdigest()
+    except:
+        pass
+
+    return None
 
 class ProminenceClient(object):
     """
@@ -489,12 +505,16 @@ class ProminenceClient(object):
 
         raise exceptions.StdStreamsError('Unknown error')
 
-    def upload(self, file, filename):
+    def upload(self, file, filename, checksum=None):
         """
         Upload a file to transient cloud storage
-        """   
-        # Get upload URL
-        data = {'filename':file}
+        """
+        # Calculate checksum if not supplied
+        if not checksum:
+            checksum = calculate_sha256(filename)
+
+        data = {'filename':file,
+                'checksum': checksum}
 
         headers = dict(self._headers)
         headers['Content-type'] = 'application/json'
@@ -504,9 +524,12 @@ class ProminenceClient(object):
         except requests.exceptions.RequestException as err:
             raise exceptions.ConnectionError(err)
 
+        fields = None
         if response.status_code == 201:
             if 'url' in response.json():
                 url = response.json()['url']
+            if 'fields' in response.json():
+                fields = response.json()['fields']
         elif response.status_code == 401:
             raise exceptions.AuthenticationError()
         elif response.status_code == 404:
@@ -522,15 +545,26 @@ class ProminenceClient(object):
             # Header required for Azure blob storage
             headers['x-ms-blob-type'] = 'BlockBlob'
 
-        try:
-            with open(filename, 'rb') as file_obj:
-                response = requests.put(url, data=file_obj, headers=headers, timeout=30)
-        except requests.exceptions.RequestException as err:
-            raise exceptions.ConnectionError(err)
-        except IOError as err:
-            raise exceptions.FileUploadError(err)
+        if fields:
+            # Used for S3 when supplying checksum
+            try:
+                with open(filename, 'rb') as fh:
+                    files = {'file': (file, fh)}
+                    response = requests.post(url, data=fields, files=files)
+            except requests.exceptions.RequestException as err:
+                raise exceptions.ConnectionError(err)
+            except IOError as err:
+                raise exceptions.FileUploadError(err)
+        else:
+            try:
+                with open(filename, 'rb') as file_obj:
+                    response = requests.put(url, data=file_obj, headers=headers, timeout=30)
+            except requests.exceptions.RequestException as err:
+                raise exceptions.ConnectionError(err)
+            except IOError as err:
+                raise exceptions.FileUploadError(err)
 
-        if response.status_code == 200 or response.status_code == 201:
+        if response.status_code == 200 or response.status_code == 201 or response.status_code == 204:
             return True
         elif response.status_code == 401:
             raise exceptions.AuthenticationError()
