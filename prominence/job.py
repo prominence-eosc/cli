@@ -4,7 +4,7 @@ import sys
 import time
 import requests
 
-from prominence import JobPolicies, ProminenceClient, Resources, Task
+from prominence import InputFile, JobPolicies, ProminenceClient, Resources, Task
 
 class Job(object):
     """
@@ -192,11 +192,8 @@ class Job(object):
         if self._input_files:
             data['inputs'] = []
             for input_file in self._input_files:
-                if 'filename' not in input_file and 'content' not in input_file:
-                    if os.path.isfile(input_file):
-                        with open(input_file, 'rb') as fh:
-                            data['inputs'].append({'filename': input_file,
-                                                   'content': base64.b64encode(fh.read()).decode("utf-8")})
+                if type(input_file) is InputFile:
+                    data['inputs'].append(input_file.json())
                 else:
                     data['inputs'].append(input_file)
         if self._policies.json():
