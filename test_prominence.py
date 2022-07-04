@@ -586,3 +586,37 @@ def test_python_job_two_tasks():
                                     {'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'pwd'}],
                           'name': '',
                           'resources': default_resources}
+
+def test_python_job_output_files():
+    """
+    Job with output files
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.tasks.append(task)
+    job.output_files.append('data.out')
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'outputFiles': ['data.out']}
+
+def test_python_job_output_files():
+    """
+    Job with output files
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.tasks.append(task)
+    job.output_directories.append('/data')
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'outputDirs': ['/data']}
