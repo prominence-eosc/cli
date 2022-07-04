@@ -198,6 +198,10 @@ class Job(object):
                     data['inputs'].append(input_file)
         if self._policies.json():
             data['policies'] = self._policies.json()
+        if self._notifications:
+            data['notifications'] = []
+            for notification in self._notifications:
+                data['notifications'].append(notification.json())
         data['name'] = self._name
         if self._labels:
             data['labels'] = self._labels
