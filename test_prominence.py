@@ -2,6 +2,7 @@
 import json
 import pytest
 from prominence.cli import main
+from prominence import Resources, JobPolicies, Notification, Task, Job
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
@@ -352,3 +353,81 @@ def test_create_output_directories(capsys):
                     "name": "",
                     "tasks": default_tasks,
                     "outputDirs": ["out1", "out2"]}
+
+def test_python_resources_basic():
+    """
+    Default resources
+    """
+    resources = Resources()
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1}
+
+def test_python_resources_cpus():
+    """
+    Default resources with cpus modified
+    """
+    resources = Resources(cpus=8)
+    assert resources.json() == {"cpus": 8, "memory": 1, "disk": 1, "nodes": 1}
+
+def test_python_resources_memory():
+    """
+    Default resources with memory modified
+    """
+    resources = Resources(memory=16)
+    assert resources.json() == {"cpus": 1, "memory": 16, "disk": 1, "nodes": 1}
+
+def test_python_resources_disk():
+    """
+    Default resources with disk modified
+    """
+    resources = Resources(disk=20)
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 20, "nodes": 1}
+
+def test_python_resources_nodes():
+    """
+    Default resources with nodes modified
+    """
+    resources = Resources(nodes=4)
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 4}
+
+def test_python_resources_walltime():
+    """
+    Default resources with walltime modified
+    """
+    resources = Resources(walltime=5678)
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1, "walltime": 5678}
+
+def test_python_resources_memory_per_cpu():
+    """
+    Default resources with memory per cpu set
+    """
+    resources = Resources()
+    resources.memory_per_cpu = 8
+    assert resources.json() == {"cpus": 1, "disk": 1, "nodes": 1, "memoryPerCpu": 8}
+
+def test_python_resources_cpus_range():
+    """
+    Default resources with cpus range set
+    """
+    resources = Resources()
+    resources.cpus_range.min = 4
+    resources.cpus_range.max = 16
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1, "cpusRange": [4, 16]}
+
+def test_python_resources_cpus_options():
+    """
+    Default resources with cpus options set
+    """
+    resources = Resources()
+    resources.cpus_options.min = 4
+    resources.cpus_options.max = 16
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1, "cpusOptions": [4, 16]}
+
+def test_python_resources_total_cpus_range():
+    """
+    Default resources with total cpus range set
+    """
+    resources = Resources()
+    resources.total_cpus_range.min = 4
+    resources.total_cpus_range.max = 16
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1, "totalCpusRange": [4, 16]}
+
