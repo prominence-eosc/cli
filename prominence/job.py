@@ -135,7 +135,7 @@ class Job(object):
 
         return None
 
-    def get_output_file(self, name, filename=None):
+    def get_output_file(self, name, save_as=None):
         """
         Download the specified output file
         """
@@ -143,7 +143,7 @@ class Job(object):
         for output in job['outputFiles']:
             if output['name'] == name:
                 url = output['url']
-                if not filename:
+                if not save_as:
                     try:
                         response = requests.get(url)
                     except Exception as err:
@@ -160,7 +160,7 @@ class Job(object):
                     if response.status_code != 200:
                         return False
 
-                    with open(filename, 'wb') as fh:
+                    with open(save_as, 'wb') as fh:
                         if total_length is None:
                             fh.write(response.content)
                         else:
