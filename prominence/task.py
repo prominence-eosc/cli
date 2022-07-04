@@ -59,7 +59,8 @@ class Task(object):
     def json(self):
         data = {}
         data['image'] = self._image
-        data['cmd'] = self._command
+        if self._command:
+            data['cmd'] = self._command
         data['runtime'] = self._runtime
         if self._workdir:
             data['workdir'] = self._workdir
