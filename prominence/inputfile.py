@@ -15,7 +15,7 @@ class InputFile(object):
         JSON representation
         """
         if not self._input_file:
-            return []
+            return None
 
         with open(self._input_file, 'rb') as fh:
             data = {'filename': os.path.basename(self._input_file),
