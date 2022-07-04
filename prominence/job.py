@@ -252,3 +252,15 @@ class Job(object):
         if 'execution' in job:
             return job['execution']
         return {}
+
+    def stdout(self, node=0):
+        """
+        Return the job standard output
+        """
+        return self._client.stdout_job(self._id, node)
+
+    def stderr(self, node=0):
+        """
+        Return the job standard error
+        """
+        return self._client.stderr_job(self._id, node)
