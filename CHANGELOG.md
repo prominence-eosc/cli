@@ -1,4 +1,7 @@
 # Change Log
+## 0.18.0
+* Added improved Python API making it easier to write workflows as code
+
 ## 0.17.0
 * Support for user-supplied SHA256 checksums and calculation of checksums for S3 storage.
 * Initial support for uploads to Azure blob storage.
