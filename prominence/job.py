@@ -167,6 +167,20 @@ class Job(object):
                             for data in response.iter_content(chunk_size=4096):
                                 fh.write(data)
 
+    def get_output_directory(self, name, save_as=None):
+        """
+        Download the specified output file
+        """
+        job = self._client.describe_job(self._id)
+        for output in job['outputDirs']:
+            if output['name'] == name:
+                url = output['url']
+                if not save_as:
+                    try:
+                        response = requests.get(url)
+                    except Exception as err:
+                        return False
+                    return response.text
 
     def json(self):
         """
