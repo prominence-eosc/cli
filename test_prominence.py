@@ -483,6 +483,17 @@ def test_python_task_env():
     task.env = {'env1': 'value1', 'env2': 'value2'}
     assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'env': {'env1': 'value1', 'env2': 'value2'}}
 
+def test_python_task_procs_per_node():
+    """
+    Task with procs per node set
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+    task.procs_per_node = 8
+    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'procsPerNode': 8}
+
 def test_python_job_basic():
     """
     Basic job
