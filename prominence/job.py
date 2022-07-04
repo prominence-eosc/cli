@@ -82,6 +82,14 @@ class Job(object):
         self._output_files = output_files
 
     @property
+    def artifacts(self):
+        return self._artifacts
+
+    @artifacts.setter
+    def artifacts(self, artifacts):
+        self._artifacts = artifacts
+
+    @property
     def output_directories(self):
         return self._output_directories
 
@@ -169,6 +177,10 @@ class Job(object):
         data['resources'] = self._resources.json()
         for task in self._tasks:
             data['tasks'].append(task.json())
+        if self._artifacts:
+            data['artifacts'] = []
+            for artifact in self._artifacts:
+                data['artifacts'].append({'url': artifact})
         if self._output_files:
             data['outputFiles'] = []
             for output_file in self._output_files:
