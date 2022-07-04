@@ -38,7 +38,7 @@ class Resources(object):
     """
     Job resources
     """
-    def __init__(self, cpus=1, memory=1, disk=1, nodes=1, walltime=0):
+    def __init__(self, cpus=1, memory=1, disk=10, nodes=1, walltime=0):
         self._cpus = cpus
         self._memory = memory
         self._disk = disk
@@ -138,7 +138,7 @@ class Resources(object):
         return self._cpus_options
 
     @cpus_options.setter
-    def cpus(self, cpus_options):
+    def cpus_options(self, cpus_options):
         """
         """
         self._cpus_options = cpus_options
@@ -150,7 +150,7 @@ class Resources(object):
         return self._total_cpus_range
 
     @total_cpus_range.setter
-    def cpus(self, total_cpus_range):
+    def total_cpus_range(self, total_cpus_range):
         """
         """
         self._total_cpus_range = total_cpus_range
