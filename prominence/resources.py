@@ -78,6 +78,20 @@ class Resources(object):
         self._memory = memory
 
     @property
+    def memory_per_cpu(self):
+        """
+        Return the memory_per_cpu
+        """
+        return self._memory_per_cpu
+
+    @memory_per_cpu.setter
+    def memory_per_cpu(self, memory_per_cpu):
+        """
+        Set the memory per CPU
+        """
+        self._memory_per_cpu = memory_per_cpu
+
+    @property
     def disk(self):
         """
         Return the disk
@@ -160,7 +174,7 @@ class Resources(object):
         if self._total_cpus_range.json():
             resources['totalCpusRange'] = self._total_cpus_range.json()
 
-        if self._memory_per_cpu:
+        if self._memory_per_cpu > 0:
             resources['memoryPerCpu'] = self._memory_per_cpu
         else:
             resources['memory'] = self._memory
