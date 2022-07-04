@@ -82,6 +82,14 @@ class Job(object):
         self._output_files = output_files
 
     @property
+    def output_directories(self):
+        return self._output_directories
+
+    @output_directories.setter
+    def output_directories(self, output_directories):
+        self._output_directories = output_directories
+
+    @property
     def input_files(self):
         return self._input_files
 
@@ -165,6 +173,10 @@ class Job(object):
             data['outputFiles'] = []
             for output_file in self._output_files:
                 data['outputFiles'].append(output_file)
+        if self._output_directories:
+            data['outputDirs'] = []
+            for output_directory in self._output_directories:
+                data['outputDirs'].append(output_directory)
         if self._input_files:
             data['inputs'] = []
             for input_file in self._input_files:
