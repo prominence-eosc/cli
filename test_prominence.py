@@ -461,6 +461,28 @@ def test_python_task_udocker():
     task.command = 'hostname'
     assert task.json() == {'image': 'centos:7', 'runtime': 'udocker', 'cmd': 'hostname'}
 
+def test_python_task_workdir():
+    """
+    Task with work directory
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+    task.workdir = '/data'
+    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'workdir': '/data'}
+
+def test_python_task_env():
+    """
+    Task with environment variables
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+    task.env = {'env1': 'value1', 'env2': 'value2'}
+    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'env': {'env1': 'value1', 'env2': 'value2'}}
+
 def test_python_job_basic():
     """
     Basic job
