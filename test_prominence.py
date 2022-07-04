@@ -2,7 +2,7 @@
 import json
 import pytest
 from prominence.cli import main
-from prominence import Resources, JobPolicies, Notification, Task, Job
+from prominence import Resources, JobPolicies, Notification, Task, Job, InputFile
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
@@ -638,3 +638,20 @@ def test_python_job_artifacts():
                           'name': '',
                           'resources': default_resources,
                           'artifacts': [{'url': 'input1.txt'}, {'url': 'input2.txt'}]}
+
+def test_python_job_input_file():
+    """
+    Job with input file
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.tasks.append(task)
+    job.input_files.append(InputFile('test.txt'))
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'inputs': [{"filename": "test.txt", "content": "aGVsbG8K"}]}
