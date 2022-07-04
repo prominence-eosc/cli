@@ -56,6 +56,14 @@ class Task(object):
     def workdir(self, workdir):
         self._workdir = workdir
 
+    @property
+    def env(self):
+        return self._env
+
+    @env.setter
+    def env(self, env):
+        self._env = env
+
     def json(self):
         data = {}
         data['image'] = self._image
