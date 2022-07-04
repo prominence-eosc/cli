@@ -6,6 +6,7 @@ from prominence import Resources, JobPolicies, Notification, Task, Job
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
+default_tasks_1 = [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}]
 
 def test_create(capsys):
     """
@@ -359,21 +360,21 @@ def test_python_resources_basic():
     Default resources
     """
     resources = Resources()
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1}
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1}
 
 def test_python_resources_cpus():
     """
     Default resources with cpus modified
     """
     resources = Resources(cpus=8)
-    assert resources.json() == {"cpus": 8, "memory": 1, "disk": 1, "nodes": 1}
+    assert resources.json() == {"cpus": 8, "memory": 1, "disk": 10, "nodes": 1}
 
 def test_python_resources_memory():
     """
     Default resources with memory modified
     """
     resources = Resources(memory=16)
-    assert resources.json() == {"cpus": 1, "memory": 16, "disk": 1, "nodes": 1}
+    assert resources.json() == {"cpus": 1, "memory": 16, "disk": 10, "nodes": 1}
 
 def test_python_resources_disk():
     """
@@ -387,14 +388,14 @@ def test_python_resources_nodes():
     Default resources with nodes modified
     """
     resources = Resources(nodes=4)
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 4}
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 4}
 
 def test_python_resources_walltime():
     """
     Default resources with walltime modified
     """
     resources = Resources(walltime=5678)
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1, "walltime": 5678}
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "walltime": 5678}
 
 def test_python_resources_memory_per_cpu():
     """
@@ -402,7 +403,7 @@ def test_python_resources_memory_per_cpu():
     """
     resources = Resources()
     resources.memory_per_cpu = 8
-    assert resources.json() == {"cpus": 1, "disk": 1, "nodes": 1, "memoryPerCpu": 8}
+    assert resources.json() == {"cpus": 1, "disk": 10, "nodes": 1, "memoryPerCpu": 8}
 
 def test_python_resources_cpus_range():
     """
@@ -411,7 +412,7 @@ def test_python_resources_cpus_range():
     resources = Resources()
     resources.cpus_range.min = 4
     resources.cpus_range.max = 16
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1, "cpusRange": [4, 16]}
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "cpusRange": [4, 16]}
 
 def test_python_resources_cpus_options():
     """
@@ -420,7 +421,7 @@ def test_python_resources_cpus_options():
     resources = Resources()
     resources.cpus_options.min = 4
     resources.cpus_options.max = 16
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1, "cpusOptions": [4, 16]}
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "cpusOptions": [4, 16]}
 
 def test_python_resources_total_cpus_range():
     """
@@ -429,5 +430,126 @@ def test_python_resources_total_cpus_range():
     resources = Resources()
     resources.total_cpus_range.min = 4
     resources.total_cpus_range.max = 16
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 1, "nodes": 1, "totalCpusRange": [4, 16]}
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "totalCpusRange": [4, 16]}
 
+def test_python_task_basic():
+    """
+    Basic task
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}
+
+def test_python_task_basic_no_command():
+    """
+    Basic task with no command
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity'}
+
+def test_python_task_udocker():
+    """
+    Basic task using udocker
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'udocker'
+    task.command = 'hostname'
+    assert task.json() == {'image': 'centos:7', 'runtime': 'udocker', 'cmd': 'hostname'}
+
+def test_python_job_basic():
+    """
+    Basic job
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.tasks.append(task)
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources}
+
+def test_python_job_name():
+    """
+    Job name
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.name = 'test1'
+    job.tasks.append(task)
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': 'test1',
+                          'resources': default_resources}
+
+def test_python_job_labels():
+    """
+    Job labels
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.labels = {'app': 'tensorflow'}
+    job.tasks.append(task)
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'labels': {'app': 'tensorflow'}}
+
+
+def test_python_job_resources():
+    """
+    Job with resources defined
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    resources = Resources()
+    resources.cpus = 2
+    resources.memory = 4
+    resources.disk = 8
+    resources.walltime = 6000
+
+    job = Job()
+    job.resources = resources
+    job.tasks.append(task)
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': {'cpus': 2, 'memory': 4, 'disk': 8, 'walltime': 6000, 'nodes': 1}}
+
+def test_python_job_two_tasks():
+    """
+    Job with two tasks
+    """
+    task1 = Task()
+    task1.image = 'centos:7'
+    task1.runtime = 'singularity'
+    task1.command = 'hostname'
+
+    task2 = Task()
+    task2.image = 'centos:8'
+    task2.runtime = 'singularity'
+    task2.command = 'pwd'
+
+    job = Job()
+    job.tasks.append(task1)
+    job.tasks.append(task2)
+    assert job.json() == {'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'},
+                                    {'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'pwd'}],
+                          'name': '',
+                          'resources': default_resources}
