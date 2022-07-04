@@ -30,3 +30,9 @@ class Notification(object):
         """
         self._type = type
 
+    def json(self):
+        """
+        """
+        if self._event and self._type:
+            return {'event': self._event, 'type': self._type}
+        return None
