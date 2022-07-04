@@ -620,3 +620,21 @@ def test_python_job_output_files():
                           'name': '',
                           'resources': default_resources,
                           'outputDirs': ['/data']}
+
+def test_python_job_artifacts():
+    """
+    Job with artifacts
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.tasks.append(task)
+    job.artifacts.append('input1.txt')
+    job.artifacts.append('input2.txt')
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'artifacts': [{'url': 'input1.txt'}, {'url': 'input2.txt'}]}
