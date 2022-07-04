@@ -9,6 +9,7 @@ class Task(object):
         self._type = None
         self._workdir = None
         self._env = None
+        self._procs_per_node = 0
 
     @property
     def image(self):
@@ -23,6 +24,20 @@ class Task(object):
         Set the image
         """
         self._image = image
+
+    @property
+    def procs_per_node(self):
+        """
+        Return the procs per node
+        """
+        return self._procs_per_node
+
+    @procs_per_node.setter
+    def procs_per_node(self, procs_per_node):
+        """
+        Set the procs per node
+        """
+        self._procs_per_node = procs_per_node
 
     @property
     def runtime(self):
@@ -76,4 +91,6 @@ class Task(object):
             data['type'] = self._type
         if self._env:
             data['env'] = self._env
+        if self._procs_per_node > 0:
+            data['procsPerNode'] = self._procs_per_node
         return data
