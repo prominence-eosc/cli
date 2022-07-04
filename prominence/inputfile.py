@@ -6,9 +6,7 @@ class InputFile(object):
     Input file
     """
     def __init__(self, filename=None):
-        self._input_file = None
-        if filename:
-            self._input_file = filename
+        self._input_file = filename
 
     def json(self):
         """
