@@ -38,7 +38,7 @@ class Resources(object):
     """
     Job resources
     """
-    def __init__(self, cpus=1, memory=1, disk=10, nodes=1, walltime=720):
+    def __init__(self, cpus=1, memory=1, disk=10, nodes=1, walltime=0):
         self._cpus = cpus
         self._memory = memory
         self._disk = disk
