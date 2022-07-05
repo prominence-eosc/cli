@@ -138,3 +138,48 @@ class JobPolicies(object):
             policies['runSerialTasksOnAllNodes'] = self._run_serial_tasks_on_all_nodes
 
         return policies
+
+class WorkflowPolicies(object):
+    """
+    Workflow policy
+    """
+    def __init__(self):
+        self._maximum_retries = 0
+        self._leave_in_queue = None
+
+    @property
+    def maximum_retries(self):
+        """
+        """
+        return self._maximum_retries
+
+    @maximum_retries.setter
+    def maximum_retries(self, maximum_retries):
+        """
+        """
+        self._maximum_retries = maximum_retries
+
+    @property
+    def leave_in_queue(self):
+        """
+        """
+        return self._leave_in_queue
+
+    @leave_in_queue.setter
+    def leave_in_queue(self, leave_in_queue):
+        """
+        """
+        self._leave_in_queue = leave_in_queue
+
+    def json(self):
+        """
+        Return a JSON representation of the workflow policy
+        """
+        policies = {}
+        if self._maximum_retries > 0:
+            policies['maximumRetries'] = self._maximum_retries
+
+        if self._leave_in_queue is not None:
+            policies['leaveInQueue'] = self._leave_in_queue
+
+        return policies
