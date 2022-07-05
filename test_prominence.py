@@ -2,7 +2,7 @@
 import json
 import pytest
 from prominence.cli import main
-from prominence import Resources, JobPolicies, Notification, Task, Job, InputFile, Artifact
+from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
@@ -795,3 +795,48 @@ def test_python_job_with_notifications():
                           'name': '',
                           'resources': default_resources,
                           'notifications': [{'event': 'jobFinished', 'type': 'email'}]}
+
+def test_python_workflow_policies_all():
+    """
+    Test workflow policies
+    """
+    policies = WorkflowPolicies()
+    policies.maximum_retries = 4
+    policies.leave_in_queue = True
+    assert policies.json() == {'maximumRetries': 4,
+                               'leaveInQueue': True}
+
+def test_python_workflow_group():
+    """
+    Test group of jobs
+    """
+    task1 = Task()
+    task1.image = 'centos:7'
+    task1.runtime = 'singularity'
+    task1.command = 'hostname'
+    
+    job1 = Job()
+    job1.tasks.append(task1)
+    job1.resources = Resources()
+
+    task2 = Task()
+    task2.image = 'centos:8'
+    task2.runtime = 'singularity'
+    task2.command = 'hostname'
+
+    job2 = Job()
+    job2.tasks.append(task2)
+    job2.resources = Resources()
+
+    workflow = Workflow()
+    workflow.name = 'testwf1'
+    workflow.jobs.append(job1)
+    workflow.jobs.append(job2)
+
+    assert workflow.json() == {'jobs': [{'name': '',
+                                         'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                         'resources': default_resources},
+                                        {'name': '',
+                                         'tasks': [{'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                         'resources': default_resources}],
+                               'name': 'testwf1'}
