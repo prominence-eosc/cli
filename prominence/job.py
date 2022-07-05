@@ -121,8 +121,7 @@ class Job(object):
         self._policies = policies
 
     def create(self):
-        job = self.json()
-        self._id = self._client.create_job(job)
+        self._id = self._client.create_job(self.json())
 
     def get_input_file(self, name):
         """

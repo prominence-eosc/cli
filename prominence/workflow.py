@@ -1,0 +1,115 @@
+import time
+
+from prominence import ProminenceClient, WorkflowPolicies
+
+class Workflow(object):
+    """
+    Workflow
+    """
+    def __init__(self, id=None):
+        self._last_status_check = 0
+        self._client = ProminenceClient(authenticated=True)
+        self._jobs = []
+        self._id = id
+        self._name = ''
+        self._labels = {}
+        self._status = None
+        self._policies = WorkflowPolicies()
+        self._notifications = []
+
+    @property
+    def id(self):
+        """
+        Return the workflow id
+        """
+        return self._id
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+    @property                   
+    def labels(self):
+        return self._labels
+
+    @labels.setter
+    def labels(self, labels):
+        self._labels = labels
+
+    @property
+    def jobs(self):
+        return self._jobs
+
+    @jobs.setter
+    def jobs(self, jobs):
+        self._jobs = jobs
+
+    @property
+    def notifications(self):
+        return self._notifications
+
+    @notifications.setter
+    def notifications(self, notifications):
+        self._notifications = notifications
+
+    def create(self):
+        self._id = self._client.create_workflow(self.json())
+
+    @property
+    def status(self):
+        """
+        Get the workflow status
+        """
+        if time.time() - self._last_status_check > 5:
+            try:
+                job = self._client.describe_job(self._id)
+            except Exception as err:
+                if 'No such workflow' in str(err):
+                    workflow = self._client.describe_workflow(self._id)
+                return False
+            self._status = workflow['status']
+            self._last_status_check = time.time()
+
+        return self._status
+
+    def done(self):
+        """
+        Return True if the workflow is in a terminal state
+        """
+        if self.status in ('completed', 'failed', 'deleted', 'killed'):
+            return True
+        return False
+
+    def wait(self, timeout=0):
+        """
+        Wait for the workflwo to complete
+        """
+        start = time.time()
+        while not self.done():
+            if timeout > 0 and time.time() - start > timeout:
+                return
+            time.sleep(5)
+        return
+
+    def json(self):
+        """
+        Return a JSON description of the job
+        """
+        data = {}
+        data['jobs'] = []
+        for job in self._jobs:
+            data['jobs'].append(job.json())
+        if self._policies.json():
+            data['policies'] = self._policies.json()
+        if self._notifications:
+            data['notifications'] = []
+            for notification in self._notifications:
+                data['notifications'].append(notification.json())
+        data['name'] = self._name
+        if self._labels:
+            data['labels'] = self._labels
+        return data
