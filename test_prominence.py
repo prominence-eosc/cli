@@ -2,7 +2,7 @@
 import json
 import pytest
 from prominence.cli import main
-from prominence import Resources, JobPolicies, Notification, Task, Job, InputFile
+from prominence import Resources, JobPolicies, Notification, Task, Job, InputFile, Artifact
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
@@ -432,6 +432,19 @@ def test_python_resources_total_cpus_range():
     resources.total_cpus_range.max = 16
     assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "totalCpusRange": [4, 16]}
 
+def test_python_resources_total_and_cpus_range():
+    """
+    Default resources with total cpus & cpus ranges set
+    """
+    resources = Resources()
+    resources.cpus_range.min = 4
+    resources.cpus_range.max = 16
+    resources.total_cpus_range.min = 32
+    resources.total_cpus_range.max = 64
+    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1,
+                                "totalCpusRange": [32, 64],
+                                "cpusRange": [4, 16]}
+
 def test_python_task_basic():
     """
     Basic task
@@ -493,6 +506,17 @@ def test_python_task_procs_per_node():
     task.command = 'hostname'
     task.procs_per_node = 8
     assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'procsPerNode': 8}
+
+def test_python_task_openmpi():
+    """
+    Task using OpenMPI
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+    task.type = 'openmpi'
+    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'type': 'openmpi'}
 
 def test_python_job_basic():
     """
@@ -604,9 +628,9 @@ def test_python_job_output_files():
                           'resources': default_resources,
                           'outputFiles': ['data.out']}
 
-def test_python_job_output_files():
+def test_python_job_output_directories():
     """
-    Job with output files
+    Job with output directories
     """
     task = Task()
     task.image = 'centos:7'
@@ -632,12 +656,29 @@ def test_python_job_artifacts():
 
     job = Job()
     job.tasks.append(task)
-    job.artifacts.append('input1.txt')
-    job.artifacts.append('input2.txt')
+    job.artifacts.append(Artifact('input1.txt'))
+    job.artifacts.append(Artifact('input2.txt'))
     assert job.json() == {'tasks': default_tasks_1,
                           'name': '',
                           'resources': default_resources,
                           'artifacts': [{'url': 'input1.txt'}, {'url': 'input2.txt'}]}
+
+def test_python_job_artifacts_mounted():
+    """
+    Job with artifacts mounted
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.tasks.append(task)
+    job.artifacts.append(Artifact('input.tgz', 'mydata', '/data'))
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'artifacts': [{'url': 'input.tgz', 'mountpoint': 'mydata:/data'}]}
 
 def test_python_job_input_file():
     """
@@ -655,3 +696,85 @@ def test_python_job_input_file():
                           'name': '',
                           'resources': default_resources,
                           'inputs': [{"filename": "test.txt", "content": "aGVsbG8K"}]}
+
+def test_python_job_policies_all():
+    """
+    Test job policies
+    """
+    policies = JobPolicies()
+    policies.maximum_task_retries = 2
+    policies.maximum_retries = 3
+    policies.maximum_time_in_queue = 720
+    policies.priority = 10
+    policies.leave_in_queue = True
+    policies.ignore_task_failures = True
+    policies.run_serial_tasks_on_all_nodes = True
+    policies.report_job_success_on_task_failure = True
+    assert policies.json() == {'maximumRetries': 3,
+                               'maximumTaskRetries': 2,
+                               'maximumTimeInQueue': 720,
+                               'priority': 10,
+                               'leaveInQueue': True,
+                               'ignoreTaskTailures': True,
+                               'reportJobSuccessOnTaskFailure': True,
+                               'runSerialTasksOnAllNodes': True}
+
+def test_python_job_policies_leave_in_queue():
+    """
+    Test job policies
+    """
+    policies = JobPolicies()
+    policies.maximum_time_in_queue = 86400
+    policies.leave_in_queue = True
+    assert policies.json() == {'leaveInQueue': True, 'maximumTimeInQueue': 86400}
+
+def test_python_job_with_policies():
+    """
+    Job with policies
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    policies = JobPolicies()
+    policies.maximum_time_in_queue = 86400
+    policies.leave_in_queue = True
+
+    job = Job()
+    job.tasks.append(task)
+    job.policies = policies
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'policies': {'leaveInQueue': True, 'maximumTimeInQueue': 86400}}
+
+def test_python_notifications():
+    """
+    Test notifications
+    """
+    notification = Notification()
+    notification.event = 'jobFinished'
+    notification.type = 'email'
+    assert notification.json() == {'event': 'jobFinished', 'type': 'email'}
+
+def test_python_job_with_notifications():
+    """
+    Job with notifications
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    notification = Notification()
+    notification.event = 'jobFinished'
+    notification.type = 'email'
+
+    job = Job()
+    job.tasks.append(task)
+    job.notifications.append(notification)
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'notifications': [{'event': 'jobFinished', 'type': 'email'}]}
