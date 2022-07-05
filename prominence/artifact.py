@@ -1,3 +1,5 @@
+from prominence import ProminenceClient
+
 class Artifact(object):
     """
     Artifact
@@ -6,6 +8,13 @@ class Artifact(object):
         self._name = name
         self._directory_name = directory_name
         self._mount_point = mount_point
+
+    def upload(self, filename):
+        """
+        Upload file
+        """
+        client = ProminenceClient(authenticated=True)
+        client.upload(self._name, filename)
 
     def json(self):
         """
