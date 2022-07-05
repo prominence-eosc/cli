@@ -73,6 +73,13 @@ class Job(object):
         """
         return self._tasks
 
+    @tasks.setter
+    def tasks(self, tasks):
+        """
+        Set tasks
+        """
+        self._tasks = tasks
+
     @property
     def output_files(self):
         return self._output_files
@@ -116,13 +123,6 @@ class Job(object):
     def create(self):
         job = self.json()
         self._id = self._client.create_job(job)
-
-    @tasks.setter
-    def tasks(self, tasks):
-        """
-        Set tasks
-        """
-        self._tasks = tasks
 
     def get_input_file(self, name):
         """
