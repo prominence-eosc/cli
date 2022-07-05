@@ -180,6 +180,23 @@ class Job(object):
                     except Exception as err:
                         return False
                     return response.text
+                else:
+                    try:
+                        response = requests.get(url, stream=True, timeout=30)
+                    except requests.exceptions.RequestException as err:
+                        return False
+
+                    total_length = response.headers.get('content-length')
+
+                    if response.status_code != 200:
+                        return False
+
+                    with open(save_as, 'wb') as fh:
+                        if total_length is None:
+                            fh.write(response.content)
+                        else:
+                            for data in response.iter_content(chunk_size=4096):
+                                fh.write(data)
 
     def json(self):
         """
