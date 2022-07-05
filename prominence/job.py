@@ -194,7 +194,7 @@ class Job(object):
         if self._artifacts:
             data['artifacts'] = []
             for artifact in self._artifacts:
-                data['artifacts'].append({'url': artifact})
+                data['artifacts'].append(artifact.json())
         if self._output_files:
             data['outputFiles'] = []
             for output_file in self._output_files:

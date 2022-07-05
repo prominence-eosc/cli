@@ -3,6 +3,7 @@ from prominence.resources import Resources
 from prominence.policies import JobPolicies
 from prominence.task import Task
 from prominence.inputfile import InputFile
+from prominence.artifact import Artifact
 from prominence.job import Job
 from prominence.notification import Notification
 

@@ -1,0 +1,18 @@
+class Artifact(object):
+    """
+    Artifact
+    """
+    def __init__(self, name, directory_name=None, mount_point=None):
+        self._name = name
+        self._directory_name = directory_name
+        self._mount_point = mount_point
+
+    def json(self):
+        """
+        JSON representation
+        """
+        data = {'url': self._name}
+        if self._directory_name and self._mount_point:
+            data['mountpoint'] = '%s:%s' % (self._directory_name, self._mount_point)
+
+        return data
