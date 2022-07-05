@@ -682,7 +682,7 @@ def test_python_job_artifacts_mounted():
 
 def test_python_job_input_file():
     """
-    Job with input file
+    Job with input file taken from a file
     """
     task = Task()
     task.image = 'centos:7'
@@ -696,6 +696,23 @@ def test_python_job_input_file():
                           'name': '',
                           'resources': default_resources,
                           'inputs': [{"filename": "test.txt", "content": "aGVsbG8K"}]}
+
+def test_python_job_input_file_string():
+    """
+    Job with input file from a string
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.tasks.append(task)
+    job.input_files.append(InputFile(filename='test.txt', content='Hello world'))
+    assert job.json() == {'tasks': default_tasks_1,
+                          'name': '',
+                          'resources': default_resources,
+                          'inputs': [{"filename": "test.txt", "content": "SGVsbG8gd29ybGQ="}]}
 
 def test_python_job_policies_all():
     """
