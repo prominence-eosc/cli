@@ -9,7 +9,7 @@ class InputFile(object):
         self._input_file = filename
         self._content = content
 
-    def json(self):
+    def to_dict(self):
         """
         JSON representation
         """

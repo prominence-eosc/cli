@@ -360,42 +360,42 @@ def test_python_resources_basic():
     Default resources
     """
     resources = Resources()
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1}
+    assert resources.to_dict() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1}
 
 def test_python_resources_cpus():
     """
     Default resources with cpus modified
     """
     resources = Resources(cpus=8)
-    assert resources.json() == {"cpus": 8, "memory": 1, "disk": 10, "nodes": 1}
+    assert resources.to_dict() == {"cpus": 8, "memory": 1, "disk": 10, "nodes": 1}
 
 def test_python_resources_memory():
     """
     Default resources with memory modified
     """
     resources = Resources(memory=16)
-    assert resources.json() == {"cpus": 1, "memory": 16, "disk": 10, "nodes": 1}
+    assert resources.to_dict() == {"cpus": 1, "memory": 16, "disk": 10, "nodes": 1}
 
 def test_python_resources_disk():
     """
     Default resources with disk modified
     """
     resources = Resources(disk=20)
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 20, "nodes": 1}
+    assert resources.to_dict() == {"cpus": 1, "memory": 1, "disk": 20, "nodes": 1}
 
 def test_python_resources_nodes():
     """
     Default resources with nodes modified
     """
     resources = Resources(nodes=4)
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 4}
+    assert resources.to_dict() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 4}
 
 def test_python_resources_walltime():
     """
     Default resources with walltime modified
     """
     resources = Resources(walltime=5678)
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "walltime": 5678}
+    assert resources.to_dict() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "walltime": 5678}
 
 def test_python_resources_memory_per_cpu():
     """
@@ -403,7 +403,7 @@ def test_python_resources_memory_per_cpu():
     """
     resources = Resources()
     resources.memory_per_cpu = 8
-    assert resources.json() == {"cpus": 1, "disk": 10, "nodes": 1, "memoryPerCpu": 8}
+    assert resources.to_dict() == {"cpus": 1, "disk": 10, "nodes": 1, "memoryPerCpu": 8}
 
 def test_python_resources_cpus_range():
     """
@@ -412,7 +412,7 @@ def test_python_resources_cpus_range():
     resources = Resources()
     resources.cpus_range.min = 4
     resources.cpus_range.max = 16
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "cpusRange": [4, 16]}
+    assert resources.to_dict() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "cpusRange": [4, 16]}
 
 def test_python_resources_cpus_options():
     """
@@ -421,7 +421,7 @@ def test_python_resources_cpus_options():
     resources = Resources()
     resources.cpus_options.min = 4
     resources.cpus_options.max = 16
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "cpusOptions": [4, 16]}
+    assert resources.to_dict() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "cpusOptions": [4, 16]}
 
 def test_python_resources_total_cpus_range():
     """
@@ -430,7 +430,7 @@ def test_python_resources_total_cpus_range():
     resources = Resources()
     resources.total_cpus_range.min = 4
     resources.total_cpus_range.max = 16
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "totalCpusRange": [4, 16]}
+    assert resources.to_dict() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1, "totalCpusRange": [4, 16]}
 
 def test_python_resources_total_and_cpus_range():
     """
@@ -441,9 +441,9 @@ def test_python_resources_total_and_cpus_range():
     resources.cpus_range.max = 16
     resources.total_cpus_range.min = 32
     resources.total_cpus_range.max = 64
-    assert resources.json() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1,
-                                "totalCpusRange": [32, 64],
-                                "cpusRange": [4, 16]}
+    assert resources.to_dict() == {"cpus": 1, "memory": 1, "disk": 10, "nodes": 1,
+                                   "totalCpusRange": [32, 64],
+                                   "cpusRange": [4, 16]}
 
 def test_python_task_basic():
     """
@@ -453,7 +453,7 @@ def test_python_task_basic():
     task.image = 'centos:7'
     task.runtime = 'singularity'
     task.command = 'hostname'
-    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}
+    assert task.to_dict() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}
 
 def test_python_task_basic_no_command():
     """
@@ -462,7 +462,7 @@ def test_python_task_basic_no_command():
     task = Task()
     task.image = 'centos:7'
     task.runtime = 'singularity'
-    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity'}
+    assert task.to_dict() == {'image': 'centos:7', 'runtime': 'singularity'}
 
 def test_python_task_udocker():
     """
@@ -472,7 +472,7 @@ def test_python_task_udocker():
     task.image = 'centos:7'
     task.runtime = 'udocker'
     task.command = 'hostname'
-    assert task.json() == {'image': 'centos:7', 'runtime': 'udocker', 'cmd': 'hostname'}
+    assert task.to_dict() == {'image': 'centos:7', 'runtime': 'udocker', 'cmd': 'hostname'}
 
 def test_python_task_workdir():
     """
@@ -483,7 +483,7 @@ def test_python_task_workdir():
     task.runtime = 'singularity'
     task.command = 'hostname'
     task.workdir = '/data'
-    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'workdir': '/data'}
+    assert task.to_dict() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'workdir': '/data'}
 
 def test_python_task_env():
     """
@@ -494,7 +494,7 @@ def test_python_task_env():
     task.runtime = 'singularity'
     task.command = 'hostname'
     task.env = {'env1': 'value1', 'env2': 'value2'}
-    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'env': {'env1': 'value1', 'env2': 'value2'}}
+    assert task.to_dict() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'env': {'env1': 'value1', 'env2': 'value2'}}
 
 def test_python_task_procs_per_node():
     """
@@ -505,7 +505,7 @@ def test_python_task_procs_per_node():
     task.runtime = 'singularity'
     task.command = 'hostname'
     task.procs_per_node = 8
-    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'procsPerNode': 8}
+    assert task.to_dict() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'procsPerNode': 8}
 
 def test_python_task_openmpi():
     """
@@ -516,7 +516,7 @@ def test_python_task_openmpi():
     task.runtime = 'singularity'
     task.command = 'hostname'
     task.type = 'openmpi'
-    assert task.json() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'type': 'openmpi'}
+    assert task.to_dict() == {'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname', 'type': 'openmpi'}
 
 def test_python_job_basic():
     """
@@ -529,9 +529,9 @@ def test_python_job_basic():
 
     job = Job()
     job.tasks.append(task)
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources}
 
 def test_python_job_name():
     """
@@ -545,9 +545,9 @@ def test_python_job_name():
     job = Job()
     job.name = 'test1'
     job.tasks.append(task)
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': 'test1',
-                          'resources': default_resources}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': 'test1',
+                             'resources': default_resources}
 
 def test_python_job_labels():
     """
@@ -561,10 +561,10 @@ def test_python_job_labels():
     job = Job()
     job.labels = {'app': 'tensorflow'}
     job.tasks.append(task)
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'labels': {'app': 'tensorflow'}}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources,
+                             'labels': {'app': 'tensorflow'}}
 
 
 def test_python_job_resources():
@@ -585,9 +585,9 @@ def test_python_job_resources():
     job = Job()
     job.resources = resources
     job.tasks.append(task)
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': {'cpus': 2, 'memory': 4, 'disk': 8, 'walltime': 6000, 'nodes': 1}}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': {'cpus': 2, 'memory': 4, 'disk': 8, 'walltime': 6000, 'nodes': 1}}
 
 def test_python_job_two_tasks():
     """
@@ -606,10 +606,10 @@ def test_python_job_two_tasks():
     job = Job()
     job.tasks.append(task1)
     job.tasks.append(task2)
-    assert job.json() == {'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'},
-                                    {'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'pwd'}],
-                          'name': '',
-                          'resources': default_resources}
+    assert job.to_dict() == {'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'},
+                                       {'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'pwd'}],
+                             'name': '',
+                             'resources': default_resources}
 
 def test_python_job_output_files():
     """
@@ -623,10 +623,10 @@ def test_python_job_output_files():
     job = Job()
     job.tasks.append(task)
     job.output_files.append('data.out')
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'outputFiles': ['data.out']}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources,
+                             'outputFiles': ['data.out']}
 
 def test_python_job_output_directories():
     """
@@ -640,10 +640,10 @@ def test_python_job_output_directories():
     job = Job()
     job.tasks.append(task)
     job.output_directories.append('/data')
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'outputDirs': ['/data']}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources,
+                             'outputDirs': ['/data']}
 
 def test_python_job_artifacts():
     """
@@ -658,10 +658,10 @@ def test_python_job_artifacts():
     job.tasks.append(task)
     job.artifacts.append(Artifact('input1.txt'))
     job.artifacts.append(Artifact('input2.txt'))
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'artifacts': [{'url': 'input1.txt'}, {'url': 'input2.txt'}]}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources,
+                             'artifacts': [{'url': 'input1.txt'}, {'url': 'input2.txt'}]}
 
 def test_python_job_artifacts_mounted():
     """
@@ -675,10 +675,10 @@ def test_python_job_artifacts_mounted():
     job = Job()
     job.tasks.append(task)
     job.artifacts.append(Artifact('input.tgz', 'mydata', '/data'))
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'artifacts': [{'url': 'input.tgz', 'mountpoint': 'mydata:/data'}]}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources,
+                             'artifacts': [{'url': 'input.tgz', 'mountpoint': 'mydata:/data'}]}
 
 def test_python_job_input_file():
     """
@@ -692,10 +692,10 @@ def test_python_job_input_file():
     job = Job()
     job.tasks.append(task)
     job.input_files.append(InputFile('test.txt'))
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'inputs': [{"filename": "test.txt", "content": "aGVsbG8K"}]}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources,
+                             'inputs': [{"filename": "test.txt", "content": "aGVsbG8K"}]}
 
 def test_python_job_input_file_string():
     """
@@ -709,10 +709,10 @@ def test_python_job_input_file_string():
     job = Job()
     job.tasks.append(task)
     job.input_files.append(InputFile(filename='test.txt', content='Hello world'))
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'inputs': [{"filename": "test.txt", "content": "SGVsbG8gd29ybGQ="}]}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                            'name': '',
+                            'resources': default_resources,
+                            'inputs': [{"filename": "test.txt", "content": "SGVsbG8gd29ybGQ="}]}
 
 def test_python_job_policies_all():
     """
@@ -727,14 +727,14 @@ def test_python_job_policies_all():
     policies.ignore_task_failures = True
     policies.run_serial_tasks_on_all_nodes = True
     policies.report_job_success_on_task_failure = True
-    assert policies.json() == {'maximumRetries': 3,
-                               'maximumTaskRetries': 2,
-                               'maximumTimeInQueue': 720,
-                               'priority': 10,
-                               'leaveInQueue': True,
-                               'ignoreTaskTailures': True,
-                               'reportJobSuccessOnTaskFailure': True,
-                               'runSerialTasksOnAllNodes': True}
+    assert policies.to_dict() == {'maximumRetries': 3,
+                                  'maximumTaskRetries': 2,
+                                  'maximumTimeInQueue': 720,
+                                  'priority': 10,
+                                  'leaveInQueue': True,
+                                  'ignoreTaskTailures': True,
+                                  'reportJobSuccessOnTaskFailure': True,
+                                  'runSerialTasksOnAllNodes': True}
 
 def test_python_job_policies_leave_in_queue():
     """
@@ -743,7 +743,7 @@ def test_python_job_policies_leave_in_queue():
     policies = JobPolicies()
     policies.maximum_time_in_queue = 86400
     policies.leave_in_queue = True
-    assert policies.json() == {'leaveInQueue': True, 'maximumTimeInQueue': 86400}
+    assert policies.to_dict() == {'leaveInQueue': True, 'maximumTimeInQueue': 86400}
 
 def test_python_job_with_policies():
     """
@@ -761,10 +761,10 @@ def test_python_job_with_policies():
     job = Job()
     job.tasks.append(task)
     job.policies = policies
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'policies': {'leaveInQueue': True, 'maximumTimeInQueue': 86400}}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources,
+                             'policies': {'leaveInQueue': True, 'maximumTimeInQueue': 86400}}
 
 def test_python_notifications():
     """
@@ -773,7 +773,7 @@ def test_python_notifications():
     notification = Notification()
     notification.event = 'jobFinished'
     notification.type = 'email'
-    assert notification.json() == {'event': 'jobFinished', 'type': 'email'}
+    assert notification.to_dict() == {'event': 'jobFinished', 'type': 'email'}
 
 def test_python_job_with_notifications():
     """
@@ -791,10 +791,10 @@ def test_python_job_with_notifications():
     job = Job()
     job.tasks.append(task)
     job.notifications.append(notification)
-    assert job.json() == {'tasks': default_tasks_1,
-                          'name': '',
-                          'resources': default_resources,
-                          'notifications': [{'event': 'jobFinished', 'type': 'email'}]}
+    assert job.to_dict() == {'tasks': default_tasks_1,
+                             'name': '',
+                             'resources': default_resources,
+                             'notifications': [{'event': 'jobFinished', 'type': 'email'}]}
 
 def test_python_workflow_policies_all():
     """
@@ -803,8 +803,8 @@ def test_python_workflow_policies_all():
     policies = WorkflowPolicies()
     policies.maximum_retries = 4
     policies.leave_in_queue = True
-    assert policies.json() == {'maximumRetries': 4,
-                               'leaveInQueue': True}
+    assert policies.to_dict() == {'maximumRetries': 4,
+                                 'leaveInQueue': True}
 
 def test_python_workflow_group():
     """
@@ -833,7 +833,7 @@ def test_python_workflow_group():
     workflow.jobs.append(job1)
     workflow.jobs.append(job2)
 
-    assert workflow.json() == {'jobs': [{'name': '',
+    assert workflow.to_dict() == {'jobs': [{'name': '',
                                          'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
                                          'resources': default_resources},
                                         {'name': '',

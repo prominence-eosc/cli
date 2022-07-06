@@ -108,7 +108,7 @@ class JobPolicies(object):
         """
         self._report_job_success_on_task_failure = report_job_success_on_task_failure
 
-    def json(self):
+    def to_dict(self):
         """
         Return a JSON representation of the job policy
         """
@@ -171,7 +171,7 @@ class WorkflowPolicies(object):
         """
         self._leave_in_queue = leave_in_queue
 
-    def json(self):
+    def to_dict(self):
         """
         Return a JSON representation of the workflow policy
         """

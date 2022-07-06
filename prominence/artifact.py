@@ -16,7 +16,7 @@ class Artifact(object):
         client = ProminenceClient(authenticated=True)
         client.upload(self._name, filename)
 
-    def json(self):
+    def to_dict(self):
         """
         JSON representation
         """

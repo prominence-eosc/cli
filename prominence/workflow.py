@@ -2,6 +2,15 @@ import time
 
 from prominence import ProminenceClient, WorkflowPolicies
 
+class JobFactory(object):
+    """
+    Job factory
+    """
+    def __init__(self, type=None):
+        self._type = type
+        
+
+
 class Workflow(object):
     """
     Workflow
@@ -16,6 +25,7 @@ class Workflow(object):
         self._status = None
         self._policies = WorkflowPolicies()
         self._notifications = []
+        self._factories = []
 
     @property
     def id(self):
@@ -57,7 +67,7 @@ class Workflow(object):
         self._notifications = notifications
 
     def create(self):
-        self._id = self._client.create_workflow(self.json())
+        self._id = self._client.create_workflow(self.to_dict())
 
     @property
     def status(self):
@@ -95,20 +105,20 @@ class Workflow(object):
             time.sleep(5)
         return
 
-    def json(self):
+    def to_dict(self):
         """
         Return a JSON description of the job
         """
         data = {}
         data['jobs'] = []
         for job in self._jobs:
-            data['jobs'].append(job.json())
-        if self._policies.json():
-            data['policies'] = self._policies.json()
+            data['jobs'].append(job.to_dict())
+        if self._policies.to_dict():
+            data['policies'] = self._policies.to_dict()
         if self._notifications:
             data['notifications'] = []
             for notification in self._notifications:
-                data['notifications'].append(notification.json())
+                data['notifications'].append(notification.to_dict())
         data['name'] = self._name
         if self._labels:
             data['labels'] = self._labels

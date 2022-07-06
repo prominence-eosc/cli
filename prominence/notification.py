@@ -30,7 +30,7 @@ class Notification(object):
         """
         self._type = type
 
-    def json(self):
+    def to_dict(self):
         """
         """
         if self._event and self._type:

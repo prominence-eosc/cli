@@ -121,7 +121,7 @@ class Job(object):
         self._policies = policies
 
     def create(self):
-        self._id = self._client.create_job(self.json())
+        self._id = self._client.create_job(self.to_dict())
 
     def get_input_file(self, name):
         """
@@ -198,19 +198,19 @@ class Job(object):
                             for data in response.iter_content(chunk_size=4096):
                                 fh.write(data)
 
-    def json(self):
+    def to_dict(self):
         """
         Return a JSON description of the job
         """
         data = {}
         data['tasks'] = []
-        data['resources'] = self._resources.json()
+        data['resources'] = self._resources.to_dict()
         for task in self._tasks:
-            data['tasks'].append(task.json())
+            data['tasks'].append(task.to_dict())
         if self._artifacts:
             data['artifacts'] = []
             for artifact in self._artifacts:
-                data['artifacts'].append(artifact.json())
+                data['artifacts'].append(artifact.to_dict())
         if self._output_files:
             data['outputFiles'] = []
             for output_file in self._output_files:
@@ -223,15 +223,15 @@ class Job(object):
             data['inputs'] = []
             for input_file in self._input_files:
                 if type(input_file) is InputFile:
-                    data['inputs'].append(input_file.json())
+                    data['inputs'].append(input_file.to_dict())
                 else:
                     data['inputs'].append(input_file)
-        if self._policies.json():
-            data['policies'] = self._policies.json()
+        if self._policies.to_dict():
+            data['policies'] = self._policies.to_dict()
         if self._notifications:
             data['notifications'] = []
             for notification in self._notifications:
-                data['notifications'].append(notification.json())
+                data['notifications'].append(notification.to_dict())
         data['name'] = self._name
         if self._labels:
             data['labels'] = self._labels

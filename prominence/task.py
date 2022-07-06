@@ -79,7 +79,7 @@ class Task(object):
     def env(self, env):
         self._env = env
 
-    def json(self):
+    def to_dict(self):
         data = {}
         data['image'] = self._image
         if self._command:

@@ -27,7 +27,7 @@ class CpusInterval(object):
         """
         self._max = max
 
-    def json(self):
+    def to_dict(self):
         """
         """
         if self._min and self._max:
@@ -155,7 +155,7 @@ class Resources(object):
         """
         self._total_cpus_range = total_cpus_range
 
-    def json(self):
+    def to_dict(self):
         """
         Return a JSON description of the resources
         """
@@ -165,14 +165,14 @@ class Resources(object):
         if self._walltime > 0:
             resources['walltime'] = self._walltime
 
-        if self._cpus_range.json():
-            resources['cpusRange'] = self._cpus_range.json()
+        if self._cpus_range.to_dict():
+            resources['cpusRange'] = self._cpus_range.to_dict()
 
-        if self._cpus_options.json():
-            resources['cpusOptions'] = self._cpus_options.json()
+        if self._cpus_options.to_dict():
+            resources['cpusOptions'] = self._cpus_options.to_dict()
 
-        if self._total_cpus_range.json():
-            resources['totalCpusRange'] = self._total_cpus_range.json()
+        if self._total_cpus_range.to_dict():
+            resources['totalCpusRange'] = self._total_cpus_range.to_dict()
 
         if self._memory_per_cpu > 0:
             resources['memoryPerCpu'] = self._memory_per_cpu
