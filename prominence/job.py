@@ -294,3 +294,9 @@ class Job(object):
         Return the job standard error
         """
         return self._client.stderr_job(self._id, node)
+
+    def execute(self, command):
+        """
+        Execute a command within a running job
+        """
+        return self._client.execute_command(self._id, command)
