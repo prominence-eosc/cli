@@ -6,6 +6,36 @@ import requests
 
 from prominence import InputFile, JobPolicies, ProminenceClient, Resources, Task
 
+def get_or_download(url, save_as):
+    """
+    Download from a URL into memory or save to disk
+    """
+    if not save_as:
+        try:
+            response = requests.get(url)
+        except Exception as err:
+            return False
+        return response.text
+    else:
+        try:
+            response = requests.get(url, stream=True, timeout=30)
+        except requests.exceptions.RequestException as err:
+            return False
+
+    total_length = response.headers.get('content-length')
+
+    if response.status_code != 200:
+        return False
+
+    with open(save_as, 'wb') as fh:
+        if total_length is None:
+            fh.write(response.content)
+        else:
+            for data in response.iter_content(chunk_size=4096):
+                fh.write(data)
+
+    return True
+
 class Job(object):
     """
     Job
@@ -142,29 +172,9 @@ class Job(object):
         for output in job['outputFiles']:
             if output['name'] == name:
                 url = output['url']
-                if not save_as:
-                    try:
-                        response = requests.get(url)
-                    except Exception as err:
-                        return False
-                    return response.text
-                else:
-                    try:
-                        response = requests.get(url, stream=True, timeout=30)
-                    except requests.exceptions.RequestException as err:
-                        return False
+                return get_or_download(url, save_as)
 
-                    total_length = response.headers.get('content-length')
-
-                    if response.status_code != 200:
-                        return False
-
-                    with open(save_as, 'wb') as fh:
-                        if total_length is None:
-                            fh.write(response.content)
-                        else:
-                            for data in response.iter_content(chunk_size=4096):
-                                fh.write(data)
+        return False
 
     def get_output_directory(self, name, save_as=None):
         """
@@ -174,29 +184,9 @@ class Job(object):
         for output in job['outputDirs']:
             if output['name'] == name:
                 url = output['url']
-                if not save_as:
-                    try:
-                        response = requests.get(url)
-                    except Exception as err:
-                        return False
-                    return response.text
-                else:
-                    try:
-                        response = requests.get(url, stream=True, timeout=30)
-                    except requests.exceptions.RequestException as err:
-                        return False
+                return get_or_download(url, save_as)
 
-                    total_length = response.headers.get('content-length')
-
-                    if response.status_code != 200:
-                        return False
-
-                    with open(save_as, 'wb') as fh:
-                        if total_length is None:
-                            fh.write(response.content)
-                        else:
-                            for data in response.iter_content(chunk_size=4096):
-                                fh.write(data)
+        return False
 
     def to_dict(self):
         """
@@ -300,3 +290,14 @@ class Job(object):
         Execute a command within a running job
         """
         return self._client.execute_command(self._id, command)
+
+    def get_snapshot(self, path, save_as=None):
+        """
+        Get a snapshot
+        """
+        if self._client.create_snapshot(self._id, path):
+            response = self._client.get_snapshot_url(self._id)
+            if 'url' in response:
+                return get_or_download(response['url'], save_as)
+
+        return None
