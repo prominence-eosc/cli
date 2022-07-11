@@ -1,10 +1,22 @@
 import base64
+import io
 import os
 import sys
+import tarfile
 import time
 import requests
 
 from prominence import InputFile, JobPolicies, ProminenceClient, Resources, Task
+
+def read_from_tarfile(content):
+    """
+    Return a string extracted from the provided .tgz content
+    """
+    if content:
+        with tarfile.open(fileobj=io.BytesIO(content.encode('utf-8'))) as tf:
+            for entry in tf:
+                fileobj = tf.extractfile(entry)
+                return fileobj.read().decode()
 
 def get_or_download(url, save_as):
     """
@@ -298,6 +310,9 @@ class Job(object):
         if self._client.create_snapshot(self._id, path):
             response = self._client.get_snapshot_url(self._id)
             if 'url' in response:
-                return get_or_download(response['url'], save_as)
+                if not save_as:
+                    return read_from_tarfile(get_or_download(response['url'], save_as))
+                else:
+                    return get_or_download(response['url'], save_as)
 
         return None
