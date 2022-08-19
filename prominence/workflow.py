@@ -135,3 +135,9 @@ class Workflow(object):
         Remove the workflow from the queue
         """
         return self._client.remove('workflow', self._id)
+
+    def rerun(self):
+        """
+        Rerun any failed jobs from the workflow.
+        """
+        return self._client.rerun(self._id)
