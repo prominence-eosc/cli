@@ -7,5 +7,6 @@ from prominence.artifact import Artifact
 from prominence.job import Job
 from prominence.workflow import Workflow
 from prominence.notification import Notification
+from prominence.dependency import Dependency
 
 __version__ = '0.18.0'
