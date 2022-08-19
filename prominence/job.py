@@ -322,3 +322,9 @@ class Job(object):
         Delete the job
         """
         return self._client.delete_job(self._id)
+
+    def remove(self):
+        """
+        Remove the job from the queue
+        """
+        return self._client.remove('job', self._id)
