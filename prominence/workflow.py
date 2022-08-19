@@ -123,3 +123,9 @@ class Workflow(object):
         if self._labels:
             data['labels'] = self._labels
         return data
+
+    def delete(self):
+        """
+        Delete the workflow
+        """
+        return self._client.delete_workflow(self._id)
