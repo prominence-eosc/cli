@@ -2,7 +2,7 @@
 import json
 import pytest
 from prominence.cli import main
-from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow
+from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow, Dependency
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
@@ -840,3 +840,44 @@ def test_python_workflow_group():
                                          'tasks': [{'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'hostname'}],
                                          'resources': default_resources}],
                                'name': 'testwf1'}
+
+def test_python_workflow_dependencies():
+    """
+    Test jobs with dependencies
+    """
+    task1 = Task()
+    task1.image = 'centos:7'
+    task1.runtime = 'singularity'
+    task1.command = 'hostname'
+
+    job1 = Job()
+    job1.name = 'job1'
+    job1.tasks.append(task1)
+    job1.resources = Resources()
+
+    task2 = Task()
+    task2.image = 'centos:8'
+    task2.runtime = 'singularity'
+    task2.command = 'hostname'
+
+    job2 = Job()
+    job2.name = 'job2'
+    job2.tasks.append(task2)
+    job2.resources = Resources()
+
+    workflow = Workflow()
+    workflow.name = 'testwf2'
+    workflow.jobs.append(job1)
+    workflow.jobs.append(job2)
+
+    dependency = Dependency(parent=job1, children=[job2])
+    workflow.dependencies.append(dependency)
+
+    assert workflow.to_dict() == {'jobs': [{'name': 'job1',
+                                         'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                         'resources': default_resources},
+                                        {'name': 'job2',
+                                         'tasks': [{'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                         'resources': default_resources}],
+                                  'dependencies': {'job1': ['job2']},
+                                  'name': 'testwf2'}
