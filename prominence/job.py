@@ -321,4 +321,4 @@ class Job(object):
         """
         Delete the job
         """
-        return delete_job(self._id)
+        return self._client.delete_job(self._id)
