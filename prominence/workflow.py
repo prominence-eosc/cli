@@ -129,3 +129,9 @@ class Workflow(object):
         Delete the workflow
         """
         return self._client.delete_workflow(self._id)
+
+    def remove(self):
+        """
+        Remove the workflow from the queue
+        """
+        return self._client.remove('workflow', self._id)
