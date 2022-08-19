@@ -316,3 +316,9 @@ class Job(object):
                     return get_or_download(response['url'], save_as)
 
         return None
+
+    def delete(self):
+        """
+        Delete the job
+        """
+        return delete_job(self._id)
