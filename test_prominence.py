@@ -2,7 +2,7 @@
 import json
 import pytest
 from prominence.cli import main
-from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow, Dependency, ParameterSweep, Zip, ParameterSet
+from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow, Dependency, ParameterSweep, Zip, ParameterSet, Repeat
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
@@ -945,3 +945,32 @@ def test_python_workflow_zip():
                                   'factories': [{'name': 'zip', 'type': 'zip', 'jobs': ['job'],
                                                 'parameters': [{'name': 'test', 'values': [0, 1, 2, 5, 6, 9]}]}],
                                   'name': 'testwf4'}
+
+def test_python_workflow_repeat():
+    """
+    Test repeat workflow
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.name = 'job'
+    job.tasks.append(task)
+    job.resources = Resources()
+
+    workflow = Workflow()
+    workflow.name = 'testwf5'
+    workflow.jobs.append(job)
+
+    factory = Repeat(10)
+    factory.name = 'repeat'
+    factory.jobs.append(job)
+    workflow.factories.append(factory)
+
+    assert workflow.to_dict() == {'jobs': [{'name': 'job',
+                                            'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                            'resources': default_resources}],
+                                  'factories': [{'name': 'repeat', 'type': 'repeat', 'jobs': ['job'], 'num': 10}],
+                                  'name': 'testwf5'}
