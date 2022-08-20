@@ -146,7 +146,36 @@ class ParameterSweep(Factory):
         return data
 
 class Zip(Factory):
-    pass
+    def __init__(self):
+        super().__init__()
+        self._parameters = []
+
+    @property
+    def parameters(self):
+        """
+        """
+        return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        """
+        """
+        self._parameters = parameters
+
+    def to_dict(self):
+        """
+        """
+        data = {}
+        data['name'] = self._name
+        data['type'] = 'zip'
+        data['jobs'] = []
+        for job in self._jobs:
+            data['jobs'].append(job.name)
+        data['parameters'] = []
+        for set in self._parameters:
+            data['parameters'].append(set.to_dict())
+
+        return data
 
 class Repeat(Factory):
     pass
