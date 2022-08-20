@@ -2,7 +2,7 @@
 import json
 import pytest
 from prominence.cli import main
-from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow, Dependency
+from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow, Dependency, ParameterSweep, ParameterSet
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
@@ -881,3 +881,35 @@ def test_python_workflow_dependencies():
                                             'resources': default_resources}],
                                   'dependencies': {'job1': ['job2']},
                                   'name': 'testwf2'}
+
+def test_python_workflow_parameter_sweep():
+    """
+    Test parameter sweep workflow
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.name = 'job'
+    job.tasks.append(task)
+    job.resources = Resources()
+
+    workflow = Workflow()
+    workflow.name = 'testwf3'
+    workflow.jobs.append(job)
+
+    factory = ParameterSweep()
+    factory.name = 'sweep'
+    factory.jobs.append(job)
+    parameter_set = ParameterSet('test', start=0, end=2, step=1)
+    factory.parameters.append(parameter_set)
+    workflow.factories.append(factory)
+
+    assert workflow.to_dict() == {'jobs': [{'name': 'job',
+                                            'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                            'resources': default_resources}],
+                                  'factories': [{'name': 'sweep', 'type': 'parameterSweep', 'jobs': ['job'],
+                                                'parameters': [{'name': 'test', 'start': 0, 'end': 2, 'step': 1}]}],
+                                  'name': 'testwf3'}
