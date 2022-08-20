@@ -834,12 +834,12 @@ def test_python_workflow_group():
     workflow.jobs.append(job2)
 
     assert workflow.to_dict() == {'jobs': [{'name': '',
-                                         'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
-                                         'resources': default_resources},
-                                        {'name': '',
-                                         'tasks': [{'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'hostname'}],
-                                         'resources': default_resources}],
-                               'name': 'testwf1'}
+                                            'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                            'resources': default_resources},
+                                           {'name': '',
+                                            'tasks': [{'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                            'resources': default_resources}],
+                                  'name': 'testwf1'}
 
 def test_python_workflow_dependencies():
     """
@@ -874,10 +874,10 @@ def test_python_workflow_dependencies():
     workflow.dependencies.append(dependency)
 
     assert workflow.to_dict() == {'jobs': [{'name': 'job1',
-                                         'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
-                                         'resources': default_resources},
-                                        {'name': 'job2',
-                                         'tasks': [{'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'hostname'}],
-                                         'resources': default_resources}],
+                                            'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                            'resources': default_resources},
+                                           {'name': 'job2',
+                                            'tasks': [{'image': 'centos:8', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                            'resources': default_resources}],
                                   'dependencies': {'job1': ['job2']},
                                   'name': 'testwf2'}
