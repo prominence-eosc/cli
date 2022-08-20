@@ -8,5 +8,6 @@ from prominence.job import Job
 from prominence.workflow import Workflow
 from prominence.notification import Notification
 from prominence.dependency import Dependency
+from prominence.factory import ParameterSweep, Zip, Repeat, ParameterSet
 
 __version__ = '0.18.0'
