@@ -27,6 +27,7 @@ class Workflow(object):
         self._notifications = []
         self._factories = []
         self._dependencies = []
+        self._factories = []
 
     @property
     def id(self):
@@ -50,6 +51,14 @@ class Workflow(object):
     @labels.setter
     def labels(self, labels):
         self._labels = labels
+
+    @property
+    def factories(self):
+        return self._factories
+
+    @factories.setter
+    def factories(self, factories):
+        self._factories = factories
 
     @property
     def jobs(self):
@@ -136,6 +145,10 @@ class Workflow(object):
             for dependency in self._dependencies:
                 for key in dependency.to_dict():
                     data['dependencies'][key] = dependency.to_dict()[key]
+        if self._factories:
+            data['factories'] = []
+            for factory in self._factories:
+                data['factories'].append(factory.to_dict())
 
         return data
 
