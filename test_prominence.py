@@ -2,7 +2,7 @@
 import json
 import pytest
 from prominence.cli import main
-from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow, Dependency, ParameterSweep, ParameterSet
+from prominence import Resources, JobPolicies, WorkflowPolicies, Notification, Task, Job, InputFile, Artifact, Workflow, Dependency, ParameterSweep, Zip, ParameterSet
 
 default_resources = {"nodes": 1, "disk": 10, "cpus": 1, "memory": 1}
 default_tasks = [{"image": "centos:7", "runtime": "singularity"}]
@@ -913,3 +913,35 @@ def test_python_workflow_parameter_sweep():
                                   'factories': [{'name': 'sweep', 'type': 'parameterSweep', 'jobs': ['job'],
                                                 'parameters': [{'name': 'test', 'start': 0, 'end': 2, 'step': 1}]}],
                                   'name': 'testwf3'}
+
+def test_python_workflow_zip():
+    """
+    Test zip workflow
+    """
+    task = Task()
+    task.image = 'centos:7'
+    task.runtime = 'singularity'
+    task.command = 'hostname'
+
+    job = Job()
+    job.name = 'job'
+    job.tasks.append(task)
+    job.resources = Resources()
+
+    workflow = Workflow()
+    workflow.name = 'testwf4'
+    workflow.jobs.append(job)
+
+    factory = Zip()
+    factory.name = 'zip'
+    factory.jobs.append(job)
+    parameter_set = ParameterSet('test', values=[0, 1, 2, 5, 6, 9])
+    factory.parameters.append(parameter_set)
+    workflow.factories.append(factory)
+
+    assert workflow.to_dict() == {'jobs': [{'name': 'job',
+                                            'tasks': [{'image': 'centos:7', 'runtime': 'singularity', 'cmd': 'hostname'}],
+                                            'resources': default_resources}],
+                                  'factories': [{'name': 'zip', 'type': 'zip', 'jobs': ['job'],
+                                                'parameters': [{'name': 'test', 'values': [0, 1, 2, 5, 6, 9]}]}],
+                                  'name': 'testwf4'}
