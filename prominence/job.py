@@ -48,6 +48,63 @@ def get_or_download(url, save_as):
 
     return True
 
+class Execution(object):
+    def __init__(self, execution):
+        self._execution = execution
+
+    @property
+    def site(self):
+        if 'site' in self._execution:
+            return self._execution['site']
+        return None
+
+    @property
+    def runtime_version(self):
+        if 'runtimeVersion' in self._execution:
+            return self._execution['runtimeVersion']
+        return None
+
+    @property
+    def provisioned_resources(self):
+        if 'provisionedResources' in self._execution:
+            return self._execution['provisionedResources']
+        return None
+
+    @property
+    def cpu_info(self):
+        if 'cpu' in self._execution:
+            return self._execution['cpu']
+        return None
+
+    @property
+    def tasks(self):
+        if 'tasks' in self._execution:
+            return self._execution['tasks']
+        return None
+
+class Events(object):
+    def __init__(self, create, start, end):
+        self._create = create
+        self._start = start
+        self._end = end
+
+    @property
+    def create(self):
+        return self._create
+
+    @property
+    def start(self):
+        return self._start
+
+    @property
+    def end(self):
+        return self._end
+
+    def to_dict(self):
+        return {'createTime': self._create,
+                'startTime': self._start,
+                'endTime': self._end}
+    
 class Job(object):
     """
     Job
@@ -55,6 +112,7 @@ class Job(object):
     def __init__(self, id=None):
         self._last_status_check = 0
         self._client = ProminenceClient(authenticated=True)
+        self._job = None
         self._tasks = []
         self._id = id
         self._name = ''
@@ -68,6 +126,10 @@ class Job(object):
         self._execution = {}
         self._policies = JobPolicies()
         self._notifications = []
+        self._events = None
+
+        if self._id:
+            self._update()
 
     @property
     def id(self):
@@ -239,28 +301,35 @@ class Job(object):
             data['labels'] = self._labels
         return data
 
+    def _update(self):
+        """
+        Update internal representation of job
+        """
+        # If the job is not defined at all or the status is non-terminal, get the current job JSON
+        if not self._job or self._status not in ('completed', 'failed', 'deleted', 'killed'):
+            # Ensure we don't run this too frequently
+            if time.time() - self._last_status_check > 5:
+                try:
+                    self._job = self._client.describe_job(self._id)
+                except Exception as err:
+                    return False
+                self._last_status_check = time.time()
+
     @property
     def status(self):
         """
         Get the job status
         """
-        if time.time() - self._last_status_check > 5:
-            try:
-                job = self._client.describe_job(self._id)
-            except Exception as err:
-                if 'No such job' in str(err):
-                    job = self._client.describe_job(self._id)
-                return False
-            self._status = job['status']
-            self._last_status_check = time.time()
-
+        self._update()
+        if 'status' in self._job:
+            self._status = self._job['status']
         return self._status
 
     def done(self):
         """
         Return True if the job is in a terminal state
         """
-        if self.status in ('completed', 'failed', 'deleted', 'killed'):
+        if self._status in ('completed', 'failed', 'deleted', 'killed'):
             return True
         return False
 
@@ -276,14 +345,33 @@ class Job(object):
         return
 
     @property
+    def events(self):
+        """
+        """
+        create = None
+        start = None
+        end = None
+        self._update()
+        if 'events' in self._job:
+            if 'createTime' in self._job['events']:
+                create = self._job['events']['createTime']
+            if 'startTime' in self._job['events']:
+                start = self._job['events']['startTime']
+            if 'endTime' in self._job['events']:
+                end = self._job['events']['endTime']
+        events = Events(create, start, end)
+        return events
+
+    @property
     def execution(self):
         """
         Return the execution block
         """
-        job = self._client.describe_job(self._id)
-        if 'execution' in job:
-            return job['execution']
-        return {}
+        self._update()
+        if 'execution' in self._job:
+            self._execution = self._job['execution']
+            return Execution(self._execution)
+        return Execution(None)
 
     def stdout(self, node=0):
         """
