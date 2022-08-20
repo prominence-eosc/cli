@@ -2,6 +2,7 @@ from __future__ import print_function
 import argparse
 import base64
 from collections import OrderedDict
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import errno
 import json
 import os
@@ -596,11 +597,30 @@ def command_upload(args):
 
     print('Success')
 
+def downloader(job):
+    """
+    Download the specified file to the specified directory
+    """
+    try:
+        response = requests.get(job['url'], stream=True, timeout=30)
+    except requests.exceptions.RequestException as err:
+        return
+
+    total_length = response.headers.get('content-length')
+
+    with open('%s/%s' % (job['path'], job['filename']), 'wb') as fh:
+        if total_length is None:
+            fh.write(response.content)
+        else:
+            for data in response.iter_content(chunk_size=8192):
+                fh.write(data)
+
 def command_download(args):
     """
     Download output files and directories
     """
     jobs = []
+    print('Preparing downloads...')
     try:
         client = ProminenceClient(authenticated=True)
         if args.resource == 'job':
@@ -617,76 +637,51 @@ def command_download(args):
         print('Error:', err)
         exit(1)
 
+    downloads = []
     for job in jobs:
-        if args.resource == 'workflow':
-            print('Working on job %d' % job['id'])
         if ('outputFiles' in job or 'outputDirs' in job) and job['status'] in ('completed', 'failed', 'deleted'):
-            # Create per-job directory if necessary & set path for files
-            path = './'
-            if args.dir:
-                path = './%d/' % job['id']
-                try:
-                    os.mkdir(path)
-                except OSError as err:
-                    if err.errno != errno.EEXIST:
-                        print('Error: job directory cannot be created')
-                        exit(1)
-                    else:
-                        pass
-
             files_and_dirs = []
             if 'outputFiles' in job:
                 files_and_dirs += job['outputFiles']
             if 'outputDirs' in job:
                 files_and_dirs += job['outputDirs']
 
+            if args.dir:
+                path = '%s/%d/' % (os.getcwd(), job['id'])
+                try:
+                    os.mkdir(path)
+                except:
+                    return
+            else:
+                path = os.getcwd()
+
             for pair in files_and_dirs:
+                job_download = {}
+                job_download['id'] = job['id']
+                job_download['path'] = path
+
                 file_name = os.path.basename(pair['name'])
                 if 'outputDirs' in job:
                     if pair in job['outputDirs']:
                         file_name = file_name + '.tgz'
-                file_name_orig = file_name
 
                 if 'parameters' in job:
                     for parameter in job['parameters']:
                         file_name = Template(file_name).safe_substitute({parameter:job['parameters'][parameter]})
 
-                url = pair['url']
+                job_download['url'] = pair['url']
+                job_download['filename'] = file_name
+                downloads.append(job_download)
 
-                if os.path.isfile(path + file_name) and not args.force:
-                    print('Warning: file "%s" already exists and force option not specified' % file_name)
-                    continue
-
-                if url == '':
-                    print('Warning: no URL available for "%s"' % pair['name'])
-                    continue
-
-                try:
-                    response = requests.get(url, stream=True, timeout=30)
-                except requests.exceptions.RequestException as err:
-                    print('Error getting file due to: %s' % err)
-                    continue
-
-                total_length = response.headers.get('content-length')
-
-                if response.status_code != 200:
-                    print('Error: content from file "%s" does not exist' % file_name)
-                    continue
-
-                with open(path + file_name, 'wb') as file_download:
-                    print('Downloading file %s as %s' % (file_name_orig, file_name))
-                    if total_length is None:
-                        file_download.write(response.content)
-                    else:
-                        downloaded = 0
-                        total_length = int(total_length)
-                        for data in response.iter_content(chunk_size=4096):
-                            downloaded += len(data)
-                            file_download.write(data)
-                            done = int(50 * downloaded / total_length)
-                            sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)))
-                            sys.stdout.flush()
-                print('')
+    print('Starting downloads...')
+    with ProcessPoolExecutor(args.num) as executor:
+        futures = [executor.submit(downloader, item) for item in downloads]
+        count = 0
+        print('Current status (complete/total) = %d/%d' % (count, len(downloads)), end='\r')
+        for future in as_completed(futures):
+            count = count + 1
+            print('Current status (complete/total) = %d/%d' % (count, len(downloads)), end='\r')
+    print()
 
 def command_ls(args):
     """
@@ -1789,6 +1784,11 @@ def create_parser():
                                  default=False,
                                  help='Save output files in a directory named by the job id',
                                  action='store_true')
+    parser_download.add_argument('--concurrency',
+                                 dest='num',
+                                 default=10,
+                                 nargs='?',
+                                 help='Number of concurrent downloads')
     parser_download.add_argument('resource',
                                  help='Resource type',
                                  default='job',

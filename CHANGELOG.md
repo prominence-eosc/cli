@@ -1,6 +1,7 @@
 # Change Log
 ## 0.18.0
-* Added improved Python API making it easier to write workflows as code
+* Download of output files/directories from jobs in a workflow is parallelised.
+* Added improved Python API making it easier to write workflows as code.
 
 ## 0.17.0
 * Support for user-supplied SHA256 checksums and calculation of checksums for S3 storage.
