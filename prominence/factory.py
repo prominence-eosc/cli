@@ -178,4 +178,31 @@ class Zip(Factory):
         return data
 
 class Repeat(Factory):
-    pass
+    def __init__(self, num=None):
+        super().__init__()
+        self._num = num
+
+    @property
+    def num(self):
+        """
+        """
+        return self._num
+
+    @num.setter
+    def num(self, num):
+        """
+        """
+        self._num = num
+
+    def to_dict(self):
+        """
+        """
+        data = {}
+        data['name'] = self._name
+        data['type'] = 'repeat'
+        data['jobs'] = []
+        for job in self._jobs:
+            data['jobs'].append(job.name)
+        data['num'] = self._num
+
+        return data
