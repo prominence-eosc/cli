@@ -28,7 +28,7 @@ class ProminenceClient(object):
     """
     PROMINENCE client class
     """
-    def __init__(self, authenticated=False, timeout=30):
+    def __init__(self, authenticated=False, timeout=150):
         self._url = os.environ.get('PROMINENCE_URL', 'https://host-130-246-215-158.nubes.stfc.ac.uk/prominence/v1')
         self._timeout = timeout
 
