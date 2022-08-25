@@ -1,6 +1,7 @@
 # Change Log
 ## 0.18.0
 * Download of output files/directories from jobs in a workflow is parallelised.
+* Increased default timeout for interacting with the REST API from 30s to 150s.
 * Added improved Python API making it easier to write workflows as code.
 
 ## 0.17.0
