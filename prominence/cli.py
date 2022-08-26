@@ -1788,7 +1788,7 @@ def create_parser():
                                  dest='num',
                                  default=10,
                                  nargs='?',
-                                 help='Number of concurrent downloads')
+                                 help='Number of concurrent downloads (default is 10)')
     parser_download.add_argument('resource',
                                  help='Resource type',
                                  default='job',
