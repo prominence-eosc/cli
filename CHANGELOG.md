@@ -1,4 +1,8 @@
 # Change Log
+
+## 0.18.1
+* Support uploads of files > 2 GB in size by disabling checksums (Python requests/urllib3 don't support streaming uploads of large files when additional data needs to be specified).
+
 ## 0.18.0
 * Download of output files/directories from jobs in a workflow is parallelised.
 * Increased default timeout for interacting with the REST API from 30s to 150s.
