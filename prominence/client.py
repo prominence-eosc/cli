@@ -508,9 +508,10 @@ class ProminenceClient(object):
     def upload(self, file, filename, checksum=None):
         """
         Upload a file to transient cloud storage
-        """
-        # Calculate checksum if not supplied
-        if not checksum:
+        """            
+        # Calculate checksum if not supplied and file size is not too big (Python requests & urllib3
+        # don't support streaming uploads of files > 2 GB when additional data is specified)
+        if not checksum and os.path.getsize(filename) < 2147483647:
             checksum = calculate_sha256(filename)
 
         data = {'filename':file,
