@@ -639,7 +639,7 @@ def command_download(args):
 
     downloads = []
     for job in jobs:
-        if ('outputFiles' in job or 'outputDirs' in job) and job['status'] in ('completed', 'failed', 'deleted'):
+        if ('outputFiles' in job or 'outputDirs' in job) and job['status'] in ('completed', 'failed', 'deleted', 'killed'):
             files_and_dirs = []
             if 'outputFiles' in job:
                 files_and_dirs += job['outputFiles']
