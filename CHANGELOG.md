@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.18.2
+* Support download of output files & directories for jobs in the `killed` state.
+
 ## 0.18.1
 * Support uploads of files > 2 GB in size by disabling checksums (Python requests/urllib3 don't support streaming uploads of large files when additional data needs to be specified).
 
