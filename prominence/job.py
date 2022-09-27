@@ -305,15 +305,19 @@ class Job(object):
         """
         Update internal representation of job
         """
-        # If the job is not defined at all or the status is non-terminal, get the current job JSON
-        if not self._job or self._status not in ('completed', 'failed', 'deleted', 'killed'):
+        # If the status is non-terminal, get the current job JSON
+        if self._status not in ('completed', 'failed', 'deleted', 'killed'):
             # Ensure we don't run this too frequently
             if time.time() - self._last_status_check > 5:
                 try:
                     self._job = self._client.describe_job(self._id)
-                except Exception as err:
+                except:
                     return False
+
                 self._last_status_check = time.time()
+
+                if 'status' in self._job:
+                    self._status = self._job['status']
 
     @property
     def status(self):
@@ -321,14 +325,14 @@ class Job(object):
         Get the job status
         """
         self._update()
-        if 'status' in self._job:
-            self._status = self._job['status']
         return self._status
 
     def done(self):
         """
         Return True if the job is in a terminal state
         """
+        self._update()
+
         if self._status in ('completed', 'failed', 'deleted', 'killed'):
             return True
         return False
