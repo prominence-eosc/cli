@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.18.3
+* Job status wasn't being updated correctly in the Python API, now fixed.
+
 ## 0.18.2
 * Support download of output files & directories for jobs in the `killed` state.
 
