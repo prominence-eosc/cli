@@ -783,18 +783,46 @@ def command_delete(args):
 
     print('Success')
 
+def _get_stdout(client, args, offset):
+    """
+    """
+    if args.job:
+        return client.stdout_workflow(args.id, args.job, args.node, args.instance, offset)
+    elif args.job:
+        return client.stdout_workflow(args.id, args.job, args.node, offset)
+    else:
+        return client.stdout_job(args.id, args.node, offset)
+
+def _get_status(client, args):
+    """
+    """
+    data = client.describe_job(args.id)
+    if 'status' in data:
+        return data['status']
+    return None
+
 def command_stdout(args):
     """
     Get standard output for a specific job/workflow
     """
+    client = ProminenceClient(authenticated=True)
     try:
-        client = ProminenceClient(authenticated=True)
-        if args.job:
-            print(client.stdout_workflow(args.id, args.job, args.node, args.instance))
-        elif args.job:
-            print(client.stdout_workflow(args.id, args.job, args.node))
-        else:
-            print(client.stdout_job(args.id, args.node))
+        # Wait for job to enter the running state if necessary
+        status = _get_status(client, args)
+        if status in ('idle', 'pending'):
+            while status not in ('running', 'deleted', 'failed', 'completed', 'killed'):
+                time.sleep(2)
+                status = _get_status(client, args)
+
+        # Print the stdout
+        offset = 0
+        while status == 'running':
+            stdout = _get_stdout(client, args, offset)
+            offset = offset + len(stdout)
+            if len(stdout) > 0:
+                print(stdout, end='')
+            time.sleep(2)
+            status = _get_status(client, args)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -805,18 +833,38 @@ def command_stdout(args):
         print('Error:', err)
         exit(1)
 
+def _get_stderr(args, offset):
+    """
+    """
+    if args.job:
+        return client.stderr_workflow(args.id, args.job, args.node, args.instance, offset)
+    elif args.job:
+        return client.stderr_workflow(args.id, args.job, args.node, offset)
+    else:
+        return client.stderr_job(args.id, args.node, offset)
+
 def command_stderr(args):
     """
     Get standard error for a specific job/workflow
     """
+    client = ProminenceClient(authenticated=True)
     try:
-        client = ProminenceClient(authenticated=True)
-        if args.job:
-            print(client.stderr_workflow(args.id, args.job, args.node, args.instance))
-        elif args.job:
-            print(client.stderr_workflow(args.id, args.job, args.node))
-        else:
-            print(client.stderr_job(args.id, args.node))
+        # Wait for job to enter the running state if necessary
+        status = _get_status(client, args)
+        if status in ('idle', 'pending'):
+            while status not in ('running', 'deleted', 'failed', 'completed', 'killed'):
+                time.sleep(2)
+                status = _get_status(client, args)
+
+        # Print the stderr
+        offset = 0
+        while status == 'running':
+            stderr = _get_stderr(client, args, offset)
+            offset = offset + len(stderr)
+            if len(stderr) > 0:
+                print(stderr, end='')
+            time.sleep(2)
+            status = _get_status(client, args)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -1710,6 +1758,12 @@ def create_parser():
                                default=0,
                                type=int,
                                help='Display stdout from this node for the case of multi-node jobs')
+    parser_stdout.add_argument('-t',
+                             '--tail',
+                             dest='tail',
+                             default=False,
+                             action='store_true',
+                             help='Tail the standard output')
     parser_stdout.set_defaults(func=command_stdout)
 
     # Create the parser for the "stderr" command
@@ -1732,6 +1786,12 @@ def create_parser():
                                default=0,
                                type=int,
                                help='Display stderr from this node for the case of multi-node jobs')
+    parser_stderr.add_argument('-t',
+                             '--tail',
+                             dest='tail',
+                             default=False,
+                             action='store_true',
+                             help='Tail the standard error')
     parser_stderr.set_defaults(func=command_stderr)
 
     # Create the parser for the "exec" command
