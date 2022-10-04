@@ -796,9 +796,10 @@ def _get_stdout(client, args, offset):
 def _get_status(client, args):
     """
     """
-    data = client.describe_job(args.id)
-    if 'status' in data:
-        return data['status']
+    if not args.job:
+        data = client.describe_job(args.id)
+        if 'status' in data:
+            return data['status']
     return None
 
 def command_stdout(args):
