@@ -419,19 +419,19 @@ class ProminenceClient(object):
 
         raise exceptions.WorkflowGetError('Unknown error')
 
-    def stdout_job(self, job_id, node):
+    def stdout_job(self, job_id, node, offset=0):
         """
         Get standard output from a job
         """
-        return self.stdout_generic('jobs', job_id, node)
+        return self.stdout_generic('jobs', job_id, node, offset=offset)
 
-    def stdout_workflow(self, job_id, job, node, instance=-1):
+    def stdout_workflow(self, job_id, job, node, instance=-1, offset=0):
         """
         Get standard output from a workflow
         """
-        return self.stdout_generic('workflows', job_id, node, job, instance)
+        return self.stdout_generic('workflows', job_id, node, job, instance, offset=offset)
 
-    def stdout_generic(self, type, id, node, job=None, instance=-1):
+    def stdout_generic(self, type, id, node, job=None, instance=-1, offset=0):
         """
         Get standard output from a job or workflow
         """
@@ -443,7 +443,7 @@ class ProminenceClient(object):
         else:
             path = '/%s/%d/stdout' % (type, id)
 
-        params = {'node': node}
+        params = {'node': node, 'offset': offset}
 
         try:
             response = requests.get(self._url + path, params=params, timeout=self._timeout, headers=self._headers, verify=self._verify)
@@ -462,19 +462,19 @@ class ProminenceClient(object):
 
         raise exceptions.StdStreamsError('Unknown error')
 
-    def stderr_job(self, job_id, node):
+    def stderr_job(self, job_id, node, offset=0):
         """
         Get standard error from a job
         """
-        return self.stderr_generic('jobs', job_id, node)
+        return self.stderr_generic('jobs', job_id, node, offset=offset)
 
-    def stderr_workflow(self, job_id, node, job, instance=-1):
+    def stderr_workflow(self, job_id, node, job, instance=-1, offset=0):
         """
         Get standard error from a workflow
         """
-        return self.stderr_generic('workflows', job_id, node, job, instance)
+        return self.stderr_generic('workflows', job_id, node, job, instance, offset=offset)
 
-    def stderr_generic(self, type, id, node, job=None, instance=-1):
+    def stderr_generic(self, type, id, node, job=None, instance=-1, offset=0):
         """
         Get standard error from a job
         """
@@ -486,7 +486,7 @@ class ProminenceClient(object):
         else:
             path = '/%s/%d/stderr' % (type, id)
 
-        params = {'node': node}
+        params = {'node': node, 'offset': offset}
 
         try:
             response = requests.get(self._url + path, params=params, timeout=self._timeout, headers=self._headers, verify=self._verify)
