@@ -377,17 +377,17 @@ class Job(object):
             return Execution(self._execution)
         return Execution(None)
 
-    def stdout(self, node=0):
+    def stdout(self, node=0, offset=0):
         """
         Return the job standard output
         """
-        return self._client.stdout_job(self._id, node)
+        return self._client.stdout_job(self._id, node, offset)
 
-    def stderr(self, node=0):
+    def stderr(self, node=0, offset=0):
         """
         Return the job standard error
         """
-        return self._client.stderr_job(self._id, node)
+        return self._client.stderr_job(self._id, node, offset)
 
     def execute(self, command):
         """
