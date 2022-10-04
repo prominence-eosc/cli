@@ -783,7 +783,7 @@ def command_delete(args):
 
     print('Success')
 
-def _get_stdout(client, args, offset):
+def _get_stdout(client, args, offset=0):
     """
     """
     if args.job:
@@ -808,6 +808,10 @@ def command_stdout(args):
     """
     client = ProminenceClient(authenticated=True)
     try:
+        if not args.tail:
+            print(_get_stdout(client, args))
+            exit(0)
+
         # Wait for job to enter the running state if necessary
         status = _get_status(client, args)
         if status in ('idle', 'pending'):
@@ -834,7 +838,7 @@ def command_stdout(args):
         print('Error:', err)
         exit(1)
 
-def _get_stderr(args, offset):
+def _get_stderr(client, args, offset=0):
     """
     """
     if args.job:
@@ -850,6 +854,10 @@ def command_stderr(args):
     """
     client = ProminenceClient(authenticated=True)
     try:
+        if not args.tail:
+            print(_get_stderr(client, args))
+            exit(0)
+
         # Wait for job to enter the running state if necessary
         status = _get_status(client, args)
         if status in ('idle', 'pending'):
