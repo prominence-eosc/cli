@@ -338,8 +338,8 @@ def transform_workflow(workflow, detail):
         workflow_t['jobs'] = workflow['jobs']
         if 'dependencies' in workflow:
             workflow_t['dependencies'] = workflow['dependencies']
-        if 'factory' in workflow:
-            workflow_t['factory'] = workflow['factory']
+        if 'factories' in workflow:
+            workflow_t['factories'] = workflow['factories']
 
     events = OrderedDict()
     if 'events' in workflow:
