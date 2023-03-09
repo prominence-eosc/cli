@@ -2,6 +2,7 @@
 
 ## 0.19.0
 * Support tailing standard output/error using `--tail` option to `stdout` and `stderr`.
+* (bug fix) Information about job factories now included in `prominence describe workflow`.
 
 ## 0.18.3
 * Job status wasn't being updated correctly in the Python API, now fixed.
