@@ -23,6 +23,33 @@ from prominence import ProminenceClient
 
 CMD_MAX_WIDTH = 100
 
+def load_input_files(job):
+    """
+    Replace file:// with contents of file
+    """
+    if 'inputs' in job:
+        new_inputs = []
+        for item in job['inputs']:
+            if not isinstance(item, dict):
+                if item.startswith('file://'):
+                    filename = item.replace('file://', '')
+                    if os.path.isfile(filename):
+                        if os.path.getsize(filename) < 1000000:
+                            with open(filename, 'rb') as input_file:
+                                new_inputs.append({'filename':os.path.basename(filename),
+                                                   'content':base64.b64encode(input_file.read()).decode("utf-8")})
+                        else:
+                            print('Error: Input file size too large')
+                            exit(1)
+                    else:
+                        print('Error: Unable to open file: %s' % filename)
+                        exit(1)
+            else:
+                new_inputs.append(item)
+        if new_inputs:
+            job['inputs'] = new_inputs
+    return job
+
 def handle_multiline_commands(job):
     """
     If cmd contains new lines, split into multiple tasks or a single task
@@ -966,49 +993,13 @@ def command_run(args):
     else:
         data = handle_multiline_commands(data)
 
-    # If filenames are specified as inputs, replace with content
-    if 'inputs' in data:
-        new_inputs = []
-        for item in data['inputs']:
-            if not isinstance(item, dict):
-                if item.startswith('file://'):
-                    filename = item.replace('file://', '')
-                    if os.path.isfile(filename):
-                        if os.path.getsize(filename) < 1000000:
-                            with open(filename, 'rb') as input_file:
-                                new_inputs.append({'filename':os.path.basename(filename),
-                                                   'content':base64.b64encode(input_file.read()).decode("utf-8")})
-                        else:
-                            print('Error: Input file size too large')
-                            exit(1)
-            else:
-                new_inputs.append(item)
-        if new_inputs:
-            data['inputs'] = new_inputs
-
     if 'jobs' in data:
         new_jobs = []
         for job in data['jobs']:
-            if 'inputs' in job:
-                new_inputs = []
-                for item in job['inputs']:
-                    if not isinstance(item, dict):
-                        if item.startswith('file://'):
-                            filename = item.replace('file://', '')
-                            if os.path.isfile(filename):
-                                if os.path.getsize(filename) < 1000000:
-                                    with open(filename, 'rb') as input_file:
-                                        new_inputs.append({'filename':os.path.basename(filename),
-                                                           'content':base64.b64encode(input_file.read()).decode("utf-8")})
-                                else:
-                                    print('Error: Input file size too large')
-                                    exit(1)
-                    else:
-                        new_inputs.append(item)
-                if new_inputs:
-                    job['inputs'] = new_inputs
-            new_jobs.append(job)
+            new_jobs.append(load_input_files(job))
         data['jobs'] = new_jobs
+    else:
+        data = load_input_files(data)
 
     try:
         client = ProminenceClient(authenticated=True)
