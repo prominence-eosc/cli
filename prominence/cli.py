@@ -1718,7 +1718,7 @@ def create_parser():
                                  dest='input',
                                  default=False,
                                  action='store_true',
-                                 help='Return only the original job as it was before execution')
+                                 help='Return only the JSON as originally submitted')
     parser_describe.set_defaults(func=command_describe)
 
     # Create the parser for the "delete" command
