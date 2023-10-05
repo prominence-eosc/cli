@@ -9,6 +9,46 @@ from prominence import exceptions
 
 __all__ = ['ProminenceClient']
 
+def filter_job(data, input_only):
+    """
+    Format job so that it can be used for cloning
+    """
+    if not input_only:
+        return data
+
+    data.pop('status', None)
+    data.pop('id', None)
+    data.pop('events', None)
+    data.pop('execution', None)
+
+    if 'outputDirs' in data:
+        output_dirs = []
+        for item in data['outputDirs']:
+            output_dirs.append(item['name'])
+        data['outputDirs'] = output_dirs
+
+    if 'outputFiles' in data:
+        output_files = []
+        for item in data['outputFiles']:
+            output_files.append(item['name'])
+        data['outputFiles'] = output_files
+
+    return data
+
+def filter_workflow(data, input_only):
+    """
+    Format workflow so it can be used for cloning
+    """
+    if not input_only:
+        return data
+
+    data.pop('status', None)
+    data.pop('id', None)
+    data.pop('events', None)
+    data.pop('progress', None)
+
+    return data
+
 def calculate_sha256(filename):
     """
     Calculate sha256 checksum of the specified file
@@ -371,7 +411,7 @@ class ProminenceClient(object):
 
         raise exceptions.DeletionError('Unknown error')
 
-    def describe_job(self, job_id):
+    def describe_job(self, job_id, input_only):
         """
         Describe a specific job
         """
@@ -382,7 +422,7 @@ class ProminenceClient(object):
 
         if response.status_code == 200:
             if response.json():
-                return response.json()[0]
+                return filter_job(response.json()[0], input_only)
             else:
                 raise exceptions.JobGetError('No such job')
         elif response.status_code == 401:
@@ -395,7 +435,7 @@ class ProminenceClient(object):
 
         raise exceptions.JobGetError('Unknown error')
 
-    def describe_workflow(self, workflow_id):
+    def describe_workflow(self, workflow_id, input_only):
         """
         Describe a specific workflow
         """
@@ -406,7 +446,7 @@ class ProminenceClient(object):
 
         if response.status_code == 200:
             if response.json():
-                return response.json()[0]
+                return filter_workflow(response.json()[0], input_only)
             else:
                 raise exceptions.JobGetError('No such workflow')
         elif response.status_code == 401:
