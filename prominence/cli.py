@@ -583,9 +583,9 @@ def command_describe(args):
     try:
         client = ProminenceClient(authenticated=True)
         if args.resource == 'job':
-            data = client.describe_job(args.id)
+            data = client.describe_job(args.id, args.input)
         else:
-            data = client.describe_workflow(args.id)
+            data = client.describe_workflow(args.id, args.input)
     except exceptions.AuthenticationError:
         print('Error: authentication failed')
         exit(1)
@@ -596,7 +596,10 @@ def command_describe(args):
         print('Error:', err)
         exit(1)
 
-    print_json(data, transform=True, detail=True, resource=args.resource)
+    if args.input:
+        print(json.dumps(data, indent=2))
+    else:
+        print_json(data, transform=True, detail=True, resource=args.resource)
 
 def command_upload(args):
     """
@@ -1710,6 +1713,12 @@ def create_parser():
     parser_describe.add_argument('id',
                                  help='Job id',
                                  type=int)
+    parser_describe.add_argument('-i',
+                                 '--input',
+                                 dest='input',
+                                 default=False,
+                                 action='store_true',
+                                 help='Return only the original job as it was before execution')
     parser_describe.set_defaults(func=command_describe)
 
     # Create the parser for the "delete" command
