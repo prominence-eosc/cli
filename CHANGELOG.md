@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.20.0
+## 0.20.0
 * Added a `--input` option to the `describe` command. This returns only the original JSON which can easily be used for cloning.
 
 ## 0.19.0
