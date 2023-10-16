@@ -84,7 +84,14 @@ class Task(object):
         data['image'] = self._image
         if self._command:
             data['cmd'] = self._command
-        data['runtime'] = self._runtime
+
+        if self._runtime:
+            data['runtime'] = self._runtime
+        else:
+            data['runtime'] = 'singularity'
+            if '.tar' in self._image or '.tgz' in self._image:
+                data['runtime'] = 'udocker'
+
         if self._workdir:
             data['workdir'] = self._workdir
         if self._type:
