@@ -2,6 +2,7 @@
 
 ## 0.20.0
 * Added a `--input` option to the `describe` command. This returns only the original JSON which can easily be used for cloning.
+* Added automatic selection of container runtime to the Python client, using the same method as used in the CLI.
 
 ## 0.19.0
 * Support tailing standard output/error using `--tail` option to `stdout` and `stderr`.
