@@ -262,6 +262,15 @@ class ProminenceClient(object):
         headers = dict(self._headers)
         headers['Content-type'] = 'application/json'
 
+        # Handle automatic container runtime selection
+        if 'tasks' in job:
+            if job['tasks']:
+                for task in job['tasks']:
+                    if 'runtime' not in task:
+                        task['runtime'] = 'singularity'
+                        if '.tar' in task['image'] or '.tgz' in task['image']:
+                            task['runtime'] = 'udocker'
+
         try:
             response = requests.post(self._url + '/jobs', data=json.dumps(job), timeout=self._timeout, headers=headers, verify=self._verify)
         except requests.exceptions.RequestException as err:
