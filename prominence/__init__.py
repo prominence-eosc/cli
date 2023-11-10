@@ -10,4 +10,4 @@ from prominence.notification import Notification
 from prominence.dependency import Dependency
 from prominence.factory import ParameterSweep, Zip, Repeat, ParameterSet
 
-__version__ = '0.20.0'
+__version__ = '0.20.1'
