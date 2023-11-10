@@ -420,7 +420,7 @@ class ProminenceClient(object):
 
         raise exceptions.DeletionError('Unknown error')
 
-    def describe_job(self, job_id, input_only):
+    def describe_job(self, job_id, input_only=False):
         """
         Describe a specific job
         """

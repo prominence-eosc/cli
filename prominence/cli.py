@@ -654,7 +654,7 @@ def command_download(args):
     try:
         client = ProminenceClient(authenticated=True)
         if args.resource == 'job':
-            jobs.append(client.describe_job(args.id))
+            jobs.append(client.describe_job(args.id, False))
         else:
             jobs = client.list_jobs('completed', 1, '', '', args.id, True)
     except exceptions.AuthenticationError:
@@ -827,7 +827,7 @@ def _get_status(client, args):
     """
     """
     if not args.job:
-        data = client.describe_job(args.id)
+        data = client.describe_job(args.id, False)
         if 'status' in data:
             return data['status']
     return None
