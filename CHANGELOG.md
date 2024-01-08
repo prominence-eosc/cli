@@ -1,5 +1,8 @@
 # Change Log
 
+## 0.20.2
+* (bug fix) `--concurrency` option when downloading now works correctly.
+
 ## 0.20.1
 * (bug fix) Adding `--input` broke some things due to a minor bug.
 
