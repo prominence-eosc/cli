@@ -1479,12 +1479,12 @@ def create_parser():
     parser_create.add_argument('--memory',
                                dest='memory',
                                default=1,
-                               type=int,
+                               type=float,
                                help='Memory in GB per node. Only one of --memory or --memory-per-cpu can be specified.')
     parser_create.add_argument('--memory-per-cpu',
                                dest='memorypercpu',
                                default=0,
-                               type=int,
+                               type=float,
                                help='Memory in GB per core per node. Only one of --memory or --memory-per-cpu can be \
                                      specified.')
     parser_create.add_argument('--cpus',
