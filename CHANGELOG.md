@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.21.0
+## 0.21.0
 * Support floating point memory and memory per CPU.
 
 ## 0.20.2
